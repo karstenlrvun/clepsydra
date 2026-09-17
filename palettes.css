@@ -133,113 +133,25 @@ html[data-theme="dark"]{
   --flag1:#ff001e; --flag2:#ca7400; --flag3:#009f2a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009a9a; --flag7:#a200fe;
 }
 [data-palette="vellum"][data-theme="dark"]{
-  --bg:#1a160f; --panel:#241f16; --ink:#ece3cf; --muted:#a89a80; --faint:#7a6f5c;
-  --line:#3a3222; --coral:#d4795e; --accent-soft:#3f2a1f; --raise:#2c2519; --again:#e28073;
-  --again-bg:#462c23; --again-br:#6d4036; --good:#a9bd72; --good-bg:#393b25; --good-br:#565c39;
-  --easy:#c3a3e0; --easy-bg:#3f353d; --easy-br:#615167; --amber:#d4a24a; --warn-bg:#43351c;
-  --warn-br:#685128; --warn-ink:#d7ab5d; --bad-bg:#462c23; --bad-br:#6d4036; --bad-ink:#e28879;
-  --toast:#241f16;
+  --bg:#2e2922; --panel:#39332a; --ink:#ece3cf; --muted:#a89a80; --faint:#7a6f5c;
+  --line:#504837; --coral:#e2856a; --accent-soft:#563f34; --raise:#413a2d; --again:#ff9c8e;
+  --again-bg:#5d4138; --again-br:#86574c; --good:#b6ca7e; --good-bg:#4f513a; --good-br:#6d7450;
+  --easy:#d3b3f1; --easy-bg:#554b53; --easy-br:#79687f; --amber:#d4a24a; --warn-bg:#5a4b31;
+  --warn-br:#80683f; --warn-ink:#e4b86a; --bad-bg:#5d4138; --bad-br:#86574c; --bad-ink:#fea191;
+  --toast:#39332a;
   /* flag 1-7: fixed hues (Anki's own order), lightness solved per
      palette so each clears 3:1 on this block's --panel. See
      in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
   --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
 }
-[data-palette="catppuccin"][data-theme="light"]{
-  --bg:#eff1f5; --panel:#e6e9ef; --ink:#4c4f69; --muted:#66687d; --faint:#8a8d9b;
-  --line:#ccd0da; --coral:#de590c; --accent-soft:#f0e1db; --raise:#ffffff; --again:#bc082f;
-  --again-bg:#edd2dd; --again-br:#e6a9b9; --good:#20730e; --good-bg:#d7e6d9; --good-br:#b3d7b0;
-  --easy:#7a1cf5; --easy-bg:#e1d7f6; --easy-br:#d0bdec; --amber:#be7208; --warn-bg:#e9e1d7;
-  --warn-br:#e3cba9; --warn-ink:#8b5817; --bad-bg:#edd2dd; --bad-br:#e6a9b9; --bad-ink:#b40836;
-  --toast:#4c4f69;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#c47000; --flag3:#009b29; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009495; --flag7:#a200fe;
-}
-[data-palette="catppuccin"][data-theme="dark"]{
-  --bg:#1e1e2e; --panel:#181825; --ink:#cdd6f4; --muted:#a6adc8; --faint:#6c7086;
-  --line:#45475a; --coral:#f9b58b; --accent-soft:#4b3b3f; --raise:#313244; --again:#fa86a6;
-  --again-bg:#4f344a; --again-br:#7b4861; --good:#9cef95; --good-bg:#3b4a48; --good-br:#54745d;
-  --easy:#cba2fb; --easy-bg:#43395d; --easy-br:#665386; --amber:#fce3ac; --warn-bg:#4e494a;
-  --warn-br:#7c7062; --warn-ink:#fce3b0; --bad-bg:#4f344a; --bad-br:#7b4861; --bad-ink:#fa8eb1;
-  --toast:#181825;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
-}
-[data-palette="rosepine"][data-theme="light"]{
-  --bg:#faf4ed; --panel:#fffaf3; --ink:#575279; --muted:#6b6782; --faint:#8f8a9b;
-  --line:#dfdad9; --coral:#c86a65; --accent-soft:#f6e6de; --raise:#ffffff; --again:#ac3e5d;
-  --again-bg:#f3e0dc; --again-br:#e7c3c5; --good:#17698b; --good-bg:#dfe2df; --good-br:#b5c9cd;
-  --easy:#77579d; --easy-bg:#ede3e3; --easy-br:#d9ccd8; --amber:#c1760e; --warn-bg:#f4e4d0;
-  --warn-br:#e7cdac; --warn-ink:#8c5b26; --bad-bg:#f3e0dc; --bad-br:#e7c3c5; --bad-ink:#a45379;
-  --toast:#575279;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#d77b00; --flag3:#00a82d; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00a2a2; --flag7:#a200fe;
-}
-[data-palette="rosepine"][data-theme="dark"]{
-  --bg:#191724; --panel:#1f1d2e; --ink:#e0def4; --muted:#908caa; --faint:#6e6a86;
-  --line:#403d52; --coral:#f2bab8; --accent-soft:#443743; --raise:#26233a; --again:#f86c94;
-  --again-bg:#4a273d; --again-br:#763751; --good:#92d6e2; --good-bg:#343f4e; --good-br:#4d6573;
-  --easy:#c6a2f3; --easy-bg:#3e3551; --easy-br:#60507a; --amber:#f9c274; --warn-bg:#4c3b34;
-  --warn-br:#7b5e42; --warn-ink:#fac681; --bad-bg:#4a273d; --bad-br:#763751; --bad-ink:#f9739c;
-  --toast:#1f1d2e;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
-}
-[data-palette="gruvbox"][data-theme="light"]{
-  --bg:#fbf1c7; --panel:#f2e5bc; --ink:#3c3836; --muted:#665c54; --faint:#928374;
-  --line:#e3d5ab; --coral:#a93c09; --accent-soft:#eeddb8; --raise:#fdf6da; --again:#97060c;
-  --again-bg:#edd2b0; --again-br:#dda489; --good:#6a6504; --good-bg:#ece2ad; --good-br:#d8ce85;
-  --easy:#9d3174; --easy-bg:#efdaba; --easy-br:#dcb6a6; --amber:#b97408; --warn-bg:#eedfb4;
-  --warn-br:#e0c893; --warn-ink:#8a5708; --bad-bg:#edd2b0; --bad-br:#dda489; --bad-ink:#840609;
-  --toast:#3c3836;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#c16f00; --flag3:#009828; --flag4:#0077fe; --flag5:#fb0096; --flag6:#009191; --flag7:#a200fe;
-}
-[data-palette="gruvbox"][data-theme="dark"]{
-  --bg:#282828; --panel:#32302f; --ink:#ebdbb2; --muted:#bdae93; --faint:#928374;
-  --line:#504945; --coral:#f4872f; --accent-soft:#573a21; --raise:#3c3836; --again:#f74d39;
-  --again-bg:#361a17; --again-br:#873127; --good:#d1d50c; --good-bg:#4b4b25; --good-br:#6a6c21;
-  --easy:#e797ac; --easy-bg:#503b40; --easy-br:#734c56; --amber:#f7bf3b; --warn-bg:#5a4b26;
-  --warn-br:#856926; --warn-ink:#f8c651; --bad-bg:#5a2c27; --bad-br:#873127; --bad-ink:#f75e48;
-  --toast:#32302f;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#aa3cff;
-}
-[data-palette="legacy"][data-theme="light"]{
-  --bg:#ffffff; --panel:#faf8f5; --ink:#1b1a18; --muted:#77746e; --faint:#928f89;
-  --line:#e7e3dc; --coral:#d85a30; --accent-soft:#fbeeea; --raise:#ffffff; --again:#b03b2e;
-  --again-bg:#f5e6e4; --again-br:#e6c0bc; --good:#2d774b; --good-bg:#e4eee8; --good-br:#bcd5c7;
-  --easy:#6a59c9; --easy-bg:#eeecf9; --easy-br:#d4d0f0; --amber:#b07715; --warn-bg:#f5ede1;
-  --warn-br:#e6d3b4; --warn-ink:#865d16; --bad-bg:#f5e6e4; --bad-br:#e6c0bc; --bad-ink:#863228;
-  --toast:#1b1a18;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#d27900; --flag3:#00a62c; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00a0a1; --flag7:#a200fe;
-}
-[data-palette="legacy"][data-theme="dark"]{
-  --bg:#0e1230; --panel:#181d47; --ink:#e9ecf8; --muted:#a3abd0; --faint:#7780ab;
-  --line:#2a3169; --coral:#ff8a5c; --accent-soft:#3e2a39; --raise:#1f2555; --again:#ff8175;
-  --again-bg:#432a3f; --again-br:#73414d; --good:#5ecb92; --good-bg:#203b46; --good-br:#306059;
-  --easy:#b0a4ff; --easy-bg:#32325e; --easy-br:#524f87; --amber:#e0aa4a; --warn-bg:#3c3336;
-  --warn-br:#66523b; --warn-ink:#e1b362; --bad-bg:#432a3f; --bad-br:#73414d; --bad-ink:#fc9087;
-  --toast:#181d47;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
-}
+
+
+
+
+
+
+
+
 /* Two bold, high-contrast additions (2026-08-15, his request: "contrast
    well / are different from the existing seven... be bold"). Dracula is a
    real, well-known vivid-on-near-black developer theme -- a deliberately
@@ -275,30 +187,8 @@ html[data-theme="dark"]{
      in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
   --flag1:#ff1724; --flag2:#ff9404; --flag3:#00ff49; --flag4:#177cff; --flag5:#ff0699; --flag6:#00ffff; --flag7:#af50ff;
 }
-[data-palette="amphora"][data-theme="light"]{
-  --bg:#f0dcc3; --panel:#e6cca8; --ink:#241a10; --muted:#5c4530; --faint:#8a6f4f;
-  --line:#d4b78c; --coral:#a8331a; --accent-soft:#e8c4a0; --raise:#f8ecd8; --again:#8f1d10;
-  --again-bg:#e8c9b8; --again-br:#d4a488; --good:#3f5c2e; --good-bg:#dbe0c4; --good-br:#bcc699;
-  --easy:#4a3a7a; --easy-bg:#ddd6ef; --easy-br:#c0b4e0; --amber:#9c6b0a; --warn-bg:#ecdcb4;
-  --warn-br:#d6bc80; --warn-ink:#6b4808; --bad-bg:#e8c9b8; --bad-br:#d4a488; --bad-ink:#6e130a;
-  --toast:#241a10;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#e8001a; --flag2:#ab6100; --flag3:#008622; --flag4:#006eed; --flag5:#df0084; --flag6:#008181; --flag7:#a200fe;
-}
-[data-palette="amphora"][data-theme="dark"]{
-  --bg:#100c08; --panel:#1c140d; --ink:#f0dcc3; --muted:#c4a37e; --faint:#8a6f4f;
-  --line:#3a2c1c; --coral:#e0693a; --accent-soft:#3f2416; --raise:#241a10; --again:#e66a57;
-  --again-bg:#3f2019; --again-br:#5e3226; --good:#8fae5c; --good-bg:#2a3320; --good-br:#425030;
-  --easy:#a08ce0; --easy-bg:#332a52; --easy-br:#4c3f78; --amber:#e0a83a; --warn-bg:#3f3018;
-  --warn-br:#5e4826; --warn-ink:#e8c477; --bad-bg:#3f2019; --bad-br:#5e3226; --bad-ink:#f0684a;
-  --toast:#1c140d;
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
-}
+
+
 /* Five new palettes (2026-08-16), replacing Kanagawa/Everforest -- see the
    comment above PALETTES. Each was grounded in real research (written up in
    full for him as an artifact), not guessed. Two of the five were reworked
@@ -386,33 +276,17 @@ html[data-theme="dark"]{
    `color-mix(in srgb, var(--x) N%, transparent)` box-shadow instead, same
    `color-mix()` this file's heatmap accent already uses elsewhere. */
 [data-palette="marble"][data-theme="light"]{
-  --bg:#f4f0e6; --panel:#ece4d2; --ink:#2b241c; --muted:#6b6152; --faint:#8c7d64;
-  --line:#ddd2b8; --coral:#a97a1f; --accent-soft:#f0e3bf; --raise:#fbf8f0; --again:#9c2c1e;
-  --again-bg:#f0dcd2; --again-br:#ddb6a4; --good:#3f6b46; --good-bg:#dde6dc; --good-br:#b9cdb9;
-  --easy:#6b3f8a; --easy-bg:#e6ddf0; --easy-br:#cbb4e0; --amber:#96690f; --warn-bg:#eee0bc;
-  --warn-br:#dcc281; --warn-ink:#7a5810; --bad-bg:#f0dcd2; --bad-br:#ddb6a4; --bad-ink:#6b1d14;
-  --toast:#2b241c;
-  --texture:linear-gradient(103deg,transparent 41%,rgba(169,122,31,.10) 42%,rgba(169,122,31,.04) 43%,transparent 45%),
-    linear-gradient(66deg,transparent 58%,rgba(43,36,28,.05) 59%,transparent 61%),
-    linear-gradient(18deg,transparent 27%,rgba(169,122,31,.07) 28%,transparent 30%);
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#ff001e; --flag2:#bf6d00; --flag3:#009828; --flag4:#0077fe; --flag5:#f80094; --flag6:#009191; --flag7:#a200fe;
+  --bg:#f6f1e3; --panel:#fcf9ef; --ink:#2a2214; --muted:#6e6044; --faint:#a79d87; --line:#b08a2c; --coral:#8c6a16; --accent-soft:#ebe4ce; --raise:#fefcf8;
+  --again:#97301f; --again-bg:#eddbd0; --again-br:#d8b1a4; --good:#3c6a3f; --good-bg:#dfe4d5; --good-br:#b7c6b0; --easy:#69408a; --easy-bg:#e6dde0; --easy-br:#c7b6cb;
+  --amber:#7a5810; --warn-bg:#e7dfcb; --warn-br:#cbbc9a; --warn-ink:#7a5810; --bad-bg:#eddbd0; --bad-br:#d8b1a4; --bad-ink:#7c2719; --toast:#2a2214;
+  --gold:#b08a2c; --gold2:#d9b455;
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
 }
 [data-palette="marble"][data-theme="dark"]{
-  --bg:#151109; --panel:#211a10; --ink:#ede3c8; --muted:#b8a67a; --faint:#7d6f4c;
-  --line:#392c1a; --coral:#d9a53f; --accent-soft:#3a2c15; --raise:#251d12; --again:#de7561;
-  --again-bg:#3f241a; --again-br:#613326; --good:#7fae7a; --good-bg:#243322; --good-br:#3f5540;
-  --easy:#b090d9; --easy-bg:#2e2640; --easy-br:#493a63; --amber:#e0b355; --warn-bg:#3a2c10;
-  --warn-br:#5c451a; --warn-ink:#e8bd66; --bad-bg:#3f241a; --bad-br:#613326; --bad-ink:#e6836f;
-  --toast:#211a10;
-  --texture:linear-gradient(103deg,transparent 41%,rgba(217,165,63,.09) 42%,rgba(217,165,63,.03) 43%,transparent 45%),
-    linear-gradient(66deg,transparent 58%,rgba(237,227,200,.04) 59%,transparent 61%),
-    linear-gradient(18deg,transparent 27%,rgba(217,165,63,.06) 28%,transparent 30%);
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --bg:#2d2a22; --panel:#363126; --ink:#f0e5c8; --muted:#b9a776; --faint:#746849; --line:#d2a545; --coral:#e2b95a; --accent-soft:#615338; --raise:#423e33;
+  --again:#ffac97; --again-bg:#62483b; --again-br:#8b5e50; --good:#a5d29c; --good-bg:#4f5440; --good-br:#68775a; --easy:#d6b6fe; --easy-bg:#584d53; --easy-br:#796980;
+  --amber:#e8bd66; --warn-bg:#62543b; --warn-br:#8d784f; --warn-ink:#f2c770; --bad-bg:#62483b; --bad-br:#8b5e50; --bad-ink:#ffab9a; --toast:#363126;
+  --gold:#d2a545; --gold2:#f0cf7a;
   --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
 }
 [data-palette="steel"][data-theme="light"]{
@@ -430,12 +304,12 @@ html[data-theme="dark"]{
   --flag1:#ff001e; --flag2:#bf6d00; --flag3:#009828; --flag4:#0077fe; --flag5:#f80094; --flag6:#009191; --flag7:#a200fe;
 }
 [data-palette="steel"][data-theme="dark"]{
-  --bg:#16191b; --panel:#202426; --ink:#dfe3e5; --muted:#a7aeb2; --faint:#6c7377;
-  --line:#33393c; --coral:#d97c5c; --accent-soft:#3a2c24; --raise:#262b2e; --again:#e08268;
-  --again-bg:#3f2c24; --again-br:#634033; --good:#7fae8e; --good-bg:#26362c; --good-br:#3f5747;
-  --easy:#8fa3c9; --easy-bg:#262e3d; --easy-br:#3c4a63; --amber:#cda54c; --warn-bg:#3a301b;
-  --warn-br:#5c4828; --warn-ink:#d4ac5c; --bad-bg:#3f2c24; --bad-br:#634033; --bad-ink:#e3927a;
-  --toast:#202426;
+  --bg:#272b2d; --panel:#323638; --ink:#dfe3e5; --muted:#a7aeb2; --faint:#6c7377;
+  --line:#464d50; --coral:#e38565; --accent-soft:#4e3f37; --raise:#393e41; --again:#f8987d;
+  --again-bg:#533f37; --again-br:#795447; --good:#91c1a0; --good-bg:#39493f; --good-br:#536c5b;
+  --easy:#9bb0d6; --easy-bg:#394151; --easy-br:#505e79; --amber:#cda54c; --warn-bg:#4e432e;
+  --warn-br:#715c3c; --warn-ink:#d7af5f; --bad-bg:#533f37; --bad-br:#795447; --bad-ink:#f19e86;
+  --toast:#323638;
   --texture:repeating-linear-gradient(95deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,
     rgba(0,0,0,.05) 1px,rgba(0,0,0,.05) 2px,transparent 2px,transparent 3px);
   /* flag 1-7: fixed hues (Anki's own order), lightness solved per
@@ -461,12 +335,12 @@ html[data-theme="dark"]{
   --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
 }
 [data-palette="glass"][data-theme="dark"]{
-  --bg:#12181f; --panel:rgba(27,35,44,.55); --ink:#e6edf3; --muted:#a7b4bf; --faint:#66727d;
-  --line:#2c3844; --coral:#5ec2e8; --accent-soft:#1c2e38; --raise:rgba(33,43,53,.62); --again:#e2687a;
-  --again-bg:#3a2229; --again-br:#5c333e; --good:#6fcba8; --good-bg:#193226; --good-br:#2b4d3c;
-  --easy:#a79af0; --easy-bg:#241f3e; --easy-br:#392f5c; --amber:#e8c168; --warn-bg:#392c14;
-  --warn-br:#5c4720; --warn-ink:#eec478; --bad-bg:#3a2229; --bad-br:#5c333e; --bad-ink:#ef8797;
-  --toast:#1b232c;
+  --bg:#242b32; --panel:rgba(46,55,64,.55); --ink:#e6edf3; --muted:#a7b4bf; --faint:#66727d;
+  --line:#404d5a; --coral:#5ec2e8; --accent-soft:#30424d; --raise:rgba(53,63,74,.62); --again:#fe8192;
+  --again-bg:#4f363d; --again-br:#734853; --good:#6fcba8; --good-bg:#2d473a; --good-br:#406351;
+  --easy:#a79af0; --easy-bg:#373354; --easy-br:#4e4473; --amber:#e8c168; --warn-bg:#4e4028;
+  --warn-br:#735d36; --warn-ink:#eec478; --bad-bg:#4f363d; --bad-br:#734853; --bad-ink:#f28a9a;
+  --toast:#2e3740;
   --texture:radial-gradient(55% 40% at 12% -5%,rgba(94,194,232,.16),transparent 60%),
     radial-gradient(45% 35% at 100% 100%,rgba(94,194,232,.10),transparent 65%);
   --glass-blur:blur(16px) saturate(170%);
@@ -487,18 +361,17 @@ html[data-theme="dark"]{
    one blurs what its ancestor already blurred), so only the OUTER tier
    (the --panel consumers) gets blur; the inner (--raise) tier just inherits
    plain translucency from --raise itself above, no second blur pass. */
-[data-palette="glass"] .bar .icon:active, [data-palette="glass"] .rate, [data-palette="glass"] .revealBtn,
-[data-palette="glass"] .drillInput, [data-palette="glass"] .drillTile, [data-palette="glass"] .chip,
-[data-palette="glass"] .dir, [data-palette="glass"] .startBtn:disabled, [data-palette="glass"] .stepper,
-[data-palette="glass"] .calNav:active, [data-palette="glass"] .calCell, [data-palette="glass"] .calGearBtn:active,
-[data-palette="glass"] .calGearPanel, [data-palette="glass"] .dayDetail, [data-palette="glass"] .searchInput,
-[data-palette="glass"] .stackbar, [data-palette="glass"] .histBarWrap, [data-palette="glass"] .palMini,
-[data-palette="glass"] .field input[type=number], [data-palette="glass"] .field input[type=text],
-[data-palette="glass"] .field input[type=password], [data-palette="glass"] .field .sel, [data-palette="glass"] .act,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .bar .icon:active, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .rate, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .revealBtn,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .drillInput, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .drillTile, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .chip,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .dir, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .startBtn:disabled, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .stepper,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .calNav:active, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .calCell, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .calGearBtn:active,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .calGearPanel, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .dayDetail, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .searchInput,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .stackbar, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .histBarWrap, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .palMini,
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .field input[type=number], :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .field input[type=text],
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .field input[type=password], :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .field .sel, :is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) .act,
 [data-palette="glass"][data-layout="landscape"] #prompt, [data-palette="glass"][data-layout="landscape"] .recapCard.on,
 [data-palette="glass"][data-layout="landscape"] #drillPrompt, [data-palette="glass"][data-layout="landscape"] #scHome .sect{
-  backdrop-filter:var(--glass-blur,none); -webkit-backdrop-filter:var(--glass-blur,none);
-  box-shadow:var(--glass-shadow,none);
+  box-shadow:var(--glass-shadow,none);   /* blur moved to the large-surface rule at the foot of this file, 2026-09-17 */
 }
 [data-palette="neon"][data-theme="light"]{
   --bg:#f5f4fb; --panel:#ebe9f7; --ink:#16142b; --muted:#514f72; --faint:#85839f;
@@ -526,12 +399,12 @@ html[data-theme="dark"]{
      are untouched -- they were never the complaint. Glow trimmed to match:
      a canvas this much lighter has less room to bloom into, so the widest
      layer is a little tighter and both alphas came down a few points. */
-  --bg:#181430; --panel:#221c3d; --ink:#f0eeff; --muted:#aca9d4; --faint:#6f6b96;
-  --line:#372e5c; --coral:#ff4aa8; --accent-soft:#33203f; --raise:#251e42; --again:#ff4568;
-  --again-bg:#3a1c2c; --again-br:#602942; --good:#33f5a8; --good-bg:#123329; --good-br:#1f5240;
-  --easy:#9a79ff; --easy-bg:#2a2050; --easy-br:#453268; --amber:#ffce3d; --warn-bg:#3a2c10;
-  --warn-br:#5c451a; --warn-ink:#ffd766; --bad-bg:#3a1c2c; --bad-br:#602942; --bad-ink:#ff7590;
-  --toast:#221c3d;
+  --bg:#292543; --panel:#332e51; --ink:#f0eeff; --muted:#aca9d4; --faint:#6f6b96;
+  --line:#4a4171; --coral:#ff5fbb; --accent-soft:#463253; --raise:#373056; --again:#ff7592;
+  --again-bg:#4e2e3e; --again-br:#763c55; --good:#33f5a8; --good-bg:#25463b; --good-br:#346653;
+  --easy:#b292ff; --easy-bg:#3c3365; --easy-br:#58467e; --amber:#ffce3d; --warn-bg:#4d3f23;
+  --warn-br:#71592f; --warn-ink:#ffd766; --bad-bg:#4e2e3e; --bad-br:#763c55; --bad-ink:#ff7590;
+  --toast:#332e51;
   --glow-text:0 0 4px currentColor,0 0 11px currentColor,0 0 20px currentColor;
   --glow-alpha-strong:65%; --glow-alpha-soft:42%;
   /* flag 1-7: fixed hues (Anki's own order), lightness solved per
@@ -547,15 +420,7 @@ html[data-theme="dark"]{
    those set colour to white-on-fill, not the accent, so currentColor here
    would glow white -- they get an explicit fill-coloured box-shadow below
    instead. */
-[data-palette="neon"] .c-new, [data-palette="neon"] .c-lrn, [data-palette="neon"] .c-due,
-[data-palette="neon"] #bAgain .lbl, [data-palette="neon"] #bHard .lbl,
-[data-palette="neon"] #bGood .lbl, [data-palette="neon"] #bEasy .lbl,
-[data-palette="neon"] .chip.on, [data-palette="neon"] .stepper button,
-[data-palette="neon"] .drillFeedback.right, [data-palette="neon"] .drillFeedback.wrong,
-[data-palette="neon"] .drillInput.right, [data-palette="neon"] .drillInput.wrong,
-[data-palette="neon"] .recapCard .rc-rating{
-  text-shadow:var(--glow-text,none);
-}
+
 /* Neon glow, fill tier: solid-colour buttons/badges/dots, glowing in their
    own fill colour via color-mix() (same technique this file's heatmap
    accent already uses in renderCalGear()) rather than a fixed rgba, so the
@@ -563,20 +428,10 @@ html[data-theme="dark"]{
    sync. Two stacked shadows per element -- a tight, more opaque core and a
    wider, softer bloom -- is the standard two-layer neon-glow shape; a
    single wide shadow alone just looks like a blurry drop shadow. */
-[data-palette="neon"] .startBtn:not(:disabled), [data-palette="neon"] .act.primary{
-  box-shadow:0 0 4px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
-    0 0 22px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
-}
-[data-palette="neon"] .dot.did{
-  box-shadow:0 0 3px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
-    0 0 10px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
-}
-[data-palette="neon"] .chip.on{
-  box-shadow:0 0 3px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
-    0 0 14px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
-}
-[data-palette="neon"] #bAgain{box-shadow:0 0 3px color-mix(in srgb, var(--again) var(--glow-alpha-strong), transparent),
-  0 0 16px color-mix(in srgb, var(--again) var(--glow-alpha-soft), transparent)}
+
+
+
+
 /* Hard glows in --warn-ink, not --amber: every other button here glows in
    the exact var its own .lbl is coloured with (#bAgain/.lbl -> --again, and
    so on), and #bHard .lbl is --warn-ink. Hard reuses the --warn-* family
@@ -586,12 +441,9 @@ html[data-theme="dark"]{
    a permanent fourth on 2026-08-19 (decision 3) and neither selector list
    was revisited. Reported live -- the Hard button was the only one of four
    not glowing in Neon. */
-[data-palette="neon"] #bHard{box-shadow:0 0 3px color-mix(in srgb, var(--warn-ink) var(--glow-alpha-strong), transparent),
-  0 0 16px color-mix(in srgb, var(--warn-ink) var(--glow-alpha-soft), transparent)}
-[data-palette="neon"] #bGood{box-shadow:0 0 3px color-mix(in srgb, var(--good) var(--glow-alpha-strong), transparent),
-  0 0 16px color-mix(in srgb, var(--good) var(--glow-alpha-soft), transparent)}
-[data-palette="neon"] #bEasy{box-shadow:0 0 3px color-mix(in srgb, var(--easy) var(--glow-alpha-strong), transparent),
-  0 0 16px color-mix(in srgb, var(--easy) var(--glow-alpha-soft), transparent)}
+
+
+
 [data-palette="neon"] .drillTile.right{box-shadow:0 0 14px color-mix(in srgb, var(--good) var(--glow-alpha-soft), transparent)}
 [data-palette="neon"] .drillTile.wrong{box-shadow:0 0 14px color-mix(in srgb, var(--again) var(--glow-alpha-soft), transparent)}
 /* Wood -- new 2026-08-16, the honey-oak-and-brass counterpart to Marble's
@@ -604,30 +456,141 @@ html[data-theme="dark"]{
    rating trio reads as "this piece of furniture" rather than generic
    red/green/purple. */
 [data-palette="wood"][data-theme="light"]{
-  --bg:#e8d1a0; --panel:#dcc088; --ink:#2e2013; --muted:#6b4f2e; --faint:#886d43;
-  --line:#c7a76e; --coral:#8f4e18; --accent-soft:#ecd9ad; --raise:#f2e3bd; --again:#8a3220;
-  --again-bg:#e8c8ab; --again-br:#d1a17c; --good:#4a692d; --good-bg:#dde0b8; --good-br:#c0c68f;
-  --easy:#5a3f8a; --easy-bg:#ded6ef; --easy-br:#c2b3e0; --amber:#7c5510; --warn-bg:#ecd8a0;
-  --warn-br:#d6bb70; --warn-ink:#6e4c0c; --bad-bg:#e8c8ab; --bad-br:#d1a17c; --bad-ink:#6b2517;
-  --toast:#2e2013;
-  --texture:repeating-linear-gradient(0deg,rgba(46,32,19,.055) 0,rgba(46,32,19,.055) 1px,transparent 1px,transparent 5px),
-    repeating-linear-gradient(0deg,rgba(46,32,19,.03) 2px,rgba(46,32,19,.03) 3px,transparent 3px,transparent 11px);
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
-  --flag1:#d80017; --flag2:#9f5a00; --flag3:#007c1f; --flag4:#0066dd; --flag5:#d0007b; --flag6:#007777; --flag7:#a200fe;
+  --bg:#ead9b5; --panel:#f2e5c8; --ink:#2e2013; --muted:#6b4f2e; --faint:#a08967; --line:#cdb180; --coral:#8f4e18; --accent-soft:#e3ceae; --raise:#f9f3e6;
+  --again:#8a3220; --again-bg:#e2caaf; --again-br:#cda58c; --good:#426024; --good-bg:#d9d2b1; --good-br:#b6b890; --easy:#5a3f8a; --easy-bg:#dbccbf; --easy-br:#bba9b2;
+  --amber:#6e4c0c; --warn-bg:#ddcdaa; --warn-br:#c0ab81; --warn-ink:#6e4c0c; --bad-bg:#e2caaf; --bad-br:#cda58c; --bad-ink:#71291a; --toast:#2e2013;
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
 }
 [data-palette="wood"][data-theme="dark"]{
-  --bg:#1c130a; --panel:#291c10; --ink:#e8d2a0; --muted:#b89361; --faint:#7d6440;
-  --line:#3f2c18; --coral:#c4813a; --accent-soft:#3a2712; --raise:#241a0e; --again:#d97954;
-  --again-bg:#3f2419; --again-br:#623527; --good:#8fae5c; --good-bg:#2f3a1f; --good-br:#4a5c30;
-  --easy:#a98ce0; --easy-bg:#332a52; --easy-br:#4c3f78; --amber:#d9a43e; --warn-bg:#3a2c10;
-  --warn-br:#5c451a; --warn-ink:#e0b355; --bad-bg:#3f2419; --bad-br:#623527; --bad-ink:#e07f5c;
-  --toast:#291c10;
-  --texture:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0,rgba(0,0,0,.10) 1px,transparent 1px,transparent 5px),
-    repeating-linear-gradient(0deg,rgba(232,210,160,.035) 2px,rgba(232,210,160,.035) 3px,transparent 3px,transparent 11px);
-  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
-     palette so each clears 3:1 on this block's --panel. See
-     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --bg:#34271b; --panel:#3f3123; --ink:#ecd9ae; --muted:#bd9c6c; --faint:#7f6746; --line:#56422e; --coral:#d38f48; --accent-soft:#5f452d; --raise:#493c2f;
+  --again:#ffa47f; --again-bg:#624432; --again-br:#855841; --good:#aecb7b; --good-bg:#544e34; --good-br:#696c44; --easy:#c9b1fe; --easy-bg:#59484d; --easy-br:#726077;
+  --amber:#e0b355; --warn-bg:#624e30; --warn-br:#856a3d; --warn-ink:#edc062; --bad-bg:#624432; --bad-br:#855841; --bad-ink:#fcaa88; --toast:#3f3123;
   --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
 }
+
+/* ===== THEME REWORK 2026-09-17 (Clepsydra; the audit handoff's sections B and D) =====
+   Roster, twelve: Vellum, Dracula, Steel, Glass, Gilded (key `marble`), Wood
+   (key `wood`, no grain), Neon, Frost, Titanium, Bronze, Enamel, Obsidian Glass.
+   Shelved, not deleted: archive/palettes-shelved.css. A save naming a shelved
+   palette falls back to Vellum by itself. Every dark ground was lifted to
+   OKLab L >= 0.285 (Dracula's own level) with its neutrals moved together, so
+   a near-black screen stops acting as a mirror; the accents were not touched.
+   Generated by tools/gen_palettes.py, which also prints the contrast report. */
+[data-palette="frost"][data-theme="light"]{
+  --bg:#e6edf3; --panel:rgba(255,255,255,.55); --ink:#1b2632; --muted:#516170; --faint:#909ca7; --line:#c2cfdb; --coral:#1c759a; --accent-soft:#d3e3eb; --raise:rgba(255,255,255,.65);
+  --again:#ad3345; --again-bg:#e9dadf; --again-br:#dab0b9; --good:#236f55; --good-bg:#d4e3e1; --good-br:#a9c6be; --easy:#5a4dc2; --easy-bg:#ddddf1; --easy-br:#bcbae6;
+  --amber:#775709; --warn-bg:#e0ddd3; --warn-br:#c4ba9e; --warn-ink:#775709; --bad-bg:#e9dadf; --bad-br:#dab0b9; --bad-ink:#8e2a39; --toast:#1b2632;
+  --texture:radial-gradient(60% 45% at 10% -5%,rgba(255,255,255,.7),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(90,160,200,.16),transparent 65%);
+  --glass-blur:blur(14px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(255,255,255,.3),0 3px 14px rgba(20,40,60,.10);
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="frost"][data-theme="dark"]{
+  --bg:#3b4654; --panel:rgba(255,255,255,.09); --ink:#f1f5f8; --muted:#c0ccd6; --faint:#88949f; --line:#566373; --coral:#9bdcf5; --accent-soft:#5c7181; --raise:rgba(255,255,255,.19);
+  --again:#ffe3ee; --again-bg:#706672; --again-br:#947581; --good:#c9fff2; --good-bg:#5c7377; --good-br:#6c8f8a; --easy:#f9eeff; --easy-bg:#666c83; --easy-br:#7f81a2;
+  --amber:#f3d48d; --warn-bg:#6e706c; --warn-br:#8f8974; --warn-ink:#fff8b0; --bad-bg:#706672; --bad-br:#947581; --bad-ink:#ffe5ee; --toast:#4d5763;
+  --texture:radial-gradient(60% 45% at 10% -5%,rgba(190,225,245,.20),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(150,190,230,.16),transparent 65%);
+  --glass-blur:blur(14px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 0 1px rgba(255,255,255,.07),0 3px 14px rgba(10,20,30,.28);
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="titanium"][data-theme="light"]{
+  --bg:#eaeef1; --panel:#f4f6f8; --ink:#1d252b; --muted:#56626b; --faint:#949da3; --line:#c8d0d6; --coral:#2b6f96; --accent-soft:#d6e2e9; --raise:#fafbfc;
+  --again:#a53b30; --again-bg:#e8dada; --again-br:#d8b3b0; --good:#33694e; --good-bg:#d7e1de; --good-br:#afc3bb; --easy:#47568c; --easy-bg:#dadee8; --easy-br:#b6bcd1;
+  --amber:#725512; --warn-bg:#dfdcd3; --warn-br:#c3b9a1; --warn-ink:#725512; --bad-bg:#e8dada; --bad-br:#d8b3b0; --bad-ink:#873027; --toast:#1d252b;
+  --rim:inset 0 1px 0 rgba(255,255,255,.9),0 1px 0 rgba(30,40,50,.10);
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="titanium"][data-theme="dark"]{
+  --bg:#252b31; --panel:#2e353c; --ink:#e3e8ec; --muted:#a6b0b8; --faint:#6c747c; --line:#434c54; --coral:#9ccbe8; --accent-soft:#475661; --raise:#394047;
+  --again:#ffa79c; --again-bg:#56494c; --again-br:#7f5c5c; --good:#9cd0b2; --good-bg:#445453; --good-br:#587169; --easy:#b9c6f7; --easy-bg:#495261; --easy-br:#646d86;
+  --amber:#d9b872; --warn-bg:#53524a; --warn-br:#786e56; --warn-ink:#e3c27b; --bad-bg:#56494c; --bad-br:#7f5c5c; --bad-ink:#fea99e; --toast:#2e353c;
+  --rim:inset 0 1px 0 rgba(255,255,255,.07),0 1px 0 rgba(0,0,0,.35);
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="bronze"][data-theme="light"]{
+  --bg:#e7efea; --panel:#f1f6f2; --ink:#1b2a26; --muted:#536661; --faint:#91a09b; --line:#bfd0c8; --coral:#8a5a22; --accent-soft:#e2dfd3; --raise:#f9fbf9;
+  --again:#9c3626; --again-bg:#e4d9d3; --again-br:#d2b1a9; --good:#2c6a4c; --good-bg:#d3e1d9; --good-br:#aac4b6; --easy:#5a4690; --easy-bg:#dadce3; --easy-br:#bbb7cf;
+  --amber:#735410; --warn-bg:#dddcce; --warn-br:#c1b89c; --warn-ink:#735410; --bad-bg:#e4d9d3; --bad-br:#d2b1a9; --bad-ink:#802c1f; --toast:#1b2a26;
+  --rim:inset 0 1px 0 rgba(255,255,255,.8);
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="bronze"][data-theme="dark"]{
+  --bg:#212d2b; --panel:#293835; --ink:#e8e3d2; --muted:#a9b3a6; --faint:#6b766d; --line:#3c504b; --coral:#d39a58; --accent-soft:#4e4f3f; --raise:#354441;
+  --again:#ffaa91; --again-bg:#534c45; --again-br:#7e6053; --good:#9fd7b6; --good-bg:#41594f; --good-br:#597869; --easy:#cdbcf9; --easy-bg:#49515c; --easy-br:#696b82;
+  --amber:#e0bb6c; --warn-bg:#515643; --warn-br:#797352; --warn-ink:#eac576; --bad-bg:#534c45; --bad-br:#7e6053; --bad-ink:#ffab95; --toast:#293835;
+  --rim:inset 0 1px 0 rgba(211,154,88,.18);
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="enamel"][data-theme="light"]{
+  --bg:#fbfcfe; --panel:#f0f4fb; --ink:#13203c; --muted:#4f5d7a; --faint:#97a0b1; --line:#1f4fbf; --coral:#1f4fbf; --accent-soft:#d1dbf2; --raise:#f8fafd;
+  --again:#b3261e; --again-bg:#e7d5da; --again-br:#daaaab; --good:#1c6b45; --good-bg:#d0dfe0; --good-br:#a4c3b9; --easy:#6a36b8; --easy-bg:#dcd8f1; --easy-br:#c0b0e3;
+  --amber:#7a5a08; --warn-bg:#dddbd4; --warn-br:#c3b99f; --warn-ink:#7a5a08; --bad-bg:#e7d5da; --bad-br:#daaaab; --bad-ink:#931f19; --toast:#13203c;
+  --rim:inset 0 10px 14px -10px rgba(255,255,255,.95),0 2px 0 rgba(31,79,191,.18);
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="enamel"][data-theme="dark"]{
+  --bg:#1c2848; --panel:#24335a; --ink:#eef2fc; --muted:#a9b6d8; --faint:#697596; --line:#7fa6ff; --coral:#8fb2ff; --accent-soft:#3d507f; --raise:#303e63;
+  --again:#ffada2; --again-bg:#544a67; --again-br:#836276; --good:#89d9af; --good-bg:#3b576d; --good-br:#527b81; --easy:#d8bbff; --easy-bg:#484e7f; --easy-br:#6b69a4;
+  --amber:#f0cd7a; --warn-bg:#515563; --warn-br:#7d786c; --warn-ink:#f0cd7a; --bad-bg:#544a67; --bad-br:#836276; --bad-ink:#ffaca2; --toast:#24335a;
+  --rim:inset 0 10px 14px -10px rgba(255,255,255,.14),0 2px 0 rgba(0,0,0,.35);
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="obsidian"][data-theme="light"]{
+  --bg:#eeecf3; --panel:rgba(255,255,255,.55); --ink:#221e2e; --muted:#5b5570; --faint:#9994a7; --line:#cfcadc; --coral:#6a4bb8; --accent-soft:#e2ddf0; --raise:rgba(255,255,255,.65);
+  --again:#ad3345; --again-bg:#ecd9df; --again-br:#ddb0b9; --good:#236f55; --good-bg:#d7e2e1; --good-br:#abc6be; --easy:#20669e; --easy-bg:#d9e2ed; --easy-br:#adc6dc;
+  --amber:#775709; --warn-bg:#e3ddd3; --warn-br:#c7ba9e; --warn-ink:#775709; --bad-bg:#ecd9df; --bad-br:#ddb0b9; --bad-ink:#8e2a39; --toast:#221e2e;
+  --texture:radial-gradient(60% 45% at 10% -5%,rgba(255,255,255,.7),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(106,75,184,.14),transparent 65%);
+  --glass-blur:blur(14px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(255,255,255,.3),0 3px 14px rgba(40,30,70,.10);
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="obsidian"][data-theme="dark"]{
+  --bg:#2b2836; --panel:rgba(248,248,248,.07); --ink:#ece9f5; --muted:#b3adc6; --faint:#797589; --line:#453f57; --coral:#c3a6ff; --accent-soft:#564d6a; --raise:rgba(248,248,248,.17);
+  --again:#ffa9bb; --again-bg:#5f4856; --again-br:#835968; --good:#8cdab6; --good-bg:#49565a; --good-br:#597670; --easy:#8cd1fe; --easy-bg:#485367; --easy-br:#567089;
+  --amber:#ecc77c; --warn-bg:#5e5450; --warn-br:#82715b; --warn-ink:#ecc77c; --bad-bg:#5f4856; --bad-br:#835968; --bad-ink:#ffabbb; --toast:#3a3744;
+  --texture:radial-gradient(60% 45% at 10% -5%,rgba(195,166,255,.18),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(120,100,190,.16),transparent 65%);
+  --glass-blur:blur(14px) saturate(150%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 0 0 1px rgba(255,255,255,.06),0 3px 16px rgba(0,0,0,.35);
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+
+/* Frost and Obsidian Glass follow Glass: see-through panels, the rim and the
+   light patches everywhere they applied before -- but BLUR on the large
+   surfaces only. The rim is a box-shadow and costs nothing; backdrop-filter
+   is paid per element per frame, and the old list put it on 27 kinds of
+   small surface. */
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"]) :is(.rate,.revealBtn,.bar,.clepPanel,.dayDetail,.calGearPanel,.shortcutsCard,.toast),
+:is([data-palette="glass"],[data-palette="frost"],[data-palette="obsidian"])[data-layout="landscape"] :is(#prompt,#answer,#drillPrompt){
+  backdrop-filter:var(--glass-blur,none); -webkit-backdrop-filter:var(--glass-blur,none);
+}
+
+/* Titanium, Bronze, Enamel: one quiet rim on the raised surfaces. */
+:is([data-palette="titanium"],[data-palette="bronze"],[data-palette="enamel"]) :is(.rate,.revealBtn,.startBtn,.browseBtn,.dir,.stepper,.clepPanel,.chip){ box-shadow:var(--rim,none); }
+[data-palette="enamel"] :is(.rate,.revealBtn,.browseBtn,.dir,.stepper,.clepPanel,.chip.on){ border-width:1.5px; }
+
+/* Gilded: a gold line round every surface with a fine inner line, a gold
+   Start, gold chips. 1.5px -- at 2px he found it "a little like a casino game".
+   No veining: noticeable texture is what he dislikes. */
+[data-palette="marble"] :is(.rate,.revealBtn,.browseBtn,.dir,.stepper,.clepPanel,.dayDetail){
+  border:1.5px solid var(--gold);
+  box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 4px color-mix(in srgb,var(--gold) 45%,transparent);
+}
+[data-palette="marble"] .startBtn:not(:disabled){ background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#1b1406; border:1.5px solid var(--gold); }
+[data-palette="marble"] .triBtn.lead{ background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#1b1406; }
+[data-palette="marble"] .triBtn.lead .tbCount{ color:#1b1406; }
+[data-palette="marble"] .chip.on{ border:1.5px solid var(--gold); color:var(--coral); }
+[data-palette="marble"] #minRingArc{ stroke:var(--gold); }
+
+/* Neon, settled 2026-09-17: "Trimmed" at rest AND the press glow. Thick
+   coloured borders, NO glow on text, one soft halo always on, and a stronger
+   glow on a grade button only while it is hovered or pressed. */
+[data-palette="neon"] #bAgain{--nc:var(--again)} [data-palette="neon"] #bHard{--nc:var(--warn-ink)}
+[data-palette="neon"] #bGood{--nc:var(--good)}   [data-palette="neon"] #bEasy{--nc:var(--easy)}
+[data-palette="neon"] #tri1{--nc:var(--again)} [data-palette="neon"] #tri2{--nc:var(--warn-ink)}
+[data-palette="neon"] #tri3{--nc:var(--good)}  [data-palette="neon"] #tri4{--nc:var(--easy)}
+[data-palette="neon"] .rate{ border:2px solid var(--nc,var(--line)); box-shadow:0 0 7px color-mix(in srgb,var(--nc,var(--coral)) 38%,transparent); transition:box-shadow .12s; }
+[data-palette="neon"] .rate:hover,[data-palette="neon"] .rate:active{ box-shadow:0 0 4px color-mix(in srgb,var(--nc,var(--coral)) 70%,transparent),0 0 20px color-mix(in srgb,var(--nc,var(--coral)) 50%,transparent); }
+[data-palette="neon"] .startBtn:not(:disabled),[data-palette="neon"] .act.primary{ box-shadow:0 0 10px color-mix(in srgb,var(--coral) 45%,transparent); }
+[data-palette="neon"] .chip.on{ border-width:2px; box-shadow:none; }
+[data-palette="neon"] .dot.did{ box-shadow:0 0 6px color-mix(in srgb,var(--coral) 40%,transparent); }

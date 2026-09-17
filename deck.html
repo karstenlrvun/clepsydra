@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.3">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.4">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.3"></script>
+<script src="decks/registry.js?v=2026.09.17.4"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.3"></script>
+<script src="shared.js?v=2026.09.17.4"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -4918,7 +4918,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.3';
+const BUILD='2026.09.17.4';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -5322,18 +5322,22 @@ function pickSoon(){
 const $=id=>document.getElementById(id);
 const PALETTES={
   vellum:     'Vellum',
-  catppuccin: 'Catppuccin',
-  rosepine:   'Rose Pine',
-  gruvbox:    'Gruvbox',
-  legacy:     'Legacy',
   dracula:    'Dracula',
-  amphora:    'Amphora',
-  marble:     'Marble',
   steel:      'Steel',
   glass:      'Glass',
+  marble:     'Gilded',          // the stored key stays `marble`; only the name and the values changed (2026-09-17)
+  wood:       'Wood',
   neon:       'Neon',
-  wood:       'Wood'
+  frost:      'Frost',
+  titanium:   'Titanium',
+  bronze:     'Bronze',
+  enamel:     'Enamel',
+  obsidian:   'Obsidian Glass'
 };
+// 2026-09-17 (Clepsydra, his call): Amphora, Legacy, Gruvbox, Catppuccin and
+// Rose Pine shelved to archive/palettes-shelved.css; five added. A save that
+// names a shelved palette falls back to Vellum by itself (normalise, and
+// applyTheme); rollTheme() ignores unknown keys in rotSeen.
 // 2026-08-16: Monokai and 8-Bit cut (too close to Dracula; an open, now-moot
 // legibility finding -- see palettes.css's roster-history comment above
 // PALETTES there for the full reasoning). Rubric reworked in place as
