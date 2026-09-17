@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.8">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.9">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.8"></script>
+<script src="decks/registry.js?v=2026.09.17.9"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.8"></script>
+<script src="shared.js?v=2026.09.17.9"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1192,6 +1192,25 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .advToggle::after{content:" ▾";font-size:11px}
 #scSet[data-adv] .advToggle::after{content:" ▴"}
 #scSet:not([data-adv]) .advOnly{display:none}
+/* ---- Stats as four tabs (2026.09.17.9) ---- */
+#scStats,#scSet,#scBrowse{line-height:1.4}
+.st-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin:4px 0 14px;position:sticky;top:0;background:var(--bg);z-index:2}
+.st-tabs button{font:inherit;font-size:14px;line-height:1.4;color:var(--muted);background:none;border:0;padding:10px 0;cursor:pointer}.st-tabs button.on{color:var(--coral);font-weight:600;box-shadow:inset 0 -2px 0 var(--coral)}
+.st-sum{font-variant-numeric:tabular-nums}.st-sum .lh-k{margin:16px 0 8px}.st-sum .lh-k:first-child{margin-top:2px}
+.sr{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:9px 0;font-size:14px;white-space:nowrap}.sr span{color:var(--muted)}.sr b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
+.st-pva{display:flex;align-items:flex-end;gap:8px;height:74px}.st-pva div{flex:1;display:flex;gap:2px;align-items:flex-end;height:100%}.st-pva i{flex:1;border-radius:3px 3px 0 0;display:block;min-height:1px}
+.p{background:var(--faint)}.a{background:var(--coral)}.lh-ax.key{justify-content:flex-start;gap:16px}.lh-ax span{flex:0 1 auto}.st-pva+.lh-ax span{flex:1;text-align:center}
+.st-hb{display:grid;gap:8px;position:relative;font-size:13px;color:var(--muted)}.st-hb div{display:grid;grid-template-columns:36px 1fr 64px;gap:8px;align-items:center}.st-hb u{display:block;height:9px;border-radius:5px;background:var(--panel);text-decoration:none;overflow:hidden}
+.st-hb i{display:block;height:100%;background:var(--coral);opacity:.4}.st-hb .cur i{opacity:1}.st-hb .cur span,.st-hb .cur b{color:var(--ink)}.st-hb b{font-weight:500;text-align:right}.st-hb em{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1.5px dashed var(--ink)}
+.st-gauge{position:relative;height:12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);margin:6px 0 2px}.st-gauge u{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--good);opacity:.7}.st-gauge i{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
+.st-gauge.meter{background:linear-gradient(90deg,var(--good) 0 56%,var(--amber) 56% 72%,var(--coral) 72%);opacity:.85}
+#scStats details.flat>summary{list-style:none;pointer-events:none;cursor:default;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:14px 0 8px}#scStats details.flat>summary::-webkit-details-marker{display:none}#scStats details.flat>summary::after{content:none}
+#scStats .statRow{gap:14px}#scStats .statRow>span:first-child{flex:0 1 auto}#scStats .statRow>:last-child{text-align:right}
+@media (min-width:1100px){
+  #scStats .st-tabs,#scStats .dirs{max-width:560px}
+  #scStats .st-tab{column-count:2;column-gap:56px;max-width:1320px}#scStats .st-tab>*{break-inside:avoid;margin-top:0}
+  #scStats .st-tab[data-tab="days"]{column-count:1;max-width:760px}
+}
 /* ---- the lean Home (2026.09.17.8): one line spacing, six sizes, no wrapping rows ---- */
 #leanHome{display:flex;flex-direction:column;gap:12px;line-height:1.4;font-variant-numeric:tabular-nums;min-height:100%}
 #leanHome button{font:inherit;line-height:1.4;color:inherit;-webkit-appearance:none;appearance:none;cursor:pointer}
@@ -5008,6 +5027,68 @@ function reverseCheckHtml(){
     (r.harder?'<b>That is the harder case.</b> New words opened now are paid for in a fortnight: at 50 a day this heads for well over an hour a day. 20–25 a day holds.'
              :'That is no harder than recognising them, so the rate you are opening them at should hold.')+'</div>';
 }
+/* ---- Stats as four tabs: the summaries (2026.09.17.9) ----
+   Each tab opens on pictures and one-line rows; vocabula's tables follow
+   beneath, unfolded. sr() is the one-line row: a label and a value that are
+   each short enough to share a phone's width, so neither ever wraps. The
+   suite holds every row these builders can produce to that. */
+const SR_LABEL_MAX=30, SR_VALUE_MAX=34, SR_ROW_MAX=46;   // at 14px a phone row holds about 46 characters, label and value together
+const sr=(k,v)=>'<div class="sr"><span>'+escHtml(k)+'</span><b>'+escHtml(v)+'</b></div>';
+const stK=t=>'<div class="lh-k">'+escHtml(t)+'</div>';
+function statsTimeHtml(now){
+  now=(now!=null)?now:Date.now();
+  const d=dayKey(now), rec=S.days[d]||{}, m1=x=>x<10?x.toFixed(1):x.toFixed(0); let h='';
+  // predicted against actual, seven days
+  { let mx=1; const days=[]; for(let k=d-6;k<=d;k++){ const r=S.days[k]||{}; days.push([(r.predMs|0)/MIN,(r.actMs|0)/MIN,k]); mx=Math.max(mx,(r.predMs|0)/MIN,(r.actMs|0)/MIN); }
+    h+=stK('Predicted against actual · 7 days')+'<div class="st-pva">'+days.map(x=>'<div><i class="p" style="height:'+(x[0]/mx*100)+'%"></i><i class="a" style="height:'+(x[1]/mx*100)+'%"></i></div>').join('')+'</div>'+
+       '<div class="lh-ax">'+days.map(x=>'<span>'+'SMTWTFS'[new Date(dayStart(x[2])+12*HOUR).getDay()]+'</span>').join('')+'</div>'+
+       '<div class="lh-ax key"><span><i class="p"></i>predicted</span><span><i class="a"></i>took</span></div>';
+    const led=predictionLedger(7,d);
+    h+=sr('Predictions, last 7 days',led.bias==null?'not enough yet':(Math.abs(led.bias)<0.03?'on the mark':'ran '+Math.round(Math.abs(led.bias)*100)+'% '+(led.bias>0?'under':'over'))); }
+  h+=sr('Today',fmtMin((rec.studyMs|0)/MIN)+' · first pass '+fmtMin((rec.triMs|0)/MIN));
+  { let ms=0,n=0; for(let k=d-6;k<=d;k++){ const r=S.days[k]; if(r&&((r.studyMs|0)+(r.triMs|0))>0){ ms+=(r.studyMs|0)+(r.triMs|0); n++; } }
+    h+=sr('Average study day, last 7',n?fmtMin(ms/n/MIN)+' · '+n+' day'+(n===1?'':'s'):'—'); }
+  h+=sr('A sure review',fmtSecs(timeFor('R0'))); h+=sr('A middling review',fmtSecs(timeFor('R1'))); h+=sr('A shaky review',fmtSecs(timeFor('R2')));
+  h+=sr('A new word',fmtSecs(timeFor('N'))+', then '+fmtSecs(timeFor('L'))+' a step');
+  // what each target would cost
+  { const cur=S.settings.retention, lim=S.settings.minutesPerDay|0, tg=[0.80,0.85,0.90,0.95]; if(tg.indexOf(cur)===-1) tg.push(cur); tg.sort();
+    const f=tg.map(t=>loadForecast(t,30,now)), mx=Math.max.apply(null,f.map(x=>x.perDayMin).concat([lim,1]));
+    h+=stK('What each target would cost a day')+'<div class="st-hb">'+f.map((x,i)=>'<div class="'+(tg[i]===cur?'cur':'')+'"><span>'+Math.round(tg[i]*100)+'%</span><u><i style="width:'+(x.perDayMin/mx*100)+'%"></i></u><b>'+m1(x.perDayMin)+' min</b></div>').join('')+
+       (lim>0?'<em style="left:calc(44px + (100% - 116px) * '+(lim/mx)+')" title="your limit"></em>':'')+'</div>'; }
+  return h;
+}
+function statsRetentionHtml(now){
+  now=(now!=null)?now:Date.now();
+  const fit=calibration(), st=clepSt(), asked=S.settings.retention, since=now-30*DAY; let n=0, ok=0, h='';
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)||e[2]<since||String(e[0])[0]!=='L') continue; n++; if(e[1]!==AGAIN) ok++; }
+  const got=n>=20?ok/n:null, pos=x=>Math.min(Math.max((x-0.6)/0.4,0),1)*100;
+  h+=stK('Asked against delivered · 30 days')+'<div class="st-gauge">'+(got!=null?'<u style="width:'+pos(got)+'%"></u>':'')+'<i style="left:'+pos(asked)+'%"></i></div>'+
+     '<div class="lh-ax"><span>60%</span><span>70</span><span>80</span><span>90</span><span>100</span></div>';
+  h+=sr('Asked for',Math.round(asked*100)+'%');
+  h+=sr('Delivered, last 30 days',got==null?'too few yet · '+n+' of 20':Math.round(got*100)+'% of '+n+' reviews');
+  h+=sr('Target on paper',S.settings.calibrate===false?'the same · correction off':(fit.ready?(st.schedR*100).toFixed(1)+'% · from '+fit.n+' reviews':'the same · corrects after '+CAL_MIN_N));
+  h+=sr('Scheduler numbers',paramsLabel());
+  { const med=medianThinkMs(); h+=sr('Median answer',med?fmtSecs(med):'vocabula’s, until 30 reviews'); }
+  { const b=boostM(), pc=x=>x.n?Math.round(100*x.pass/x.n)+'% of '+x.n+' passed':'none yet';
+    h+=sr('After a fast Good',pc(b.fast)); h+=sr('After a slower Good',pc(b.slow));
+    h+=sr('A fast Good earns',S.settings.clockTerm===false?'nothing · switched off':(b.m<=1.001?'no extra yet':'×'+b.m.toFixed(2)+' memory'+(b.measured?'':' · to start'))); }
+  { const r=reverseCheck(); if(r){ h+=stK(DECK.rev+': harder than forward?');
+      if(!r.ready) h+=sr('Spaced reverse reviews',r.n+' of '+REV_CHECK_MIN+' needed');
+      else { h+='<div class="st-gauge meter"><i style="left:'+Math.min(r.missX/2,1)*100+'%"></i></div><div class="lh-ax"><span>as predicted</span><span>1.3× · harder</span><span>2×</span></div>';
+             h+=sr('Missed, against predicted',Math.round(r.miss*100)+'% against '+Math.round(r.expected*100)+'%'); if(r.timeX!=null) h+=sr('Seconds, against forward',r.timeX.toFixed(1)+'×'); } } }
+  return h;
+}
+function statsDeckHtml(){
+  const tp=triageProgress(), w=k=>(100*(tp.by[k]|0)/Math.max(tp.total,1))+'%'; let h='';
+  h+=stK('First pass')+'<div class="lh-stack tall"><i class="p4" style="width:'+w(4)+'"></i><i class="p3" style="width:'+w(3)+'"></i><i class="p2" style="width:'+w(2)+'"></i><i class="p1" style="width:'+w(1)+'"></i></div>'+
+     '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>not seen</div></div>';
+  h+=sr('Sorted',tp.done.toLocaleString()+' of '+tp.total.toLocaleString());
+  for(const b of [TRI_SHAKY,TRI_KNOWN,TRI_WELL]){ const f=bucketFit(b), s=bucketS(b);
+    h+=sr(TRI_LABEL[b]+' starts at',s.toFixed(1)+' days'+((f&&f.n>=10)?' · '+f.pass+' of '+f.n+' held':' · to start')); }
+  { const g=Object.keys(S.confuseGroups).map(k=>S.confuseGroups[k]), hit=g.reduce((n,x)=>n+(x.hits|0),0), miss=g.reduce((n,x)=>n+(x.misses|0),0);
+    h+=sr('Tied words',g.length?(g.length+' ties'+(hit+miss?' · '+Math.round(100*hit/(hit+miss))+'% right in the drill':' · not drilled yet')):'none yet'); }
+  return h;
+}
 function clepPanelHtml(now){
   now=(now!=null)?now:Date.now();
   const d=dayKey(now), used=usedMs(d), bud=budgetMs(d), q=buildQueue(S.dir), need=queueCostMs(q,now);
@@ -5092,7 +5173,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.17.8';
+const BUILD='2026.09.17.9';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -11997,6 +12078,7 @@ function leanStats(){
   renderClep(); renderSyllabus();
   const anySusp=Object.keys(S.cards).some(id=>S.cards[id].susp);
   const ss=sectOf('suspStatsBody'); if(ss) ss.classList.toggle('leanOff',!anySusp);
+  if(typeof showStatsTab==='function') showStatsTab();
 }
 try{ leanInterface(); }catch(e){ if(typeof console!=='undefined') console.error('lean',e); }
 /* ---- the lean Home: drawing it (2026.09.17.8) ----
@@ -12115,6 +12197,48 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft') lhOpenDay(lhDay-1); else if(e.key==='ArrowRight') lhOpenDay(lhDay+1);
 });
 if(window.matchMedia){ const mq=window.matchMedia('(min-width:1100px)'); const f=()=>{ $('lhSheet').classList.remove('on'); if(!lhWide()) lhDay=null; if(S) renderLeanHome(); }; if(mq.addEventListener) mq.addEventListener('change',f); else if(mq.addListener) mq.addListener(f); }
+/* ---- Stats as four tabs (2026.09.17.9) ----
+   Time, Retention, Deck, Days: every figure sorted by the question it answers.
+   Tabs, not folds -- inside a tab the page just scrolls, so every <details>
+   on this screen is opened and its summary becomes a plain heading. Sections
+   are MOVED into their tab whole, ids intact, so each renderer still finds
+   its own node; the old clock rows are the one thing replaced, by the three
+   summary builders, which carry every figure they did. */
+let stTab='time';
+function statsTabs(){
+  const sc=$('scStats'), first=sectOf('statsBar'); if(!sc||!first||$('stTabs')) return;
+  const host=first.parentNode, bar=document.createElement('div'); bar.id='stTabs'; bar.className='st-tabs'; bar.setAttribute('role','tablist');
+  const names=[['time','Time'],['retention','Retention'],['deck','Deck'],['days','Days']], tabs={};
+  bar.innerHTML=names.map(n=>'<button type="button" role="tab" data-tab="'+n[0]+'">'+n[1]+'</button>').join('');
+  host.insertBefore(bar,first);
+  names.forEach(n=>{ const t=document.createElement('div'); t.className='st-tab'; t.dataset.tab=n[0]; host.insertBefore(t,first); tabs[n[0]]=t; });
+  const sum=id=>{ const s=document.createElement('div'); s.className='sect st-sum'; s.id=id; return s; };
+  const put=(tab,el)=>{ if(el) tabs[tab].appendChild(el); };
+  const asSect=(id,title)=>{ const el=$(id); if(!el) return null; const s=document.createElement('div'); s.className='sect'; s.appendChild(el); return s; };
+  put('time',sum('stTime')); put('time',asSect('clockFold')); put('time',asSect('clockLearnFold')); put('time',sectOf('timeHeadline'));
+  put('retention',sum('stRet')); put('retention',$('calibSect'));
+  put('deck',first); put('deck',sum('stDeck')); put('deck',sectOf('syllabus')); put('deck',sectOf('statsGrid')); put('deck',asSect('clockRetFold')); put('deck',sectOf('suspStatsBody'));
+  put('days',sectOf('calFold'));
+  { const old=sectOf('clockBody'); if(old) old.classList.add('leanOff'); }
+  ['hmStats'].forEach(id=>{ const x=$(id); if(x) x.classList.remove('leanOff'); });
+  { const x=$('strip'); if(x) x.classList.add('leanOff'); const h=sectOf('calFold'); const h2=h&&h.querySelector('h2'); if(h2) h2.textContent='Every study day'; }
+  sc.querySelectorAll('details').forEach(d=>d.classList.add('flat'));   // opened in showStatsTab(): opening one fires its renderer, which needs S
+  { const su=$('clockFold')&&$('clockFold').querySelector('summary'); if(su) su.textContent='The same, in figures'; }
+  bar.addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ stTab=b.dataset.tab; showStatsTab(); } });
+}
+function showStatsTab(){
+  const sc=$('scStats'); if(!$('stTabs')) return;
+  sc.querySelectorAll('#stTabs [data-tab]').forEach(b=>{ const on=b.dataset.tab===stTab; b.classList.toggle('on',on); b.setAttribute('aria-selected',on?'true':'false'); });
+  sc.querySelectorAll('.st-tab').forEach(t=>t.classList.toggle('leanOff',t.dataset.tab!==stTab));
+  if(stTab==='time') $('stTime').innerHTML=statsTimeHtml();
+  if(stTab==='retention') $('stRet').innerHTML=statsRetentionHtml();
+  if(stTab==='deck') $('stDeck').innerHTML=statsDeckHtml();
+  if(stTab==='days'){ renderHeatmapStats(); renderCalendar(); }
+  // every fold on this screen stays open; one that only drew itself when opened is asked to draw again
+  sc.querySelectorAll('.st-tab:not(.leanOff) details').forEach(d=>{ if(!d.open) d.open=true; else d.dispatchEvent(new Event('toggle')); });
+  const scr=sc.querySelector('.st-tab:not(.leanOff)'); if(scr&&scr.parentNode) scr.parentNode.scrollTop=0;
+}
+try{ statsTabs(); }catch(e){ if(typeof console!=='undefined') console.error('stats tabs',e); }
 
 
 /* ---------------- Clepsydra wiring ---------------- */
@@ -12269,8 +12393,8 @@ function renderSetClep(){
   if(typeof leanSettings==='function') leanSettings();
 }
 
-tapZone($('statsDirL'),()=>{S.dir='L';save();renderStats();});
-tapZone($('statsDirE'),()=>{S.dir='E';save();renderStats();});
+tapZone($('statsDirL'),()=>{S.dir='L';save();renderStats();leanStats();});
+tapZone($('statsDirE'),()=>{S.dir='E';save();renderStats();leanStats();});
 // The calibration reminder line lives inside #homeWarn, which renderWarn()
 // rebuilds on every Home render -- so the click is delegated from the box,
 // not bound to the line. Only the line marked data-act="calib" reacts; the
