@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.2">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.3">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.2"></script>
+<script src="decks/registry.js?v=2026.09.17.3"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.2"></script>
+<script src="shared.js?v=2026.09.17.3"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -664,6 +664,16 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .toast{color:#fff}
 .sect{margin-top:26px}
 /* ---- Clepsydra ---- */
+.oldCapStepper{display:none!important}
+.minLead{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
+.minRing{flex:0 0 auto}
+#minRingArc{transition:stroke-dashoffset .4s}
+#minRingArc.over{stroke:var(--again)}
+/* switched off in Clepsydra, stored data untouched (audit handoff, 2026-09-17) */
+#ddNote,#feelRow,#browseAddWordBtn,#bchips,.noteDot,.ciNoteLbl,#ciNote{display:none!important}
+html.twoBtn #bHard,html.twoBtn #bEasy,html.twoBtn #quickBtn{display:none!important}
+html.twoBtn #bGood .keycap{font-size:0}
+html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .clepPanel{margin:2px 0 16px;padding:13px 14px 12px;border:1px solid var(--line);border-radius:15px;background:var(--panel)}
 .clepPanel .cpTop{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
 .clepPanel .cpTop b{font-size:21px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1949,7 +1959,20 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <button class="dir sel" id="dirLtoE"><div class="dt" id="dtL"></div><div class="dd" id="ddL">—</div></button>
         <button class="dir" id="dirEtoL"><div class="dt" id="dtE"></div><div class="dd" id="ddE">—</div></button>
       </div>
-      <div class="stepper">
+      <!-- Clepsydra: the minutes ring took this spot (his call, 2026-09-17).
+           Minutes of review toward today's limit, filling across sittings --
+           never a count of sittings. +/- move TODAY's limit only. The old
+           new-words stepper stays in the page, hidden, because new words are
+           paid for in time now and its number lives in Settings. -->
+      <div class="stepper minStepper">
+        <span class="sl minLead"><svg class="minRing" viewBox="0 0 36 36" width="34" height="34" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="4"/><circle id="minRingArc" cx="18" cy="18" r="15" fill="none" stroke="var(--coral)" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 18 18)"/></svg><span id="minRingTxt">0 of 30 min</span></span>
+        <div style="display:flex;align-items:center">
+          <button id="minMinus" aria-label="Five minutes fewer today">&minus;</button>
+          <span class="sv" id="minVal">30</span>
+          <button id="minPlus" aria-label="Five minutes more today">+</button>
+        </div>
+      </div>
+      <div class="stepper oldCapStepper">
         <span class="sl">New words today</span>
         <div style="display:flex;align-items:center">
           <button id="capMinus" aria-label="Fewer">&minus;</button>
@@ -2907,6 +2930,11 @@ const AGAIN=1, HARD=2, GOOD=3, EASY=4;
 // the buttons in the markup are the same digits -- there is deliberately no
 // second copy that could shift.
 const RATE_KEYS={'1':AGAIN,'2':HARD,'3':GOOD,'4':EASY};
+// Clepsydra's two-button row: 1 Again, 2 Good (Space is Good as well). The
+// four-button map above still serves a save that asks for buttons:'four'.
+const RATE_KEYS_TWO={'1':AGAIN,'2':GOOD};
+const twoButtons=()=>!(S&&S.settings&&S.settings.buttons==='four');
+const rateKeys=()=>twoButtons()?RATE_KEYS_TWO:RATE_KEYS;
 // FLAG_MANUAL (=5) lived here until 2026.08.16.1. It was the threshold for a
 // curated "words in trouble right now" watch list on the front screen, shown
 // alongside the set-aside list. Removed at the owner's request: it was built
@@ -3100,19 +3128,25 @@ function nextS(d,s,R,r){
 // drillDays:3 or reviewDay:1 schedules exactly as if it never had them.
 // What remains: LEARN_STEPS/RELEARN_STEPS, the FSRS-6 arithmetic above, and
 // the day snap.
-// ---- the clock term (Clepsydra; DIFFICULTY_AND_THE_CLOCK, vocabula) ----
-// Measured on 59,000 of his own ratings: holding the model's own prediction
-// fixed, a Good answered fast survives 3-10 points better than a slow one, in
-// both decks, on held-out cards -- and difficulty, which is meant to carry
-// that, is frozen. So answer time scales the GAIN in stability that the
-// pressed button already selected. It never changes the button, never touches
-// a fail, a same-day press or a learning step, and is bounded both ways.
-// Relative to HIS OWN median for the deck (ctx.medMs), so it means "fast for
-// you", and drifts with him. gain' = gain * clamp((med/t)^0.5, 0.6, 1.6).
-const CLOCK_BETA=0.5, CLOCK_LO=0.6, CLOCK_HI=1.6;
-function clockMult(thinkMs,medMs){
-  if(!Number.isFinite(thinkMs)||!Number.isFinite(medMs)||thinkMs<=0||medMs<=0) return 1;
-  return Math.min(Math.max(Math.pow(medMs/Math.max(thinkMs,400),CLOCK_BETA),CLOCK_LO),CLOCK_HI);
+// ---- the fast-Good boost (Clepsydra; his rules, 2026-09-17) ----
+// With Easy off the screen, a Good answered fast earns the larger gain Easy
+// used to give. Four rules, all his: NEVER punish a slow answer (the
+// multiplier is never below 1); cap it at what Easy would have given (P[16],
+// which multiplies the gain); size it PER DECK from his own results; keep
+// re-measuring. `m` is how much longer a fast Good's memory should be taken
+// to last than the model says (a stability multiplier, from boostM()); `w` is
+// how fast this answer was -- 0 at his own median or slower, 1 at 0.6 of it
+// or quicker (his 1.5 s against a 2.5 s median). What schedule() applies, and
+// logs, is the equivalent multiplier on the GAIN, capped.
+const BOOST_FULL_AT=0.6;
+function fastWeight(thinkMs,medMs){
+  if(!Number.isFinite(thinkMs)||!Number.isFinite(medMs)||thinkMs<=0||medMs<=0) return 0;
+  return Math.min(Math.max((medMs/Math.max(thinkMs,300)-1)/(1/BOOST_FULL_AT-1),0),1);
+}
+function boostGainMult(s0,s1,m,w){
+  if(!(s1>s0)||!(m>1)||!(w>0)) return 1;
+  const target=(1+(m-1)*w)*s1;
+  return Math.min(Math.max((target-s0)/(s1-s0),1),Math.max(P[16],1));
 }
 function schedule(card,rating,now,st,ctx){
   const c=Object.assign({},card);
@@ -3152,7 +3186,7 @@ function schedule(card,rating,now,st,ctx){
     if(daysSince!=null&&daysSince<1) c.s=shortTermS(c.s,rating);
     else {
       const s0=c.s, s1=nextS(c.d,c.s,retrievability(c,now),rating);
-      if(rating!==AGAIN&&ctx&&ctx.clock&&s1>s0){ cm=Number.isFinite(ctx.cm)?ctx.cm:clockMult(ctx.thinkMs,ctx.medMs); c.s=clampS(s0+(s1-s0)*cm); }
+      if(rating===GOOD&&ctx&&ctx.clock&&s1>s0){ cm=Number.isFinite(ctx.cm)?ctx.cm:boostGainMult(s0,s1,ctx.m,fastWeight(ctx.thinkMs,ctx.medMs)); c.s=clampS(s0+(s1-s0)*cm); }
       else c.s=s1;
     }
     c.d=nextD(c.d,rating);
@@ -3405,8 +3439,8 @@ const CALIBRATION_DUE_DEFAULT=new Date(2026,8,2,9,0,0).getTime();   // 2 Sept 20
 function calibrationDue(s,now){ return !!(s&&s.calibrationDueAt!=null&&Number.isFinite(s.calibrationDueAt)&&now>=s.calibrationDueAt); }
 function makeDefaults(){ return {
   version:2, created:Date.now(), calibrationDueAt:null,   // Clepsydra: the calibration is continuous (see calibration()); vocabula's fortnightly reminder starts dismissed
-  settings:{useTiming:true, newPerDayL:50, newPerDayE:50, retention:0.90, maxIvl:36500, rollover:4,
-  minutesPerDay:30, firstPass:true, params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:true, gradeReminder:true, quickRate:'off', holdEasy:'on', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
+  settings:{useTiming:false, newPerDayL:50, newPerDayE:50, retention:0.90, maxIvl:36500, rollover:4,
+  minutesPerDay:30, firstPass:true, buttons:'two', params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:false, gradeReminder:false, quickRate:'off', holdEasy:'off', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
   dir:'L', parts:null, buckets:['shaky','unseen'], theme:'light', palette:'vellum', layout:'legacy', rotate:'off', rotDay:null, rotSeen:[], cards:{}, orphans:{}, log:[], days:{}, dayNotes:{}, sinceExport:0, lastExport:null, lastPushBytes:0,
   deck:KEY, lastSync:null, syncedLogLen:null, lastRemoteAt:null, lastDevice:null, lastPushError:null, lastPushErrorAt:null, confuseGroups:{},
   // Phase 3 §C (PHASE3_4_HANDOFF.md): user-added words. Rides backup/sync/
@@ -3991,6 +4025,12 @@ function normalise(o){
   if(['fitted','stock'].indexOf(s.settings.params)===-1) s.settings.params='fitted';
   if(typeof s.settings.clockTerm!=='boolean') s.settings.clockTerm=true;
   if(typeof s.settings.firstPass!=='boolean') s.settings.firstPass=true;
+  // Two buttons (2026-09-17, his call): Again and Good. Everything that only
+  // existed to serve Easy and Hard is forced off rather than deleted -- hold
+  // for Easy, the slow-Easy rule, quick rate, the four-button reminder. The
+  // stored keys stay, inert, as the audit handoff's ground rule asks.
+  if(s.settings.buttons!=='four') s.settings.buttons='two';
+  if(s.settings.buttons==='two'){ s.settings.cardNotes=false; s.settings.holdEasy='off'; s.settings.useTiming=false; s.settings.quickRate='off'; s.settings.gradeReminder=false; }
   if(typeof s.settings.calibrate!=='boolean') s.settings.calibrate=true;
   for(const k of ['triS2','triS3','triS4']){ const v=s.settings[k]; s.settings[k]=(Number.isFinite(v)&&v>0&&v<=3650)?v:0; }
   s.days=o.days&&typeof o.days==='object'?o.days:{};
@@ -4620,7 +4660,7 @@ function queueCostMs(q,now){
 }
 
 // ---- 5. the daily cap ----
-const budgetMs=d=>{ const m=S.settings.minutesPerDay; const rec=S.days[d]; return (m>0?m*MIN:0)+((rec&&rec.extraMs)|0); };
+const budgetMs=d=>{ const m=S.settings.minutesPerDay; const rec=S.days[d]; return m>0?Math.max(m*MIN+((rec&&rec.extraMs)|0),5*MIN):0; };
 const usedMs=d=>{ const rec=S.days[d]; return rec?(rec.studyMs|0):0; };
 function capOn(){ return S.settings.minutesPerDay>0; }
 function capReached(d){ return capOn()&&usedMs(d)>=budgetMs(d); }
@@ -4701,7 +4741,8 @@ function extFor(cs,now,pressAtMs,res,predMs,actualMs){
     ps:Math.round(predMs),                                 // predicted cost of this press, ms
     ms:Number.isFinite(actualMs)?Math.round(actualMs):null,// what it actually took (shown -> pressed), null if he looked away
     dw:(revealAt&&pressAtMs>=revealAt)?Math.round(pressAtMs-revealAt):null,   // answer on screen -> grade pressed
-    cm:res&&res.cm!==1?+res.cm.toFixed(3):1,               // the clock term applied
+    cm:res&&res.cm!==1?+res.cm.toFixed(3):1,               // the fast-Good boost applied, as a multiplier on the gain
+    bm:+(1+(boostM().m-1)*fastWeight(thinkMs,medianThinkMs()||2500)).toFixed(3),   // the stability multiplier it was aiming at
     i:sitIndex,                                            // position in the sitting
     q:servedWhy,                                           // why the queue served it
     bu:+(usedMs(dayKey(now))/MIN).toFixed(1),              // minutes of today's budget already spent
@@ -4711,6 +4752,42 @@ function extFor(cs,now,pressAtMs,res,predMs,actualMs){
     tri:cs.tri||null,
     str:cs.streak|0                                        // consecutive good days before this press
   };
+}
+// How much a fast Good is worth, per deck, from his own log. Every spaced
+// Good with a think time is paired with what happened at that card's NEXT
+// spaced review. For the fast group and the slow group separately: the
+// stability that would have made the model's prediction match what happened,
+// as a ratio to the stability it used. Fast relative to slow is the boost the
+// data asks for ON TOP of whatever was already applied (ext.bm records that),
+// so the estimate does not chase its own tail. Pulled toward a per-deck
+// starting figure with the weight of 150 fast pairs: Latin 1.3 (his vocabula
+// log: fast Goods passed 94.9% next time, slower ones 87.9%), Greek 1.0 (76.2%
+// against 73.4% -- no usable gap yet). Bounded 1.0-1.6. Never below 1.
+const BOOST_PRIOR_N=150;
+const boostPrior=()=>((typeof DECK!=='undefined'&&DECK&&DECK.script==='greek')?1.0:1.3);
+let _boostCache={len:-1,v:null};
+function boostM(){
+  if(!S) return {m:1,fast:null,slow:null};
+  if(_boostCache.len===S.log.length&&_boostCache.v) return _boostCache.v;
+  const med=medianThinkMs()||((typeof DECK!=='undefined'&&DECK&&DECK.script==='greek')?2270:2680);
+  const open=Object.create(null), g={fast:{n:0,pass:0,pred:0,bm:0},slow:{n:0,pass:0,pred:0,bm:0}};
+  for(const e of S.log){
+    const x=e[15], id=e[0];
+    if(x&&x.pr!=null&&open[id]){ const o=open[id], b=g[o.k]; b.n++; b.pred+=x.pr; b.bm+=o.bm; if(e[1]!==AGAIN) b.pass++; delete open[id]; }
+    if(x&&x.pr!=null&&e[5]==='R'&&e[1]===GOOD&&Number.isFinite(e[4])) open[id]={k:fastWeight(e[4],med)>=1?'fast':'slow',bm:Number.isFinite(x.bm)?x.bm:1};
+    else if(e[1]===AGAIN) delete open[id];
+  }
+  const need=b=>{ if(b.n<20) return null; const po=Math.min(Math.max((b.pass+1)/(b.n+2),0.02),0.98), pp=Math.min(Math.max(b.pred/b.n,0.02),0.98);
+                  return (Math.pow(pp,1/DECAY)-1)/(Math.pow(po,1/DECAY)-1); };   // >1: memory lasted longer than the model said
+  const nf=need(g.fast), ns=need(g.slow), prior=boostPrior();
+  let m=prior;
+  if(nf!=null&&ns!=null){
+    const asked=Math.min(Math.max((g.fast.bm/g.fast.n)*(nf/ns),0.5),3);
+    m=Math.exp((g.fast.n*Math.log(asked)+BOOST_PRIOR_N*Math.log(prior))/(g.fast.n+BOOST_PRIOR_N));
+  }
+  m=Math.min(Math.max(m,1),1.6);
+  const v={m:m,fast:g.fast,slow:g.slow,prior:prior,measured:(nf!=null&&ns!=null)};
+  _boostCache={len:S.log.length,v:v}; return v;
 }
 // His own median think time on passing spaced reviews -- the clock term's
 // reference point. Last 400 such presses; null until there are 30.
@@ -4726,7 +4803,7 @@ function medianThinkMs(){
 function clockCtx(think){
   if(S.settings.clockTerm===false) return null;
   const med=medianThinkMs()||((typeof DECK!=='undefined'&&DECK&&DECK.script==='greek')?2270:2680);   // his 2026-09-17 medians until 30 of his own arrive
-  return {clock:true,thinkMs:think,medMs:med};
+  return {clock:true,thinkMs:think,medMs:med,m:boostM().m};
 }
 
 // ---- time to learn ----
@@ -4764,9 +4841,8 @@ function clepPanelHtml(now){
   const tp=triageProgress(), waiting=q.due.length+q.learn.length;
   let h='';
   if(capOn()){
-    const pct=bud>0?Math.min(used/bud,1)*100:0, left=Math.max(bud-used,0);
-    h+='<div class="cpTop"><span><b>'+Math.floor(used/MIN)+'</b> of '+Math.round(bud/MIN)+' min today</span><span>'+(waiting?('due now ≈ '+fmtMin(need/MIN)):'nothing due')+'</span></div>';
-    h+='<div class="clepBar"><i'+(used>=bud?' class="over"':'')+' style="width:'+pct.toFixed(1)+'%"></i></div>';
+    const left=Math.max(bud-used,0);
+    h+='<div class="cpTop"><span>'+(waiting?('due now ≈ <b>'+fmtMin(need/MIN)+'</b>'):'nothing due')+'</span><span></span></div>';
     if(!waiting) h+='<div class="cpLine">'+(tp.left?'Nothing is due. The first pass is where today’s minutes go.':'Nothing is due.')+'</div>';
     else if(need>left+MIN){
       // how many of the due words the remaining minutes reach, in queue order
@@ -4795,7 +4871,10 @@ function clockBodyHtml(now){
   h+=row('Retention you asked for', Math.round(S.settings.retention*100)+'%');
   h+=row('What the scheduler aims at on paper', S.settings.calibrate===false?'the same (correction off)':(fit.ready?((st.schedR*100).toFixed(1)+'% — from '+fit.n+' of your reviews'):('the same, until '+CAL_MIN_N+' spaced reviews exist ('+fit.n+' so far)')));
   h+=row('Scheduler numbers', paramsLabel());
-  { const med=medianThinkMs(); h+=row('Your median answer time', med?fmtSecs(med)+' (the clock term’s yardstick)':'using your vocabula median until 30 reviews exist'); }
+  { const med=medianThinkMs(); h+=row('Your median answer time', med?fmtSecs(med)+' (what “fast” is measured against)':'using your vocabula median until 30 reviews exist'); }
+  { const b=boostM(), pc=x=>x.n?Math.round(100*x.pass/x.n)+'% of '+x.n:'none yet';
+    h+=row('Fast Goods, next time round', pc(b.fast)+' passed · slower Goods '+pc(b.slow));
+    h+=row('So a fast Good is worth', (S.settings.clockTerm===false?'nothing (switched off)':(b.m<=1.001?'no extra — no gap in this deck yet':'memory ×'+b.m.toFixed(2)+', never more than Easy gave'))+(b.measured?'':' (starting figure)')); }
   h+=row('First pass', tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' — not seen '+tp.by[1]+' · shaky '+tp.by[2]+' · known '+tp.by[3]+' · known well '+tp.by[4]);
   for(const b of [TRI_SHAKY,TRI_KNOWN,TRI_WELL]){
     const f=bucketFit(b), s=bucketS(b);
@@ -4839,7 +4918,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.2';
+const BUILD='2026.09.17.3';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -9151,7 +9230,7 @@ function renderCardInspector(){
     // nowhere else to put it. There is now, and it holds the pair rather
     // than one word's description of it -- so the note goes back to being
     // for what only this word needs.
-    +'<div class="ciLbl">Note</div>'
+    +'<div class="ciLbl ciNoteLbl">Note</div>'
     +'<textarea id="ciNote" maxlength="'+CAP_NOTE+'" placeholder="A mnemonic, a usage, anything this one word needs">'+escHtml((cs&&cs.note)||'')+'</textarea>'
     +'<div class="ciLbl">Confused with</div>'+confusedWithHtml(id)
     +'<div class="ddBtns"><button class="small primary" id="ciSaveNote">Save note</button>'
@@ -11673,6 +11752,8 @@ tapZone($('toStats'),()=>{renderStats();show('scStats');});
 /* ---------------- Clepsydra wiring ---------------- */
 function renderClep(){
   const now=Date.now();
+  document.documentElement.classList.toggle('twoBtn',twoButtons());
+  renderMinRing();
   $('clepPanel').innerHTML=clepPanelHtml(now);
   $('clockBody').innerHTML=clockBodyHtml(now);
   if($('clockFold').open) $('clockWhatIf').innerHTML=clockWhatIfHtml(now);
@@ -11764,6 +11845,15 @@ document.addEventListener('keydown',()=>{ lastInput='k'; },true);
 document.addEventListener('pointerdown',e=>{ lastInput=(e.pointerType==='touch')?'t':(e.pointerType==='pen'?'p':'m'); },true);
 
 // ---- the cap's one button, and the Clepsydra settings ----
+function renderMinRing(){
+  const d=today(), used=usedMs(d), bud=budgetMs(d), rec=S.days[d]||{}, arc=$('minRingArc'), C=94.25;
+  const frac=bud>0?Math.min(used/bud,1):0;
+  arc.style.strokeDashoffset=String(C*(1-frac)); arc.classList.toggle('over',bud>0&&used>=bud);
+  $('minRingTxt').textContent=Math.floor(used/MIN)+(bud>0?' of '+Math.round(bud/MIN):'')+' min';
+  $('minVal').textContent=bud>0?Math.round(bud/MIN):'∞';
+}
+tapZone($('minMinus'),()=>{ if(!capOn()) return; if(budgetMs(today())>5*MIN){ extendBudget(-5); } renderHome(); });
+tapZone($('minPlus'), ()=>{ if(!capOn()) return; extendBudget(5); renderHome(); });
 tapZone($('doneExtend'),()=>{ extendBudget(5); next(); if(current) show('scStudy'); });
 $('fMinutes').addEventListener('change',e=>{ const v=Math.round(+e.target.value); S.settings.minutesPerDay=(Number.isFinite(v)&&v>=0&&v<=600)?v:30; save(); renderSet(); });
 $('fParams').addEventListener('change',e=>{ S.settings.params=e.target.value==='stock'?'stock':'fitted'; applyParams(); save(); renderSet(); });
@@ -11779,7 +11869,21 @@ tapZone($('btnUnretire'),()=>{
   if(!confirm('Bring all '+n+' retired words back onto the schedule, spread over the next two weeks?')) return;
   unretireAll(); toast(n+' words are back',1800); renderSet();
 });
+// A removed setting: hide the control, its label and the help lines under it;
+// the whole field if nothing else lives in it. The stored key is left alone.
+function hideSetting(id){
+  const el=$(id); if(!el) return;
+  const field=el.closest('.field'), lab=field&&field.querySelector('label[for="'+id+'"]');
+  const others=field?[...field.querySelectorAll('select,input,button')].filter(x=>x!==el&&x.type!=='file'&&x.style.display!=='none'&&!x.dataset.gone):[];
+  el.dataset.gone='1';
+  if(field&&!others.length){ field.style.display='none'; return; }
+  el.style.display='none'; if(lab) lab.style.display='none';
+  let n=el.nextElementSibling; while(n&&n.classList.contains('fh')){ n.style.display='none'; n=n.nextElementSibling; }
+}
 function renderSetClep(){
+  ['fTopBar','fCardNotes','fGradeRem','fQuickRate','fHoldEasy','fTiming','fKnown','fWeak','toDemo'].forEach(hideSetting);
+  { const l=document.querySelector('label[for="fTerm"]'); if(l) l.textContent='Test date'; }
+  { const g=$('gearStreakStart'), f=g&&g.closest('.field'); if(f) f.style.display='none'; }
   const s=S.settings, fit=calibration(), st=clepSt();
   $('fMinutes').value=s.minutesPerDay|0;
   $('fMinutesGap').textContent=budgetGap(Date.now()).text;
@@ -12810,7 +12914,7 @@ document.addEventListener('keydown',e=>{
       // 2026-08-18 and .19.2 Hard existed on review-state cards only and this
       // map was chosen per card off #bHard's visibility; that shape-shifting
       // is what decision 3 (STUDY_SYSTEM.md section 4) removed.
-      const g=RATE_KEYS[e.key];
+      const g=rateKeys()[e.key];
       if(g!=null) rate(g);
     }
     else if(quickRateReady()){
@@ -12824,7 +12928,7 @@ document.addEventListener('keydown',e=>{
       // to nothing is also what makes the phone and the keyboard the same
       // feature rather than two -- the phone has one button, so the keyboard
       // has one key.
-      if(RATE_KEYS[e.key]===EASY) quickRate(EASY);
+      if(rateKeys()[e.key]===EASY) quickRate(EASY);
     }
     // 0 sits at the far end of the number row, next to the rating digits --
     // added alongside Z, not instead of it. (It originally paired with an
