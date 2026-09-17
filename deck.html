@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.6">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.7">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.6"></script>
+<script src="decks/registry.js?v=2026.09.17.7"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.6"></script>
+<script src="shared.js?v=2026.09.17.7"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -4842,6 +4842,40 @@ function predictionLedger(days,todayKey){
 
 // ---- what the screens print (HTML builders; DOM-free so the suite can call them) ----
 const fmtSecs=ms=>(ms/1000).toFixed(1)+' s';
+// Is the reverse direction (English -> the language) as easy as recognising,
+// or the harder case? tools/intake-sim.js (2026-09-17) showed the two worlds
+// part company only in week two, after the same-day guard has waved the intake
+// through: at 50 new a day, 40 minutes a day if reverse words behave like
+// forward ones, 80 if they miss half again as often. This reads which world it
+// is from his own reverse reviews, so the app tells him instead of a calendar:
+// misses against what the model predicted for those same reviews, and seconds
+// against the forward direction where there is enough of it to compare.
+const REV_CHECK_MIN=60;
+function reverseCheck(){
+  let n=0, fail=0, pred=0; const tE=[], tL=[];
+  for(const e of S.log){
+    const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue;
+    const rev=String(e[0])[0]==='E';
+    if(Number.isFinite(x.ms)) (rev?tE:tL).push(x.ms);
+    if(!rev) continue;
+    n++; pred+=1-x.pr; if(e[1]===AGAIN) fail++;
+  }
+  const started=CARDS.some(c=>c.dir==='E'&&S.cards[c.id]&&S.cards[c.id].reps>0);
+  if(!started) return null;
+  if(n<REV_CHECK_MIN) return {ready:false,n:n};
+  const med=a=>{ a=a.slice().sort((x,y)=>x-y); return a[a.length>>1]; };
+  const missX=(fail/n)/Math.max(pred/n,0.02), timeX=(tE.length>=30&&tL.length>=30)?med(tE)/med(tL):null;
+  return {ready:true,n:n,miss:fail/n,expected:pred/n,missX:missX,timeX:timeX,harder:missX>=1.3||(timeX!=null&&timeX>=1.3)};
+}
+function reverseCheckHtml(){
+  const r=reverseCheck(); if(!r) return '';
+  const rev=escHtml(DECK.rev), pc=x=>Math.round(100*x)+'%';
+  if(!r.ready) return '<div class="cpSub">'+rev+': '+r.n+' of '+REV_CHECK_MIN+' spaced reviews before it can be said whether these are harder than the forward ones.</div>';
+  const facts='missed '+pc(r.miss)+' where '+pc(r.expected)+' was expected'+(r.timeX!=null?', '+r.timeX.toFixed(1)+'× the seconds of a forward word':'');
+  return '<div class="cpSub">'+rev+' after '+r.n+' spaced reviews: '+facts+'. '+
+    (r.harder?'<b>That is the harder case.</b> New words opened now are paid for in a fortnight: at 50 a day this heads for well over an hour a day. 20–25 a day holds.'
+             :'That is no harder than recognising them, so the rate you are opening them at should hold.')+'</div>';
+}
 function clepPanelHtml(now){
   now=(now!=null)?now:Date.now();
   const d=dayKey(now), used=usedMs(d), bud=budgetMs(d), q=buildQueue(S.dir), need=queueCostMs(q,now);
@@ -4861,6 +4895,7 @@ function clepPanelHtml(now){
   }
   const g=budgetGap(now);
   h+='<div class="cpSub">'+escHtml(g.text)+'</div>';
+  h+=reverseCheckHtml();
   if(tp.left) h+='<div class="cpSub">First pass: '+tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' sorted — about '+fmtMin(tp.left*timeFor('T')/MIN)+' to go at your pace.</div>';
   return h;
 }
@@ -4925,7 +4960,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.6';
+const BUILD='2026.09.17.7';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
