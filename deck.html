@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.7">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.8">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.7"></script>
+<script src="decks/registry.js?v=2026.09.17.8"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.7"></script>
+<script src="shared.js?v=2026.09.17.8"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -116,6 +116,10 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+/* 2026.09.17.8: the page itself never scrolls -- every screen has its own scroller. Without this, a Mac set to
+   always show scroll bars drew two across the whole window: a bar takes room, the room it takes overflows the
+   other axis, and that draws the second. */
+html,body{overflow:hidden}
 body{
   background-color:var(--bg); background-image:var(--texture,none); color:var(--ink); font-family:var(--sans);
   font-size:16px; -webkit-font-smoothing:antialiased;
@@ -1188,6 +1192,67 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .advToggle::after{content:" ▾";font-size:11px}
 #scSet[data-adv] .advToggle::after{content:" ▴"}
 #scSet:not([data-adv]) .advOnly{display:none}
+/* ---- the lean Home (2026.09.17.8): one line spacing, six sizes, no wrapping rows ---- */
+#leanHome{display:flex;flex-direction:column;gap:12px;line-height:1.4;font-variant-numeric:tabular-nums;min-height:100%}
+#leanHome button{font:inherit;line-height:1.4;color:inherit;-webkit-appearance:none;appearance:none;cursor:pointer}
+/* on a phone the three groups dissolve into one column, so the word list can sit at the foot of the screen */
+.lh-c1,.lh-c2,.lh-c3{display:contents}
+.lh-c1>*{order:1}.lh-c3>*{order:2}.lh-c2>*{order:3}#leanHome .lh-wl{order:9}.lh-c2>.lh-k{margin-bottom:-6px}
+.lh-name{display:none;font:400 30px/1.2 var(--serif)}
+.lh-k{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);line-height:1;margin-bottom:6px}
+.lh-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;white-space:nowrap;font-size:13px}.lh-row span{color:var(--muted);overflow:hidden;text-overflow:ellipsis}.lh-row b{font-weight:500}.lh-row.sm{font-size:12px;color:var(--muted)}
+.lh-big{font:400 46px/1 var(--serif);white-space:nowrap}.lh-big span{font:14px/1 var(--sans);color:var(--muted)}
+.lh-facts{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);white-space:nowrap}.lh-facts.col{flex-direction:column;gap:5px;margin-top:10px}.lh-f b{color:var(--ink);font-weight:500}
+.lh-line{display:grid;gap:10px;padding:6px 0 2px}
+.lh-bar{position:relative;height:16px;border-radius:8px;background:var(--panel);overflow:hidden;border:1px solid var(--line)}.lh-bar i{position:absolute;top:0;bottom:0;left:0;background:var(--coral)}.lh-bar i.q{opacity:.32}.lh-bar u{position:absolute;top:0;bottom:0;width:1.5px;background:var(--bg)}
+.lh-vessel{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:2px 0}
+.lh-empty{fill:var(--panel)}.lh-full{fill:var(--coral)}.lh-hb{fill:var(--panel)}.lh-hl{stroke:var(--coral);stroke-width:2.2;opacity:.75}.lh-glass{fill:none;stroke:var(--line);stroke-width:1.5}.lh-tk{stroke:var(--faint)}.lh-tt{font:10px var(--sans);fill:var(--faint)}
+.lh-acts{display:grid;grid-template-columns:1fr auto;gap:9px}
+#leanHome .lh-go{background:var(--coral);color:var(--bg);border:0;border-radius:13px;padding:14px 10px;font-weight:600;font-size:15px;white-space:nowrap}#leanHome .lh-go:disabled{opacity:.45;cursor:default}
+#leanHome .lh-sec{border:1px solid var(--coral);color:var(--coral);background:transparent;border-radius:13px;padding:14px;font-weight:500;font-size:14px;white-space:nowrap}
+.lh-seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+#leanHome .lh-seg button{border:0;background:transparent;padding:9px 6px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#leanHome .lh-seg button.on{background:var(--panel);color:var(--coral);font-weight:500}
+#leanHome .lh-fp{display:grid;gap:6px;text-align:left;border:0;background:none;padding:0;width:100%}
+.lh-stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--panel)}.lh-stack.tall{height:12px;margin-bottom:4px}.lh-stack i{display:block}
+.p4{background:var(--good)}.p3{background:var(--good);opacity:.5}.p2{background:var(--amber)}.p1{background:var(--faint)}.rv{background:var(--coral)}.nw{background:var(--amber)}.fp{background:var(--good);opacity:.6}
+.lh-piles{display:grid;grid-template-columns:repeat(4,1fr);font-size:11px;color:var(--muted);line-height:1.25;white-space:nowrap}.lh-piles b{display:block;color:var(--ink);font-weight:500;font-size:13px}.lh-piles i,.lh-ax i{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px}
+.lh-note .cpSub{font-size:12px;color:var(--muted);margin:0}
+.lh-tr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lh-tc{border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:8px 10px 6px;min-width:0}.lh-tc .lh-k{margin-bottom:3px}.lh-tc .lh-row b{font-size:15px}.lh-tc .lh-row span{font-size:11px}
+.lh-sp{display:block;width:100%}.lh-ln{fill:none;stroke:var(--coral);stroke-width:1.8}.lh-ref{stroke:var(--faint);stroke-dasharray:3 3;stroke-width:1}
+.lh-ah{display:flex;gap:3px;align-items:flex-end}.lh-ah i{flex:1;background:var(--coral);opacity:.55;border-radius:2px 2px 0 0;display:block}
+.lh-none{font-size:12px;color:var(--faint);padding:6px 0}
+.lh-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+#leanHome .lh-cal button{aspect-ratio:1.9;border-radius:4px;background:var(--panel);border:1px solid var(--line);padding:0;font-size:12px;color:var(--muted);text-align:left}
+#leanHome .lh-cal button.t{outline:1.5px solid var(--ink);outline-offset:1px}#leanHome .lh-cal button.s{outline:2px solid var(--coral);outline-offset:1px}
+#leanHome .lh-wl{margin-top:auto;display:flex;justify-content:space-between;border:0;border-top:1px solid var(--line);background:none;padding:10px 0 0;font-size:14px;width:100%;white-space:nowrap}.lh-wl b{font-weight:500}.lh-wl span{color:var(--muted)}
+.lh-side{display:none}
+.lh-dh{display:flex;justify-content:space-between;align-items:baseline;font:400 20px/1.2 var(--serif);margin-bottom:10px}.lh-dh b{font-weight:400}
+.lh-dh button{font:400 22px/1 var(--sans);color:var(--coral);background:none;border:0;padding:0 8px;cursor:pointer}
+.lh-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}.lh-tile{border:1px solid var(--line);border-radius:10px;padding:7px 8px;background:var(--panel);white-space:nowrap;overflow:hidden}.lh-tile b{display:block;font-size:17px;font-weight:500;line-height:1.2}.lh-tile span{font-size:10.5px;color:var(--muted)}
+.lh-hrs{display:flex;align-items:flex-end;gap:2px;height:42px}.lh-hrs i{flex:1;background:var(--coral);opacity:.8;border-radius:2px 2px 0 0;min-height:1px;display:block}
+.lh-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin:3px 0 10px;white-space:nowrap}
+#lhSheet{position:fixed;inset:0;z-index:40;pointer-events:none}
+#lhVeil{position:absolute;inset:0;background:#0006;opacity:0;transition:opacity .22s}
+#lhSheetBody{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .38s cubic-bezier(.2,.9,.25,1);visibility:hidden;line-height:1.4;font-variant-numeric:tabular-nums}
+#lhSheet.on{pointer-events:auto}#lhSheet.on #lhVeil{opacity:1}#lhSheet.on #lhSheetBody{transform:none;visibility:visible;box-shadow:0 -10px 30px #0003}
+@media (prefers-reduced-motion:reduce){#lhVeil,#lhSheetBody{transition:none}}
+.lh-wideonly{display:none}
+@media (min-width:1100px){
+  #scHome.lean .home{padding:26px 44px 30px}
+  #leanHome{display:grid;grid-template-columns:minmax(320px,380px) minmax(0,1fr) minmax(320px,400px);gap:44px;align-items:stretch;font-size:16px}
+  .lh-c1,.lh-c2,.lh-c3{display:flex;flex-direction:column;gap:18px;min-width:0}.lh-c1>*,.lh-c2>*,.lh-c3>*,#leanHome .lh-wl{order:0}.lh-c2>.lh-k{margin-bottom:0}.lh-wideonly{display:block}
+  .lh-tr{grid-template-columns:1fr;gap:12px}.lh-tc{padding:12px 14px}
+  .lh-cal{gap:7px}#leanHome .lh-cal button{aspect-ratio:1.35;border-radius:7px;padding:6px 8px}
+  .lh-side{display:block;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:16px 18px}.lh-side .lh-tile{background:var(--bg)}
+  .lh-hrs{height:64px}#leanHome .lh-go{font-size:17px;padding:16px}.lh-big{font-size:54px}
+}
+/* what the lean Home replaces stays in the page, unseen, so its handlers still run */
+#scHome.lean .homeLead>*:not(#leanHome):not(#homeWarn), #scHome.lean .homeCols>*:not(.homeLead):not(.mcCol), #scHome.lean .mcCol>*:not(.homeLead){display:none!important}
+#scHome.lean .mcCol{display:contents!important}   /* the old two-column balancer's wrapper: see through it */
+#scHome.lean .homeCols{display:block!important;padding:0!important;height:100%}#scHome.lean .homeLead{height:100%;max-width:none!important;width:auto!important}
+#scHome.lean .home{display:flex;flex-direction:column;padding-bottom:16px}#scHome.lean .homeCols,#scHome.lean .homeLead{flex:1;display:flex!important;flex-direction:column;align-items:stretch!important}
+#scHome.lean #leanHome{flex:1}
 /* the lean pass (2026.09.17.6): a removed panel is hidden, never deleted */
 .leanOff{display:none!important}
 #scSet .fh.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
@@ -1944,7 +2009,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
 <div id="app">
 
   <!-- ============ HOME ============ -->
-  <section id="scHome" class="screen on">
+  <section id="scHome" class="screen on lean">
     <div class="bar">
       <button class="icon" id="toStats" aria-label="Stats">&#9638;</button>
       <div class="title"></div>
@@ -1956,6 +2021,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
       <div class="wordmark" id="wordmark"></div>
       <div class="sub" id="homeSub">—</div>
       <div id="homeWarn"></div>
+      <div id="leanHome"></div>
       <div class="clepPanel" id="clepPanel"></div>
 
       <div class="chips" id="chips"></div>
@@ -2116,6 +2182,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
   </section>
 
   <!-- ============ STATS ============ -->
+  <div id="lhSheet"><div id="lhVeil"></div><div id="lhSheetBody"></div></div>
   <section id="scStats" class="screen">
     <div class="bar">
       <button class="icon" id="statsBack" aria-label="Back">&#8249;</button>
@@ -2418,6 +2485,11 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <input type="number" id="fMinutes" min="0" max="600" step="5" inputmode="numeric">
         <div class="fh">When today's minutes are spent the sitting ends: nothing new is opened, a word already on its steps is seen through, and whatever was still due waits for tomorrow. 0 means no limit. New words are paid for out of whatever the day's reviews leave over.</div>
         <div class="fh" id="fMinutesGap" style="margin-top:10px"></div>
+      </div>
+      <div class="field">
+        <label for="fHomeDisplay">Front screen shows today as</label>
+        <select id="fHomeDisplay" class="sel"><option value="vessel">A water-clock</option><option value="line">A number and a bar</option></select>
+        <div class="fh">Both show minutes done, minutes still due and the limit. The daily limit itself is the setting above.</div>
       </div>
       <div class="field">
         <label for="fParams">Scheduler numbers</label>
@@ -3446,7 +3518,7 @@ function calibrationDue(s,now){ return !!(s&&s.calibrationDueAt!=null&&Number.is
 function makeDefaults(){ return {
   version:2, created:Date.now(), calibrationDueAt:null,   // Clepsydra: the calibration is continuous (see calibration()); vocabula's fortnightly reminder starts dismissed
   settings:{useTiming:false, newPerDayL:50, newPerDayE:50, retention:0.90, maxIvl:36500, rollover:4,
-  minutesPerDay:30, firstPass:true, buttons:'two', params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:false, gradeReminder:false, quickRate:'off', holdEasy:'off', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
+  minutesPerDay:30, homeDisplay:'vessel', firstPass:true, buttons:'two', params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:false, gradeReminder:false, quickRate:'off', holdEasy:'off', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
   dir:'L', parts:null, buckets:['shaky','unseen'], theme:'light', palette:'vellum', layout:'legacy', rotate:'off', rotDay:null, rotSeen:[], cards:{}, orphans:{}, log:[], days:{}, dayNotes:{}, sinceExport:0, lastExport:null, lastPushBytes:0,
   deck:KEY, lastSync:null, syncedLogLen:null, lastRemoteAt:null, lastDevice:null, lastPushError:null, lastPushErrorAt:null, confuseGroups:{},
   // Phase 3 §C (PHASE3_4_HANDOFF.md): user-added words. Rides backup/sync/
@@ -4032,6 +4104,7 @@ function normalise(o){
   if(['fitted','stock'].indexOf(s.settings.params)===-1) s.settings.params='fitted';
   if(typeof s.settings.clockTerm!=='boolean') s.settings.clockTerm=true;
   if(typeof s.settings.firstPass!=='boolean') s.settings.firstPass=true;
+  if(s.settings.homeDisplay!=='line') s.settings.homeDisplay='vessel';
   // Two buttons (2026-09-17, his call): Again and Good. Everything that only
   // existed to serve Easy and Hard is forced off rather than deleted -- hold
   // for Easy, the slow-Easy rule, quick rate, the four-button reminder. The
@@ -4711,7 +4784,7 @@ function loadForecast(target,days,now){
     }
   }
   const tot=perDay.reduce((a,b)=>a+b,0);
-  return {target,paper,words,backlogMin:backlogMs/MIN,perDayMin:tot/days/MIN,
+  return {target,paper,words,backlogMin:backlogMs/MIN,perDayMin:tot/days/MIN,byDayMin:perDay.map(x=>x/MIN),
           steadyMin:perDay.slice(Math.floor(days/2)).reduce((a,b)=>a+b,0)/Math.max(days-Math.floor(days/2),1)/MIN,
           firstWeekMin:perDay.slice(0,7).reduce((a,b)=>a+b,0)/7/MIN};
 }
@@ -4850,6 +4923,65 @@ const fmtSecs=ms=>(ms/1000).toFixed(1)+' s';
 // is from his own reverse reviews, so the app tells him instead of a calendar:
 // misses against what the model predicted for those same reviews, and seconds
 // against the forward direction where there is enough of it to compare.
+/* ---- the lean Home: its numbers (2026.09.17.8) ----
+   Pure readers for the front screen he chose on 2026-09-17: three figures for
+   the main display, four trends, and one day's detail. Nothing here writes. */
+function homeNumbers(now){
+  now=(now!=null)?now:Date.now();
+  const d=dayKey(now), q=buildQueue(S.dir), done=usedMs(d)/MIN, due=queueCostMs(q,now)/MIN, limit=budgetMs(d)/MIN;
+  return {done:done, due:due, limit:limit, spare:limit>0?Math.max(limit-done-due,0):null, over:limit>0?Math.max(done+due-limit,0):0,
+          waiting:q.due.length+q.learn.length, fresh:q.intro.length};
+}
+// Minutes (reviews and first pass together), retention delivered (spaced
+// reviews passed, over a trailing week, null under ten of them -- a day's own
+// handful is noise), words in rotation at the end of each day, and the seven
+// days ahead in minutes. A word enters rotation when it is sorted Shaky or
+// Known, or first rated; it leaves when it retires. Sorted straight to Known
+// well, it was never in.
+function trendSeries(days,now){
+  now=(now!=null)?now:Date.now(); days=days||14;
+  const d0=dayKey(now), first=d0-days+1, ok={}, tot={}, firstAt={};
+  for(const e of S.log){
+    if(firstAt[e[0]]==null) firstAt[e[0]]=e[2];
+    const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue;
+    const k=dayKey(e[2]); if(k<first-6||k>d0) continue;
+    tot[k]=(tot[k]|0)+1; if(e[1]!==AGAIN) ok[k]=(ok[k]|0)+1;
+  }
+  const enter=[], leave=[];
+  for(const id in S.cards){
+    const cs=S.cards[id]; if(!cs||cs.susp) continue;
+    const t=(cs.tri>TRI_UNSEEN&&cs.triAt)?cs.triAt:firstAt[id]; if(t==null) continue;
+    if(cs.tri===TRI_WELL&&cs.ret&&cs.ret<=cs.triAt) continue;
+    enter.push(dayKey(t)); if(cs.ret) leave.push(dayKey(cs.ret));
+  }
+  const minutes=[], retention=[], rotation=[];
+  for(let k=first;k<=d0;k++){
+    const r=S.days[k]||{}; minutes.push(((r.studyMs|0)+(r.triMs|0))/MIN);
+    let o=0,t=0; for(let j=k-6;j<=k;j++){ o+=ok[j]|0; t+=tot[j]|0; }
+    retention.push(t>=10?o/t:null);
+    let n=0; for(const x of enter) if(x<=k) n++; for(const x of leave) if(x<=k) n--;
+    rotation.push(n);
+  }
+  return {minutes:minutes, retention:retention, rotation:rotation, ahead:loadForecast(S.settings.retention,8,now).byDayMin.slice(1,8)};
+}
+// One study day, for the sheet a tapped day opens.
+function dayInfo(k){
+  const r=S.days[k]||{}, hours=new Array(24).fill(0), think=[];
+  let reviews=0, passed=0, revMs=0, newMs=0, triN=0;
+  for(const e of S.log){
+    if(dayKey(e[2])!==k) continue;
+    const x=e[15]||{}, ms=Number.isFinite(x.ms)?x.ms:0;
+    hours[new Date(e[2]).getHours()]++;
+    if(e[5]==='R'){ reviews++; revMs+=ms; if(e[1]!==AGAIN){ passed++; if(Number.isFinite(e[4])) think.push(e[4]); } }
+    else newMs+=ms;
+  }
+  for(const t of (S.triLog||[])){ if(dayKey(t[2])===k){ triN++; hours[new Date(t[2]).getHours()]++; } }
+  think.sort((a,b)=>a-b);
+  return {min:((r.studyMs|0)+(r.triMs|0))/MIN, limit:S.settings.minutesPerDay|0, reviews:reviews, passPct:reviews?passed/reviews:null,
+          newWords:r.intro|0, triN:triN, revMs:revMs, newMs:newMs, triMs:r.triMs|0, hours:hours,
+          predMin:(r.predMs|0)/MIN, actMin:(r.actMs|0)/MIN, medianMs:think.length?think[think.length>>1]:null,
+          any:!!(reviews||triN||(r.studyMs|0)>0||(r.n|0)>0)};
+}
 const REV_CHECK_MIN=60;
 function reverseCheck(){
   let n=0, fail=0, pred=0; const tE=[], tL=[];
@@ -4959,8 +5091,8 @@ function triButtonLabels(){
 }
 
 /* ======================= queue ======================= */
-function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.7';
+function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
+const BUILD='2026.09.17.8';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -8850,6 +8982,7 @@ function renderHome(){
       '<div class="note">Time from seeing the word to revealing the answer, across your last '+lat.n+
       ' successful answers in this direction. Failures are excluded.</div>';
   balanceColumns(document.querySelector('#scHome .homeCols'));
+  try{ if(typeof renderLeanHome==='function') renderLeanHome(); }catch(e){ if(typeof console!=='undefined') console.error('lean home',e); }
 }
 // unlike renderCard()'s $('prompt').textContent=c.q (always safe), this row is
 // built as an HTML string -- today's word list has no &/</> in it to prove it,
@@ -10064,7 +10197,7 @@ function renderWarn(qE){
   // Start -- the numbers it is arguing with. Plain .warn, no class of its
   // own: it is a notice, it wants the palette's own notice colours, and
   // every theme already defines them.
-  if(greekFirstDue(typeof KEY==='undefined'?'':KEY,Date.now()))
+  if(false&&greekFirstDue(typeof KEY==='undefined'?'':KEY,Date.now()))   // retired 2026.09.17.8: the app is built Greek-first now, he need not be told
     h+='<div class="warn">Greek first. Forty-five minutes there before this deck, whatever this count says.</div>';
   if(!storageOK)
     h+='<div class="warn bad">This device is refusing to save. Export a backup now and check that Safari is not in Private Browsing.</div>';
@@ -11866,6 +11999,123 @@ function leanStats(){
   const ss=sectOf('suspStatsBody'); if(ss) ss.classList.toggle('leanOff',!anySusp);
 }
 try{ leanInterface(); }catch(e){ if(typeof console!=='undefined') console.error('lean',e); }
+/* ---- the lean Home: drawing it (2026.09.17.8) ----
+   One screen on a phone, three columns on a laptop. Built beside vocabula's
+   Home, not in place of it: the old controls stay in the page, hidden, and the
+   new ones press them, so every handler and every renderer keeps working and
+   nothing stored changes. Rules he set: exactly one phone screen; a label and
+   its value always on one line; no banner, no part selector, no limit stepper;
+   tied words beside Start, the word list at the foot; every day opens. */
+const lhMin=m=>m>=10?Math.round(m):(Math.round(m*10)/10);
+const lhWide=()=>window.matchMedia&&window.matchMedia('(min-width:1100px)').matches;
+function lhSpark(a,h,opt){
+  opt=opt||{}; const v=a.filter(x=>x!=null); if(v.length<2) return '<div class="lh-none">not enough yet</div>';
+  const mn=opt.min!=null?opt.min:Math.min.apply(null,v), mx=opt.max!=null?opt.max:Math.max.apply(null,v), W=140;
+  const X=i=>i*(W/(a.length-1)), Y=x=>h-2-((x-mn)/((mx-mn)||1))*(h-4);
+  let p='', pen=false; a.forEach((x,i)=>{ if(x==null){ pen=false; return; } p+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(x).toFixed(1); pen=true; });
+  return '<svg viewBox="0 0 '+W+' '+h+'" height="'+h+'" preserveAspectRatio="none" class="lh-sp">'+
+    (opt.ref!=null?'<line x1="0" x2="'+W+'" y1="'+Y(opt.ref)+'" y2="'+Y(opt.ref)+'" class="lh-ref"/>':'')+
+    '<path d="'+p+'" class="lh-ln" vector-effect="non-scaling-stroke"/></svg>';
+}
+function lhHero(n){
+  const lim=n.limit>0?n.limit:Math.max(n.done+n.due,30), pd=Math.min(n.done/lim,1), pq=Math.min(n.due/lim,1-pd);
+  const facts='<div class="lh-f"><b>'+lhMin(n.due)+' min</b> still due</div>'+
+    (n.limit>0?(n.over>0?'<div class="lh-f"><b>'+lhMin(n.over)+' min</b> will wait</div>':'<div class="lh-f"><b>'+lhMin(n.spare)+' min</b> to spare</div>'):'<div class="lh-f">no daily limit</div>');
+  if(S.settings.homeDisplay==='line'){
+    return '<div class="lh-line"><div class="lh-big">'+lhMin(n.done)+'<span> of '+lhMin(lim)+' min</span></div>'+
+      '<div class="lh-bar"><i style="width:'+(pd*100)+'%"></i><i class="q" style="left:'+(pd*100)+'%;width:'+(pq*100)+'%"></i>'+
+      [1,2].map(t=>'<u style="left:'+(t*100/3)+'%"></u>').join('')+'</div><div class="lh-facts">'+facts+'</div></div>';
+  }
+  const H=150, y=f=>H-f*H, ticks=[0,1/3,2/3,1];
+  return '<div class="lh-vessel"><svg width="92" height="'+(H+10)+'" viewBox="0 0 92 '+(H+10)+'" aria-hidden="true">'+
+    '<defs><pattern id="lhHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" class="lh-hb"/><line x1="0" y1="0" x2="0" y2="6" class="lh-hl"/></pattern>'+
+    '<clipPath id="lhClip"><rect x="1" y="5" width="58" height="'+H+'" rx="12"/></clipPath></defs>'+
+    '<g clip-path="url(#lhClip)"><rect x="1" y="5" width="58" height="'+H+'" class="lh-empty"/>'+
+    '<rect x="1" y="'+(5+y(pd+pq))+'" width="58" height="'+(pq*H)+'" fill="url(#lhHatch)"/>'+
+    '<rect x="1" y="'+(5+y(pd))+'" width="58" height="'+(pd*H)+'" class="lh-full"/></g>'+
+    '<rect x="1" y="5" width="58" height="'+H+'" rx="12" class="lh-glass"/>'+
+    ticks.map(f=>'<line x1="62" x2="67" y1="'+(5+y(f))+'" y2="'+(5+y(f))+'" class="lh-tk"/><text x="70" y="'+(9+y(f))+'" class="lh-tt">'+Math.round(f*lim)+'</text>').join('')+'</svg>'+
+    '<div><div class="lh-big">'+lhMin(n.done)+'<span> min done</span></div><div class="lh-facts col">'+facts+'</div></div></div>';
+}
+function lhFirstPass(){
+  const tp=triageProgress(); if(!tp.left||S.settings.firstPass===false) return '';
+  const w=k=>(100*(tp.by[k]|0)/tp.total)+'%';
+  return '<button type="button" class="lh-fp" data-go="toTriage"><div class="lh-row"><b>First pass</b><span>'+tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' · '+fmtMin(tp.left*timeFor('T')/MIN)+' left ›</span></div>'+
+    '<div class="lh-stack"><i class="p4" style="width:'+w(4)+'"></i><i class="p3" style="width:'+w(3)+'"></i><i class="p2" style="width:'+w(2)+'"></i><i class="p1" style="width:'+w(1)+'"></i></div>'+
+    '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>not seen</div></div></button>';
+}
+function lhTrends(h){
+  const t=trendSeries(14), last=a=>{ for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return a[i]; return null; };
+  const card=(k,v,sub,g)=>'<div class="lh-tc"><div class="lh-k">'+k+'</div><div class="lh-row"><b>'+v+'</b><span>'+sub+'</span></div>'+g+'</div>';
+  const r=last(t.retention), mx=Math.max.apply(null,t.ahead.concat([1]));
+  return '<div class="lh-tr">'+
+    card('Minutes',lhMin(last(t.minutes)||0),'14 days',lhSpark(t.minutes,h,{min:0,ref:S.settings.minutesPerDay>0?S.settings.minutesPerDay:null,max:Math.max.apply(null,t.minutes.concat([S.settings.minutesPerDay|0,1]))}))+
+    card('Retention',r==null?'—':Math.round(r*100)+'%','asked '+Math.round(S.settings.retention*100),lhSpark(t.retention,h,{min:0.7,max:1,ref:S.settings.retention}))+
+    card('In rotation',(last(t.rotation)||0).toLocaleString(),(()=>{ const d=(last(t.rotation)||0)-(t.rotation[0]||0); return (d>=0?'+':'')+d; })(),lhSpark(t.rotation,h))+
+    card('Week ahead',lhMin(t.ahead[0]||0)+' min','tomorrow','<div class="lh-ah" style="height:'+h+'px">'+t.ahead.map(a=>'<i style="height:'+Math.max(a/mx*100,2)+'%"></i>').join('')+'</div>')+'</div>';
+}
+function lhCalendar(weeks){
+  // coloured by MINUTES against the limit (first pass included), not by ratings: a day spent sorting is a day studied
+  const d=today(), n=weeks*7, wide=lhWide(), lim=(S.settings.minutesPerDay>0?S.settings.minutesPerDay:30)*MIN; let h='';
+  for(let i=n-1;i>=0;i--){
+    const k=d-i, r=S.days[k]||{}, ms=(r.studyMs|0)+(r.triMs|0), bg=ms>0?'background:color-mix(in srgb,var(--coral) '+Math.round(18+Math.min(ms/lim,1)*72)+'%,var(--panel));color:var(--bg)':'';
+    h+='<button type="button" data-day="'+k+'" class="'+(i===0?'t ':'')+(lhDay===k?'s':'')+'" style="'+(bg||'')+'" aria-label="'+new Date(dayStart(k)).toDateString()+'">'+(wide?new Date(dayStart(k)+12*HOUR).getDate():'')+'</button>';
+  }
+  return '<div class="lh-cal">'+h+'</div>';
+}
+function lhDayHtml(k){
+  const i=dayInfo(k), name=new Date(dayStart(k)+12*HOUR).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  let h='<div class="lh-dh"><b>'+name+'</b><span><button type="button" data-step="-1" aria-label="Previous day">‹</button><button type="button" data-step="1" aria-label="Next day">›</button></span></div>';
+  if(!i.any) return h+'<div class="lh-none">No study this day.</div>';
+  const tile=(v,l)=>'<div class="lh-tile"><b>'+v+'</b><span>'+l+'</span></div>', tot=(i.revMs+i.newMs+i.triMs)||1, mxh=Math.max.apply(null,i.hours.concat([1]));
+  h+='<div class="lh-tiles">'+tile(lhMin(i.min),i.limit?'min of '+i.limit:'minutes')+tile(i.reviews,'reviews')+tile(i.passPct==null?'—':Math.round(i.passPct*100)+'%','passed')+tile(i.newWords,'new words')+'</div>';
+  h+='<div><div class="lh-k">Where the minutes went</div><div class="lh-stack tall"><i class="rv" style="width:'+(100*i.revMs/tot)+'%"></i><i class="nw" style="width:'+(100*i.newMs/tot)+'%"></i><i class="fp" style="width:'+(100*i.triMs/tot)+'%"></i></div>'+
+     '<div class="lh-ax"><span><i class="rv"></i>reviews</span><span><i class="nw"></i>new words</span><span><i class="fp"></i>first pass'+(i.triN?' · '+i.triN:'')+'</span></div></div>';
+  h+='<div><div class="lh-k">When you studied</div><div class="lh-hrs">'+i.hours.map(v=>'<i style="height:'+(v/mxh*100)+'%"></i>').join('')+'</div><div class="lh-ax"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div></div>';
+  h+='<div class="lh-row sm"><span>'+(i.predMin>0?'Predicted '+lhMin(i.predMin)+' min, took '+lhMin(i.actMin):'No time prediction that day')+'</span><span>'+(i.medianMs?'answers '+(i.medianMs/1000).toFixed(1)+' s':'')+'</span></div>';
+  return h;
+}
+let lhDay=null;
+function renderLeanHome(){
+  const box=$('leanHome'); if(!box||!S) return;
+  const n=homeNumbers(), wide=lhWide(), other=buildQueue(S.dir==='L'?'E':'L'), qL=S.dir==='L'?Q:other, qE=S.dir==='E'?Q:other;
+  const cnt=q=>{ const w=q.due.length+q.learn.length; return w?w+' due':(q.intro.length?q.intro.length+' new':'none due'); };
+  const short=s=>String(s).replace(/Latin/g,'La').replace(/Greek/g,'Gr').replace(/English/g,'En');
+  const nTies=tieDrillGroups(S.dir).length, ready=n.waiting+n.fresh;
+  const start='<div class="lh-acts"><button type="button" class="lh-go" data-go="startBtn"'+(ready?'':' disabled')+'>'+(ready?(n.waiting?'Start · '+lhMin(Math.max(n.due,1))+' min':'Start · '+n.fresh+' new'):'Nothing due')+'</button>'+
+    (nTies?'<button type="button" class="lh-sec" data-go="toTie">Tied · '+nTies+'</button>':'')+'</div>';
+  const seg='<div class="lh-seg"><button type="button" data-go="dirLtoE" class="'+(S.dir==='L'?'on':'')+'">'+short(DECK.fwd)+' · '+cnt(qL)+'</button><button type="button" data-go="dirEtoL" class="'+(S.dir==='E'?'on':'')+'">'+short(DECK.rev)+' · '+cnt(qE)+'</button></div>';
+  const rc=(typeof reverseCheckHtml==='function')?reverseCheckHtml():'';
+  const list='<button type="button" class="lh-wl" data-go="toBrowse"><b>Word list</b><span>'+CARDS.filter(c=>c.dir==='L').length.toLocaleString()+' words ›</span></button>';
+  if(wide&&lhDay==null) lhDay=today();
+  { const tt=document.querySelector('#scHome .bar .title'); if(tt) tt.textContent=DECK_TITLE; }
+  box.innerHTML=
+    '<div class="lh-c1">'+lhHero(n)+start+seg+lhFirstPass()+(rc?'<div class="lh-note">'+rc+'</div>':'')+list+'</div>'+
+    '<div class="lh-c2"><div class="lh-k">'+(wide?'Last five weeks · click a day':'Last five weeks · tap a day')+'</div>'+lhCalendar(5)+'<div class="lh-side" id="lhSide">'+(wide?lhDayHtml(lhDay):'')+'</div></div>'+
+    '<div class="lh-c3"><div class="lh-k lh-wideonly">Trends · 14 days</div>'+lhTrends(wide?56:28)+'</div>';
+  if(!wide&&lhDay!=null&&$('lhSheet').classList.contains('on')) $('lhSheetBody').innerHTML=lhDayHtml(lhDay);
+}
+function lhOpenDay(k){
+  lhDay=Math.min(k,today());
+  if(lhWide()){ renderLeanHome(); return; }
+  $('lhSheetBody').innerHTML=lhDayHtml(lhDay); $('lhSheet').classList.add('on');
+  $('leanHome').querySelectorAll('[data-day]').forEach(b=>b.classList.toggle('s',+b.dataset.day===lhDay));
+}
+function lhCloseDay(){ $('lhSheet').classList.remove('on'); if(!lhWide()){ lhDay=null; renderLeanHome(); } }
+$('scHome').addEventListener('click',e=>{
+  const t=e.target.closest?e.target:null; if(!t) return;
+  const st=t.closest('[data-step]'); if(st&&lhDay!=null){ lhOpenDay(lhDay+(+st.dataset.step)); return; }
+  const dy=t.closest('[data-day]'); if(dy){ lhOpenDay(+dy.dataset.day); return; }
+  if(t.id==='lhVeil'){ lhCloseDay(); return; }
+  const go=t.closest('#leanHome [data-go]'); if(go&&!go.disabled){ const el=$(go.dataset.go); if(el) el.click(); }
+});
+document.addEventListener('keydown',e=>{
+  if(!$('scHome').classList.contains('on')||lhDay==null) return;
+  if(e.key==='Escape'&&$('lhSheet').classList.contains('on')){ lhCloseDay(); }
+  else if(e.key==='ArrowLeft') lhOpenDay(lhDay-1); else if(e.key==='ArrowRight') lhOpenDay(lhDay+1);
+});
+if(window.matchMedia){ const mq=window.matchMedia('(min-width:1100px)'); const f=()=>{ $('lhSheet').classList.remove('on'); if(!lhWide()) lhDay=null; if(S) renderLeanHome(); }; if(mq.addEventListener) mq.addEventListener('change',f); else if(mq.addListener) mq.addListener(f); }
+
 
 /* ---------------- Clepsydra wiring ---------------- */
 function renderClep(){
@@ -11973,6 +12223,7 @@ function renderMinRing(){
 tapZone($('minMinus'),()=>{ if(!capOn()) return; if(budgetMs(today())>5*MIN){ extendBudget(-5); } renderHome(); });
 tapZone($('minPlus'), ()=>{ if(!capOn()) return; extendBudget(5); renderHome(); });
 tapZone($('doneExtend'),()=>{ extendBudget(5); next(); if(current) show('scStudy'); });
+$('fHomeDisplay').addEventListener('change',e=>{ S.settings.homeDisplay=e.target.value==='line'?'line':'vessel'; save(); });
 $('fMinutes').addEventListener('change',e=>{ const v=Math.round(+e.target.value); S.settings.minutesPerDay=(Number.isFinite(v)&&v>=0&&v<=600)?v:30; save(); renderSet(); });
 $('fParams').addEventListener('change',e=>{ S.settings.params=e.target.value==='stock'?'stock':'fitted'; applyParams(); save(); renderSet(); });
 $('fCalibrate').addEventListener('change',e=>{ S.settings.calibrate=(e.target.value==='1'); save(); renderSet(); });
@@ -12004,6 +12255,7 @@ function renderSetClep(){
   { const g=$('gearStreakStart'), f=g&&g.closest('.field'); if(f) f.style.display='none'; }
   const s=S.settings, fit=calibration(), st=clepSt();
   $('fMinutes').value=s.minutesPerDay|0;
+  $('fHomeDisplay').value=s.homeDisplay==='line'?'line':'vessel';
   $('fMinutesGap').textContent=budgetGap(Date.now()).text;
   $('fParams').value=s.params==='stock'?'stock':'fitted';
   $('fParamsNote').textContent=(P_FITTED[KEY]?('“Fitted to me” is the fit made on '+P_FIT_DATE+' from your whole vocabula history for this deck. '):'No personal fit exists for this deck. ')+'Running now: '+paramsLabel()+'.';
