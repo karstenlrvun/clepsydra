@@ -1,0 +1,633 @@
+/* palettes.css -- every palette this app knows, as CSS custom-property blocks
+   keyed by [data-palette][data-theme], plus the few palette-specific skins
+   (Glass's translucent surfaces, Neon's glow) that only make sense next to
+   their own variables. Split out of deck.html on 2026-08-16 (Phase 1) so
+   the launcher (index.html) reads THE SAME file instead of a hand-copied
+   table: that copy had gone stale the day five new palettes shipped, which is
+   exactly how a deck's nav card ended up wearing the wrong accent. One file,
+   linked from both pages; nothing else defines --bg and friends.
+
+   Any element carrying data-palette + data-theme re-declares the whole
+   palette for its own subtree (see the note below on why these are not
+   scoped to `html`) -- the launcher's paletteAccent() probe and the decks'
+   theme previews both rely on that. */
+/* Twelve palettes, each with a light and a dark variant. The mode is chosen
+   separately from the palette, so any palette can be read either way.
+   Vellum is the default; Legacy reproduces the original colours exactly.
+
+   Deliberately NOT scoped to `html` (2026.08.15.6). These were
+   `html[data-palette=x][data-theme=y]` for as long as the only thing that ever
+   carried those two attributes was the root element. Dropping the `html`
+   means any element can carry them and re-declare the whole palette for its
+   own subtree -- which is the entire mechanism behind the theme previews in
+   Settings: twelve themes, each shown in both light and dark at once, on
+   one screen, with no duplicated colour values anywhere. A preview is a real
+   `<div data-palette="steel" data-theme="dark">` reading these exact
+   tokens, so it cannot drift from the real thing the way a hand-built swatch
+   list would. Nothing else in the file defines --bg and friends, so the small
+   specificity drop (0,2,1 -> 0,2,0) changes no existing cascade.
+
+   2026-08-16: Kanagawa and Everforest retired -- both sat inside the same
+   9-degree, 84-95%-lightness hue band as Vellum and Gruvbox (measured, not
+   eyeballed), and Gruvbox/Everforest's "good" accents were near-identical
+   (#7a7405 vs #798906). Gruvbox stays as the family's one representative:
+   most recognised name of the three, most saturated, and the only fully
+   achromatic dark mode in the whole roster. Five new palettes replaced them
+   that same day -- Rubric, Steel, Glass, Neon, 8-Bit.
+
+   2026-08-16, later the same day: a second pass on that five-palette batch,
+   this time on fit rather than hue-collision. Monokai was cut -- it sits
+   one file above, vivid-on-near-black just like Dracula, and next to it the
+   two read as the same idea twice rather than two themes. 8-Bit was cut
+   outright: its light mode was already an open, unresolved legibility
+   finding (FINALISATION_PLAN.md 2a) -- the authentic Game Boy ground is
+   bright enough that `--amber` measured 1.18:1 against it, text the same
+   brightness as its own background -- and fixing that meant trading away
+   the exact hardware-accurate hex values that were 8-Bit's only reason to
+   exist, so retiring it resolves the finding instead of patching around it.
+   Rubric's laid-paper texture read as an odd fit for what the palette
+   actually wanted to be, so it was redesigned in place, gold leaf on white
+   (and, in dark mode, black) marble instead of parchment, and renamed
+   Marble to match. Neon's dark mode was retuned lighter -- a true near-black
+   canvas (`--bg` at 4% lightness) read as oppressive rather than moody, so
+   it now sits closer to a deep indigo, with the glow reach trimmed slightly
+   to match a canvas that no longer needs quite as much room to bloom into.
+   Wood is new: honey oak and brushed brass in light mode, dark walnut and
+   the same brass in dark, the material register (grain, warmth) neither
+   Marble's stone nor Steel's metal covers. Thirteen minus two (Monokai,
+   8-Bit) plus one (Wood), with Rubric and Neon reworked in place rather
+   than replaced, lands the roster at exactly twelve.
+
+   2026-08-18, contrast pass on the rate row. The four Study-screen rating
+   buttons paint an ink var on a -bg var (--again on --again-bg, --warn-ink
+   on --warn-bg, --good on --good-bg, --easy on --easy-bg). `.rate .lbl` is
+   16px/weight-500 -- normal text by WCAG's reckoning, not "large" (24px, or
+   18.66px bold), so the bar is 4.5:1. A sweep found **31 of those pairs
+   below it**, spread across 16 of the 24 palette/mode blocks, worst
+   Catppuccin light's Good at 2.92:1 -- text barely half the required
+   separation from the button it sits on. All long-standing; the sweep only
+   happened because a new Hard button reused --warn-* and that reuse wanted
+   checking. FINALISATION_PLAN.md 2a (8-Bit light) was the same class of
+   defect, found the same way.
+
+   How they were fixed, and what was deliberately NOT done. Hue and
+   saturation are held EXACTLY in every case; only lightness moved, so a
+   published palette stays recognisably itself. In light modes the ink was
+   darkened -- the pill is a pale tint and the saturated label is what
+   carries the theme, so deepening it costs nothing visually. In dark modes
+   the bright accent IS the signature (Gruvbox's #f74d39, Dracula's
+   #ff5555), and lightening it toward salmon would have been the visible
+   change, so where possible the PILL was darkened instead and the accent
+   left untouched: that applies to Gruvbox dark and Dracula dark. Elsewhere
+   in dark mode the pill could not move without closing up against --panel,
+   so the ink was lightened there instead. Both pills that did move ended up
+   with MORE separation from their panel than before (1.14 -> 1.21, 1.11 ->
+   1.23), not less.
+
+   sec108 in tests/tests.js now sweeps every pair on every run and fails by
+   name. Add a palette, or retune one, and it will tell you before a person
+   has to notice. */
+/* ---- fixed heat-ramp tokens (2026-08-30) ----
+   The calendar heatmap used to read --good/--again (retention) and
+   --coral/--good/--easy/--amber (volume's accent picker) straight off
+   whichever palette -- and, under daily rotation, whichever DAY -- happened
+   to be active. Measured across the 24 palette/theme blocks above and below:
+   --good alone spans hue 57 (Gruvbox light, a yellow) to 198 (Rose Pine
+   light, a cyan) and lightness 22 to 76, so one 82%-recall day rendered
+   olive in Vellum, bright yellow in Gruvbox dark, violet in Rose Pine
+   (in-progress/FOUR_QUIRKS_FINDINGS.md §3). These five are fixed instead --
+   the same colour every palette, every day the rotation lands on -- so the
+   ramp is a scale learned once, not relearned every morning.
+   Scoped to :root/html (this document's own root element carries
+   data-theme, set by applyTheme()) rather than [data-palette][data-theme]
+   like the blocks above: these do NOT vary by palette, only by mode, so they
+   don't need that per-subtree re-declaration mechanism -- and being ordinary
+   custom properties with their own distinct names, they cannot collide with
+   anything a palette block defines regardless of cascade order.
+   Retention mixes directly between --heat-again and --heat-good now (both
+   ends fixed -- see shared.js's heatCellBg() and its own comment). Volume
+   still mixes its accent into --panel, which DOES still vary by palette, on
+   purpose: a quiet day should still read as "this palette's own empty", only
+   the busy end needed to stop moving. --heat-coral/--heat-good/--heat-easy/
+   --heat-amber match the gear panel's own four accent options one for one. */
+:root{
+  --heat-again:oklch(56% 0.19 25); --heat-good:oklch(72% 0.17 145);
+  --heat-coral:oklch(62% 0.17 35); --heat-easy:oklch(52% 0.14 305);
+  --heat-amber:oklch(64% 0.15 78);
+}
+html[data-theme="dark"]{
+  --heat-again:oklch(66% 0.17 25); --heat-good:oklch(80% 0.15 145);
+  --heat-coral:oklch(72% 0.15 35); --heat-easy:oklch(68% 0.13 305);
+  --heat-amber:oklch(76% 0.14 80);
+}
+[data-palette="vellum"][data-theme="light"]{
+  --bg:#fbf7ec; --panel:#f5efdf; --ink:#2a2318; --muted:#6f6350; --faint:#988c75;
+  --line:#e3d9c1; --coral:#8c2f26; --accent-soft:#f0e3d8; --raise:#fffdf6; --again:#a3342a;
+  --again-bg:#f0ded3; --again-br:#dfb9ae; --good:#5a6b32; --good-bg:#e6e5d4; --good-br:#c7cab0;
+  --easy:#755992; --easy-bg:#ebe3e2; --easy-br:#d3c6d2; --amber:#9a7318; --warn-bg:#eee6d0;
+  --warn-br:#dccda8; --warn-ink:#7b5d18; --bad-bg:#f0ded3; --bad-br:#dfb9ae; --bad-ink:#812f25;
+  --toast:#2a2318;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ca7400; --flag3:#009f2a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009a9a; --flag7:#a200fe;
+}
+[data-palette="vellum"][data-theme="dark"]{
+  --bg:#1a160f; --panel:#241f16; --ink:#ece3cf; --muted:#a89a80; --faint:#7a6f5c;
+  --line:#3a3222; --coral:#d4795e; --accent-soft:#3f2a1f; --raise:#2c2519; --again:#e28073;
+  --again-bg:#462c23; --again-br:#6d4036; --good:#a9bd72; --good-bg:#393b25; --good-br:#565c39;
+  --easy:#c3a3e0; --easy-bg:#3f353d; --easy-br:#615167; --amber:#d4a24a; --warn-bg:#43351c;
+  --warn-br:#685128; --warn-ink:#d7ab5d; --bad-bg:#462c23; --bad-br:#6d4036; --bad-ink:#e28879;
+  --toast:#241f16;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="catppuccin"][data-theme="light"]{
+  --bg:#eff1f5; --panel:#e6e9ef; --ink:#4c4f69; --muted:#66687d; --faint:#8a8d9b;
+  --line:#ccd0da; --coral:#de590c; --accent-soft:#f0e1db; --raise:#ffffff; --again:#bc082f;
+  --again-bg:#edd2dd; --again-br:#e6a9b9; --good:#20730e; --good-bg:#d7e6d9; --good-br:#b3d7b0;
+  --easy:#7a1cf5; --easy-bg:#e1d7f6; --easy-br:#d0bdec; --amber:#be7208; --warn-bg:#e9e1d7;
+  --warn-br:#e3cba9; --warn-ink:#8b5817; --bad-bg:#edd2dd; --bad-br:#e6a9b9; --bad-ink:#b40836;
+  --toast:#4c4f69;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#c47000; --flag3:#009b29; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009495; --flag7:#a200fe;
+}
+[data-palette="catppuccin"][data-theme="dark"]{
+  --bg:#1e1e2e; --panel:#181825; --ink:#cdd6f4; --muted:#a6adc8; --faint:#6c7086;
+  --line:#45475a; --coral:#f9b58b; --accent-soft:#4b3b3f; --raise:#313244; --again:#fa86a6;
+  --again-bg:#4f344a; --again-br:#7b4861; --good:#9cef95; --good-bg:#3b4a48; --good-br:#54745d;
+  --easy:#cba2fb; --easy-bg:#43395d; --easy-br:#665386; --amber:#fce3ac; --warn-bg:#4e494a;
+  --warn-br:#7c7062; --warn-ink:#fce3b0; --bad-bg:#4f344a; --bad-br:#7b4861; --bad-ink:#fa8eb1;
+  --toast:#181825;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="rosepine"][data-theme="light"]{
+  --bg:#faf4ed; --panel:#fffaf3; --ink:#575279; --muted:#6b6782; --faint:#8f8a9b;
+  --line:#dfdad9; --coral:#c86a65; --accent-soft:#f6e6de; --raise:#ffffff; --again:#ac3e5d;
+  --again-bg:#f3e0dc; --again-br:#e7c3c5; --good:#17698b; --good-bg:#dfe2df; --good-br:#b5c9cd;
+  --easy:#77579d; --easy-bg:#ede3e3; --easy-br:#d9ccd8; --amber:#c1760e; --warn-bg:#f4e4d0;
+  --warn-br:#e7cdac; --warn-ink:#8c5b26; --bad-bg:#f3e0dc; --bad-br:#e7c3c5; --bad-ink:#a45379;
+  --toast:#575279;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#d77b00; --flag3:#00a82d; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00a2a2; --flag7:#a200fe;
+}
+[data-palette="rosepine"][data-theme="dark"]{
+  --bg:#191724; --panel:#1f1d2e; --ink:#e0def4; --muted:#908caa; --faint:#6e6a86;
+  --line:#403d52; --coral:#f2bab8; --accent-soft:#443743; --raise:#26233a; --again:#f86c94;
+  --again-bg:#4a273d; --again-br:#763751; --good:#92d6e2; --good-bg:#343f4e; --good-br:#4d6573;
+  --easy:#c6a2f3; --easy-bg:#3e3551; --easy-br:#60507a; --amber:#f9c274; --warn-bg:#4c3b34;
+  --warn-br:#7b5e42; --warn-ink:#fac681; --bad-bg:#4a273d; --bad-br:#763751; --bad-ink:#f9739c;
+  --toast:#1f1d2e;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="gruvbox"][data-theme="light"]{
+  --bg:#fbf1c7; --panel:#f2e5bc; --ink:#3c3836; --muted:#665c54; --faint:#928374;
+  --line:#e3d5ab; --coral:#a93c09; --accent-soft:#eeddb8; --raise:#fdf6da; --again:#97060c;
+  --again-bg:#edd2b0; --again-br:#dda489; --good:#6a6504; --good-bg:#ece2ad; --good-br:#d8ce85;
+  --easy:#9d3174; --easy-bg:#efdaba; --easy-br:#dcb6a6; --amber:#b97408; --warn-bg:#eedfb4;
+  --warn-br:#e0c893; --warn-ink:#8a5708; --bad-bg:#edd2b0; --bad-br:#dda489; --bad-ink:#840609;
+  --toast:#3c3836;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#c16f00; --flag3:#009828; --flag4:#0077fe; --flag5:#fb0096; --flag6:#009191; --flag7:#a200fe;
+}
+[data-palette="gruvbox"][data-theme="dark"]{
+  --bg:#282828; --panel:#32302f; --ink:#ebdbb2; --muted:#bdae93; --faint:#928374;
+  --line:#504945; --coral:#f4872f; --accent-soft:#573a21; --raise:#3c3836; --again:#f74d39;
+  --again-bg:#361a17; --again-br:#873127; --good:#d1d50c; --good-bg:#4b4b25; --good-br:#6a6c21;
+  --easy:#e797ac; --easy-bg:#503b40; --easy-br:#734c56; --amber:#f7bf3b; --warn-bg:#5a4b26;
+  --warn-br:#856926; --warn-ink:#f8c651; --bad-bg:#5a2c27; --bad-br:#873127; --bad-ink:#f75e48;
+  --toast:#32302f;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#aa3cff;
+}
+[data-palette="legacy"][data-theme="light"]{
+  --bg:#ffffff; --panel:#faf8f5; --ink:#1b1a18; --muted:#77746e; --faint:#928f89;
+  --line:#e7e3dc; --coral:#d85a30; --accent-soft:#fbeeea; --raise:#ffffff; --again:#b03b2e;
+  --again-bg:#f5e6e4; --again-br:#e6c0bc; --good:#2d774b; --good-bg:#e4eee8; --good-br:#bcd5c7;
+  --easy:#6a59c9; --easy-bg:#eeecf9; --easy-br:#d4d0f0; --amber:#b07715; --warn-bg:#f5ede1;
+  --warn-br:#e6d3b4; --warn-ink:#865d16; --bad-bg:#f5e6e4; --bad-br:#e6c0bc; --bad-ink:#863228;
+  --toast:#1b1a18;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#d27900; --flag3:#00a62c; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00a0a1; --flag7:#a200fe;
+}
+[data-palette="legacy"][data-theme="dark"]{
+  --bg:#0e1230; --panel:#181d47; --ink:#e9ecf8; --muted:#a3abd0; --faint:#7780ab;
+  --line:#2a3169; --coral:#ff8a5c; --accent-soft:#3e2a39; --raise:#1f2555; --again:#ff8175;
+  --again-bg:#432a3f; --again-br:#73414d; --good:#5ecb92; --good-bg:#203b46; --good-br:#306059;
+  --easy:#b0a4ff; --easy-bg:#32325e; --easy-br:#524f87; --amber:#e0aa4a; --warn-bg:#3c3336;
+  --warn-br:#66523b; --warn-ink:#e1b362; --bad-bg:#432a3f; --bad-br:#73414d; --bad-ink:#fc9087;
+  --toast:#181d47;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+/* Two bold, high-contrast additions (2026-08-15, his request: "contrast
+   well / are different from the existing seven... be bold"). Dracula is a
+   real, well-known vivid-on-near-black developer theme -- a deliberately
+   different register from the seven calm/muted palettes above. (Monokai
+   shipped alongside it that same day, then was cut 2026-08-16 -- one file
+   up, vivid-on-near-black just like Dracula, and next to it the two read
+   as the same idea twice.) Amphora is original to this app (like
+   Vellum/Legacy), not a borrowed theme: black-figure/red-figure Attic
+   pottery's stark black + terracotta, a bold high-contrast look with no
+   vivid-neon precedent among the others, and thematically apt for a
+   classical-language app either deck. */
+[data-palette="dracula"][data-theme="light"]{
+  --bg:#f8f8f2; --panel:#eeeef7; --ink:#282a36; --muted:#4d4f66; --faint:#6272a4;
+  --line:#dcdce8; --coral:#d6266f; --accent-soft:#f9dceb; --raise:#ffffff; --again:#bf2444;
+  --again-bg:#f7dde3; --again-br:#eab8c7; --good:#18783b; --good-bg:#dcf0e0; --good-br:#b3dcc0;
+  --easy:#7647cf; --easy-bg:#e9e0fb; --easy-br:#cfc0f2; --amber:#b5690a; --warn-bg:#f7e6cf;
+  --warn-br:#e9c896; --warn-ink:#8a570f; --bad-bg:#f7dde3; --bad-br:#eab8c7; --bad-ink:#b31940;
+  --toast:#282a36;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ca7400; --flag3:#009f2a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009a9a; --flag7:#a200fe;
+}
+[data-palette="dracula"][data-theme="dark"]{
+  --bg:#282a36; --panel:#343746; --ink:#f8f8f2; --muted:#b6b8d1; --faint:#6272a4;
+  --line:#44475a; --coral:#ff79c6; --accent-soft:#4a2f42; --raise:#3d3f52; --again:#ff5555;
+  --again-bg:#3f2029; --again-br:#6b3542; --good:#50fa7b; --good-bg:#1f3b2e; --good-br:#2f5943;
+  --easy:#bd93f9; --easy-bg:#33294f; --easy-br:#4a3d72; --amber:#ffb86c; --warn-bg:#453421;
+  --warn-br:#6b5030; --warn-ink:#f0c78a; --bad-bg:#4a2530; --bad-br:#6b3542; --bad-ink:#ff6e6e;
+  --toast:#343746;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff1724; --flag2:#ff9404; --flag3:#00ff49; --flag4:#177cff; --flag5:#ff0699; --flag6:#00ffff; --flag7:#af50ff;
+}
+[data-palette="amphora"][data-theme="light"]{
+  --bg:#f0dcc3; --panel:#e6cca8; --ink:#241a10; --muted:#5c4530; --faint:#8a6f4f;
+  --line:#d4b78c; --coral:#a8331a; --accent-soft:#e8c4a0; --raise:#f8ecd8; --again:#8f1d10;
+  --again-bg:#e8c9b8; --again-br:#d4a488; --good:#3f5c2e; --good-bg:#dbe0c4; --good-br:#bcc699;
+  --easy:#4a3a7a; --easy-bg:#ddd6ef; --easy-br:#c0b4e0; --amber:#9c6b0a; --warn-bg:#ecdcb4;
+  --warn-br:#d6bc80; --warn-ink:#6b4808; --bad-bg:#e8c9b8; --bad-br:#d4a488; --bad-ink:#6e130a;
+  --toast:#241a10;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#e8001a; --flag2:#ab6100; --flag3:#008622; --flag4:#006eed; --flag5:#df0084; --flag6:#008181; --flag7:#a200fe;
+}
+[data-palette="amphora"][data-theme="dark"]{
+  --bg:#100c08; --panel:#1c140d; --ink:#f0dcc3; --muted:#c4a37e; --faint:#8a6f4f;
+  --line:#3a2c1c; --coral:#e0693a; --accent-soft:#3f2416; --raise:#241a10; --again:#e66a57;
+  --again-bg:#3f2019; --again-br:#5e3226; --good:#8fae5c; --good-bg:#2a3320; --good-br:#425030;
+  --easy:#a08ce0; --easy-bg:#332a52; --easy-br:#4c3f78; --amber:#e0a83a; --warn-bg:#3f3018;
+  --warn-br:#5e4826; --warn-ink:#e8c477; --bad-bg:#3f2019; --bad-br:#5e3226; --bad-ink:#f0684a;
+  --toast:#1c140d;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+/* Five new palettes (2026-08-16), replacing Kanagawa/Everforest -- see the
+   comment above PALETTES. Each was grounded in real research (written up in
+   full for him as an artifact), not guessed. Two of the five were reworked
+   or replaced later the same day -- see the roster-history comment above
+   PALETTES for why -- so this is the roster as it stands now, not as it
+   first shipped:
+     Marble -- was Rubric (illuminated-manuscript rubrication, red ink and
+       gold leaf on parchment); redesigned in place the same day it shipped,
+       laid-paper fibres traded for real quarried stone -- gold leaf veining
+       on white Carrara marble in light mode, the same gold on black Portoro
+       marble in dark. A Roman register instead of a mediaeval one: apt for
+       a classical-language app the way Amphora's Attic pottery already is,
+       and distinct from Amphora's terracotta and Vellum's parchment --
+       neither is stone.
+     Steel  -- chess.com's "Metal" board: brushed gunmetal with an
+       oxide-copper accent, deliberately low-contrast (his call).
+     Glass  -- chess.com's "Glass" board: cool slate with a bevel-highlight
+       standing in for translucency, same trick the real board uses.
+     Neon   -- chess.com's actual "Neon" set is a muted pastel, not a glow;
+       this one intentionally follows the popular glow-on-black convention
+       instead, which is what "neon" means to everyone who isn't looking at
+       that specific board skin. Dark mode's canvas was retuned lighter the
+       same day it shipped -- see the roster-history comment above -- but
+       the glow-on-near-dark idea itself is unchanged.
+     8-Bit  -- retired 2026-08-16, the same day it shipped; see the
+       roster-history comment above PALETTES for why.
+   Wood -- new the same day Rubric/Neon were reworked and 8-Bit retired
+   (2026-08-16): honey oak and brushed brass in light mode, dark walnut and
+   the same brass in dark. Covers a material register (grain, warmth) none
+   of the other eleven do -- Marble and Steel are both hard and cool,
+   Amphora's terracotta is fired clay, not timber. */
+/* --texture: an optional background-image layered under --bg (consumed by
+   body and .palHalf via var(--texture,none), so any palette that never sets
+   it just gets `none` -- no per-palette opt-out needed). Added 2026-08-16,
+   same session as the five palettes above, first only on the three whose own
+   brief is literally about a textured material: Rubric's laid-paper fibers
+   (a fine 3px grain crossed by sparse 34px "chain lines," the real two-scale
+   structure of laid paper, not just noise) and Steel's brushed-metal streaks
+   (its own description above says "brushed"). 8-Bit's LCD pixel grid
+   (the real Game Boy screen has visible pixel boundaries at this scale) was
+   the third, retired along with the palette itself. Marble replaces Rubric's
+   laid-paper grain with soft, non-repeating diagonal veins (three overlapping
+   bands at different angles, mimicking how real stone veining never
+   repeats) instead of a regular fibre grid -- a repeating pattern reads as
+   fabric or paper, not stone. Wood's grain is two overlapping repeating
+   horizontal bands at different periods (5px and 11px), the same
+   two-scale-structure idea Rubric's fibres used, oriented along the grain
+   instead of across it. Every value stays under 6% alpha -- meant to be
+   felt more than seen, behind small dense study-card text.
+
+   Glass and Neon got their own, differently-shaped treatment the same day,
+   once asked for directly, because a repeating grain isn't what either of
+   them is actually about:
+
+   Glass (his ask: "emulate Apple's Liquid Glass aesthetic") gets real
+   translucency and blur, not a texture -- --panel/--raise are now
+   semi-transparent (rgba, not solid hex) so every one of their ~25 existing
+   consumers (`.dir`, `.rate`, `.chip`, form fields, etc. -- see the big
+   selector list right after the dark block below) picks up the see-through
+   quality for free, with no per-selector change. Two new palette-only vars,
+   --glass-blur and --glass-shadow, are consumed by that one shared rule to
+   add backdrop-filter (frosted blur + saturation boost, Apple's actual
+   "material" recipe) and a bright inset rim on the same surfaces -- kept as
+   variables rather than baked into the rule so light/dark can tune them
+   independently without duplicating a 25-selector list twice. Deliberately
+   NOT applied to `.dot`/`.calDayDot`: the all-time calendar strip can put
+   hundreds of these on screen at once, and backdrop-filter is expensive per
+   element -- translucent colour is free at that count, blur isn't. --texture
+   is still a soft, non-repeating pair of radial-gradient light patches
+   (an actual tile pattern here would fight the smooth-surface read the
+   same way it would have before).
+
+   Neon (his ask: "the saturation that makes colours glow, if that's
+   possible") gets an actual glow, via text-shadow/box-shadow, not a
+   texture either -- a texture sits behind the text, a glow has to come from
+   the coloured text/fill itself. --glow-text (two or three stacked
+   `currentColor` shadows, more layers and reach in dark mode where glow
+   against near-black is the real neon-sign look, fewer/softer in light mode
+   where the same blur mostly just looks muddy) is applied via one shared
+   rule to every element that already sets `color` to one of the accent
+   vars -- `currentColor` means that rule doesn't need to know which colour
+   each one is, they all glow in their own. Filled elements (`.startBtn`,
+   the rating pills, `.chip.on`) can't use `currentColor` the same way since
+   their own text is white-on-fill, not the accent -- those get an explicit
+   `color-mix(in srgb, var(--x) N%, transparent)` box-shadow instead, same
+   `color-mix()` this file's heatmap accent already uses elsewhere. */
+[data-palette="marble"][data-theme="light"]{
+  --bg:#f4f0e6; --panel:#ece4d2; --ink:#2b241c; --muted:#6b6152; --faint:#8c7d64;
+  --line:#ddd2b8; --coral:#a97a1f; --accent-soft:#f0e3bf; --raise:#fbf8f0; --again:#9c2c1e;
+  --again-bg:#f0dcd2; --again-br:#ddb6a4; --good:#3f6b46; --good-bg:#dde6dc; --good-br:#b9cdb9;
+  --easy:#6b3f8a; --easy-bg:#e6ddf0; --easy-br:#cbb4e0; --amber:#96690f; --warn-bg:#eee0bc;
+  --warn-br:#dcc281; --warn-ink:#7a5810; --bad-bg:#f0dcd2; --bad-br:#ddb6a4; --bad-ink:#6b1d14;
+  --toast:#2b241c;
+  --texture:linear-gradient(103deg,transparent 41%,rgba(169,122,31,.10) 42%,rgba(169,122,31,.04) 43%,transparent 45%),
+    linear-gradient(66deg,transparent 58%,rgba(43,36,28,.05) 59%,transparent 61%),
+    linear-gradient(18deg,transparent 27%,rgba(169,122,31,.07) 28%,transparent 30%);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#bf6d00; --flag3:#009828; --flag4:#0077fe; --flag5:#f80094; --flag6:#009191; --flag7:#a200fe;
+}
+[data-palette="marble"][data-theme="dark"]{
+  --bg:#151109; --panel:#211a10; --ink:#ede3c8; --muted:#b8a67a; --faint:#7d6f4c;
+  --line:#392c1a; --coral:#d9a53f; --accent-soft:#3a2c15; --raise:#251d12; --again:#de7561;
+  --again-bg:#3f241a; --again-br:#613326; --good:#7fae7a; --good-bg:#243322; --good-br:#3f5540;
+  --easy:#b090d9; --easy-bg:#2e2640; --easy-br:#493a63; --amber:#e0b355; --warn-bg:#3a2c10;
+  --warn-br:#5c451a; --warn-ink:#e8bd66; --bad-bg:#3f241a; --bad-br:#613326; --bad-ink:#e6836f;
+  --toast:#211a10;
+  --texture:linear-gradient(103deg,transparent 41%,rgba(217,165,63,.09) 42%,rgba(217,165,63,.03) 43%,transparent 45%),
+    linear-gradient(66deg,transparent 58%,rgba(237,227,200,.04) 59%,transparent 61%),
+    linear-gradient(18deg,transparent 27%,rgba(217,165,63,.06) 28%,transparent 30%);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+[data-palette="steel"][data-theme="light"]{
+  --bg:#eef0f1; --panel:#e2e5e7; --ink:#23282b; --muted:#5c6569; --faint:#8b9296;
+  --line:#ccd1d4; --coral:#b0472e; --accent-soft:#e7e2dc; --raise:#f8f9fa; --again:#a83a2c;
+  --again-bg:#ecdfd9; --again-br:#d9bcae; --good:#3f6e52; --good-bg:#dde6de; --good-br:#b9cdbf;
+  --easy:#4a5a7a; --easy-bg:#dde2ea; --easy-br:#b9c4d6; --amber:#96731e; --warn-bg:#ece3cc;
+  --warn-br:#d8c496; --warn-ink:#6e5314; --bad-bg:#ecdfd9; --bad-br:#d9bcae; --bad-ink:#7a2a1e;
+  --toast:#23282b;
+  --texture:repeating-linear-gradient(95deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,
+    rgba(35,40,43,.035) 1px,rgba(35,40,43,.035) 2px,transparent 2px,transparent 3px);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#bf6d00; --flag3:#009828; --flag4:#0077fe; --flag5:#f80094; --flag6:#009191; --flag7:#a200fe;
+}
+[data-palette="steel"][data-theme="dark"]{
+  --bg:#16191b; --panel:#202426; --ink:#dfe3e5; --muted:#a7aeb2; --faint:#6c7377;
+  --line:#33393c; --coral:#d97c5c; --accent-soft:#3a2c24; --raise:#262b2e; --again:#e08268;
+  --again-bg:#3f2c24; --again-br:#634033; --good:#7fae8e; --good-bg:#26362c; --good-br:#3f5747;
+  --easy:#8fa3c9; --easy-bg:#262e3d; --easy-br:#3c4a63; --amber:#cda54c; --warn-bg:#3a301b;
+  --warn-br:#5c4828; --warn-ink:#d4ac5c; --bad-bg:#3f2c24; --bad-br:#634033; --bad-ink:#e3927a;
+  --toast:#202426;
+  --texture:repeating-linear-gradient(95deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,
+    rgba(0,0,0,.05) 1px,rgba(0,0,0,.05) 2px,transparent 2px,transparent 3px);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a407ff;
+}
+[data-palette="glass"][data-theme="light"]{
+  --bg:#eef2f6; --panel:rgba(225,232,240,.62); --ink:#1d2733; --muted:#54626f; --faint:#8996a3;
+  --line:#c9d5e0; --coral:#1f7fa3; --accent-soft:#dcebf2; --raise:rgba(251,253,255,.72); --again:#b53749;
+  --again-bg:#f7dfe1; --again-br:#eab9bd; --good:#27765b; --good-bg:#dcefe6; --good-br:#b7dbc9;
+  --easy:#6053cc; --easy-bg:#e6e2f8; --easy-br:#cbc3ef; --amber:#b3860f; --warn-bg:#f2e6c4;
+  --warn-br:#e2cb8e; --warn-ink:#7d5c0c; --bad-bg:#f7dfe1; --bad-br:#eab9bd; --bad-ink:#94202f;
+  --toast:#1d2733;
+  --texture:radial-gradient(55% 40% at 12% -5%,rgba(255,255,255,.55),transparent 60%),
+    radial-gradient(45% 35% at 100% 100%,rgba(31,127,163,.14),transparent 65%);
+  --glass-blur:blur(16px) saturate(170%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 0 0 1px rgba(255,255,255,.25),
+    0 3px 14px rgba(20,40,60,.12);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
+}
+[data-palette="glass"][data-theme="dark"]{
+  --bg:#12181f; --panel:rgba(27,35,44,.55); --ink:#e6edf3; --muted:#a7b4bf; --faint:#66727d;
+  --line:#2c3844; --coral:#5ec2e8; --accent-soft:#1c2e38; --raise:rgba(33,43,53,.62); --again:#e2687a;
+  --again-bg:#3a2229; --again-br:#5c333e; --good:#6fcba8; --good-bg:#193226; --good-br:#2b4d3c;
+  --easy:#a79af0; --easy-bg:#241f3e; --easy-br:#392f5c; --amber:#e8c168; --warn-bg:#392c14;
+  --warn-br:#5c4720; --warn-ink:#eec478; --bad-bg:#3a2229; --bad-br:#5c333e; --bad-ink:#ef8797;
+  --toast:#1b232c;
+  --texture:radial-gradient(55% 40% at 12% -5%,rgba(94,194,232,.16),transparent 60%),
+    radial-gradient(45% 35% at 100% 100%,rgba(94,194,232,.10),transparent 65%);
+  --glass-blur:blur(16px) saturate(170%);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 0 0 1px rgba(255,255,255,.06),
+    0 3px 16px rgba(0,0,0,.4);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+/* Glass's ~25 existing panel/raise-tier surfaces, listed once so
+   --glass-blur/--glass-shadow (above) don't need duplicating per element.
+   Deliberately excludes .dot/.calDayDot -- see the big comment above the
+   Rubric block for why. Split into two tiers on purpose, not because it
+   reads better: .stepper contains `.stepper button:active`, .calGearPanel
+   contains its own selects/buttons, .dayDetail contains its own
+   textarea/buttons -- backdrop-filter compounds on nested elements (each
+   one blurs what its ancestor already blurred), so only the OUTER tier
+   (the --panel consumers) gets blur; the inner (--raise) tier just inherits
+   plain translucency from --raise itself above, no second blur pass. */
+[data-palette="glass"] .bar .icon:active, [data-palette="glass"] .rate, [data-palette="glass"] .revealBtn,
+[data-palette="glass"] .drillInput, [data-palette="glass"] .drillTile, [data-palette="glass"] .chip,
+[data-palette="glass"] .dir, [data-palette="glass"] .startBtn:disabled, [data-palette="glass"] .stepper,
+[data-palette="glass"] .calNav:active, [data-palette="glass"] .calCell, [data-palette="glass"] .calGearBtn:active,
+[data-palette="glass"] .calGearPanel, [data-palette="glass"] .dayDetail, [data-palette="glass"] .searchInput,
+[data-palette="glass"] .stackbar, [data-palette="glass"] .histBarWrap, [data-palette="glass"] .palMini,
+[data-palette="glass"] .field input[type=number], [data-palette="glass"] .field input[type=text],
+[data-palette="glass"] .field input[type=password], [data-palette="glass"] .field .sel, [data-palette="glass"] .act,
+[data-palette="glass"][data-layout="landscape"] #prompt, [data-palette="glass"][data-layout="landscape"] .recapCard.on,
+[data-palette="glass"][data-layout="landscape"] #drillPrompt, [data-palette="glass"][data-layout="landscape"] #scHome .sect{
+  backdrop-filter:var(--glass-blur,none); -webkit-backdrop-filter:var(--glass-blur,none);
+  box-shadow:var(--glass-shadow,none);
+}
+[data-palette="neon"][data-theme="light"]{
+  --bg:#f5f4fb; --panel:#ebe9f7; --ink:#16142b; --muted:#514f72; --faint:#85839f;
+  --line:#d8d5ee; --coral:#d6116e; --accent-soft:#fbe0ee; --raise:#ffffff; --again:#c80f38;
+  --again-bg:#fbdde4; --again-br:#f0b6c3; --good:#0b7953; --good-bg:#d9f3e7; --good-br:#a8e0c4;
+  --easy:#6427e0; --easy-bg:#e7ddfb; --easy-br:#cbb5f4; --amber:#c98d00; --warn-bg:#f7e7bf;
+  --warn-br:#ecce85; --warn-ink:#8a5f09; --bad-bg:#fbdde4; --bad-br:#f0b6c3; --bad-ink:#b60d34;
+  --toast:#16142b;
+  /* lighter touch than dark's: the same blur against a pale background reads
+     as a muddy halo rather than a glow past a certain radius/opacity, so
+     this stays two thin layers instead of three reaching further out. */
+  --glow-text:0 0 4px currentColor,0 0 10px currentColor;
+  --glow-alpha-strong:55%; --glow-alpha-soft:32%;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#c67100; --flag3:#009b29; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009696; --flag7:#a200fe;
+}
+[data-palette="neon"][data-theme="dark"]{
+  /* Retuned 2026-08-16 (his call: "neon is too dark") -- `--bg` was #0a0a12,
+     4% lightness, close enough to true black that the whole theme read as
+     oppressive rather than moody. Every neutral below moved up together
+     (bg/panel/line/raise/accent-soft) so the relative steps between them are
+     unchanged; the accent hues themselves (coral/again/good/easy/amber)
+     are untouched -- they were never the complaint. Glow trimmed to match:
+     a canvas this much lighter has less room to bloom into, so the widest
+     layer is a little tighter and both alphas came down a few points. */
+  --bg:#181430; --panel:#221c3d; --ink:#f0eeff; --muted:#aca9d4; --faint:#6f6b96;
+  --line:#372e5c; --coral:#ff4aa8; --accent-soft:#33203f; --raise:#251e42; --again:#ff4568;
+  --again-bg:#3a1c2c; --again-br:#602942; --good:#33f5a8; --good-bg:#123329; --good-br:#1f5240;
+  --easy:#9a79ff; --easy-bg:#2a2050; --easy-br:#453268; --amber:#ffce3d; --warn-bg:#3a2c10;
+  --warn-br:#5c451a; --warn-ink:#ffd766; --bad-bg:#3a1c2c; --bad-br:#602942; --bad-ink:#ff7590;
+  --toast:#221c3d;
+  --glow-text:0 0 4px currentColor,0 0 11px currentColor,0 0 20px currentColor;
+  --glow-alpha-strong:65%; --glow-alpha-soft:42%;
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}
+/* Neon glow, text tier: every element below already sets `color` to one of
+   the accent vars via its own existing rule -- this just adds
+   var(--glow-text)'s stacked `currentColor` shadows on top, so each one
+   glows in whatever colour it already is without this rule needing to know
+   which. Doesn't touch .startBtn/.act.primary/the rating pills themselves:
+   those set colour to white-on-fill, not the accent, so currentColor here
+   would glow white -- they get an explicit fill-coloured box-shadow below
+   instead. */
+[data-palette="neon"] .c-new, [data-palette="neon"] .c-lrn, [data-palette="neon"] .c-due,
+[data-palette="neon"] #bAgain .lbl, [data-palette="neon"] #bHard .lbl,
+[data-palette="neon"] #bGood .lbl, [data-palette="neon"] #bEasy .lbl,
+[data-palette="neon"] .chip.on, [data-palette="neon"] .stepper button,
+[data-palette="neon"] .drillFeedback.right, [data-palette="neon"] .drillFeedback.wrong,
+[data-palette="neon"] .drillInput.right, [data-palette="neon"] .drillInput.wrong,
+[data-palette="neon"] .recapCard .rc-rating{
+  text-shadow:var(--glow-text,none);
+}
+/* Neon glow, fill tier: solid-colour buttons/badges/dots, glowing in their
+   own fill colour via color-mix() (same technique this file's heatmap
+   accent already uses in renderCalGear()) rather than a fixed rgba, so the
+   glow always matches the var exactly with no separate colour to keep in
+   sync. Two stacked shadows per element -- a tight, more opaque core and a
+   wider, softer bloom -- is the standard two-layer neon-glow shape; a
+   single wide shadow alone just looks like a blurry drop shadow. */
+[data-palette="neon"] .startBtn:not(:disabled), [data-palette="neon"] .act.primary{
+  box-shadow:0 0 4px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
+    0 0 22px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
+}
+[data-palette="neon"] .dot.did{
+  box-shadow:0 0 3px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
+    0 0 10px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
+}
+[data-palette="neon"] .chip.on{
+  box-shadow:0 0 3px color-mix(in srgb, var(--coral) var(--glow-alpha-strong), transparent),
+    0 0 14px color-mix(in srgb, var(--coral) var(--glow-alpha-soft), transparent);
+}
+[data-palette="neon"] #bAgain{box-shadow:0 0 3px color-mix(in srgb, var(--again) var(--glow-alpha-strong), transparent),
+  0 0 16px color-mix(in srgb, var(--again) var(--glow-alpha-soft), transparent)}
+/* Hard glows in --warn-ink, not --amber: every other button here glows in
+   the exact var its own .lbl is coloured with (#bAgain/.lbl -> --again, and
+   so on), and #bHard .lbl is --warn-ink. Hard reuses the --warn-* family
+   rather than owning a --hard one -- see #bHard's own rule in deck.html.
+   Missing until 2026.08.23: this list and the text tier above were both
+   written on 2026-08-16, when the rating row had three buttons; Hard became
+   a permanent fourth on 2026-08-19 (decision 3) and neither selector list
+   was revisited. Reported live -- the Hard button was the only one of four
+   not glowing in Neon. */
+[data-palette="neon"] #bHard{box-shadow:0 0 3px color-mix(in srgb, var(--warn-ink) var(--glow-alpha-strong), transparent),
+  0 0 16px color-mix(in srgb, var(--warn-ink) var(--glow-alpha-soft), transparent)}
+[data-palette="neon"] #bGood{box-shadow:0 0 3px color-mix(in srgb, var(--good) var(--glow-alpha-strong), transparent),
+  0 0 16px color-mix(in srgb, var(--good) var(--glow-alpha-soft), transparent)}
+[data-palette="neon"] #bEasy{box-shadow:0 0 3px color-mix(in srgb, var(--easy) var(--glow-alpha-strong), transparent),
+  0 0 16px color-mix(in srgb, var(--easy) var(--glow-alpha-soft), transparent)}
+[data-palette="neon"] .drillTile.right{box-shadow:0 0 14px color-mix(in srgb, var(--good) var(--glow-alpha-soft), transparent)}
+[data-palette="neon"] .drillTile.wrong{box-shadow:0 0 14px color-mix(in srgb, var(--again) var(--glow-alpha-soft), transparent)}
+/* Wood -- new 2026-08-16, the honey-oak-and-brass counterpart to Marble's
+   stone and Steel's gunmetal: the one material register (grain, warmth)
+   nothing else in the roster covers. Light mode is a light oak plank with
+   a burnished-brass accent; dark mode is the same plank stained walnut,
+   same brass. `--again`/`--good`/`--easy` lean on materials a real wooden
+   object plausibly carries rather than borrowed developer-theme hues --
+   mahogany-red inlay, mossy-verdigris inlay, plum/amethyst inlay -- so the
+   rating trio reads as "this piece of furniture" rather than generic
+   red/green/purple. */
+[data-palette="wood"][data-theme="light"]{
+  --bg:#e8d1a0; --panel:#dcc088; --ink:#2e2013; --muted:#6b4f2e; --faint:#886d43;
+  --line:#c7a76e; --coral:#8f4e18; --accent-soft:#ecd9ad; --raise:#f2e3bd; --again:#8a3220;
+  --again-bg:#e8c8ab; --again-br:#d1a17c; --good:#4a692d; --good-bg:#dde0b8; --good-br:#c0c68f;
+  --easy:#5a3f8a; --easy-bg:#ded6ef; --easy-br:#c2b3e0; --amber:#7c5510; --warn-bg:#ecd8a0;
+  --warn-br:#d6bb70; --warn-ink:#6e4c0c; --bad-bg:#e8c8ab; --bad-br:#d1a17c; --bad-ink:#6b2517;
+  --toast:#2e2013;
+  --texture:repeating-linear-gradient(0deg,rgba(46,32,19,.055) 0,rgba(46,32,19,.055) 1px,transparent 1px,transparent 5px),
+    repeating-linear-gradient(0deg,rgba(46,32,19,.03) 2px,rgba(46,32,19,.03) 3px,transparent 3px,transparent 11px);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#d80017; --flag2:#9f5a00; --flag3:#007c1f; --flag4:#0066dd; --flag5:#d0007b; --flag6:#007777; --flag7:#a200fe;
+}
+[data-palette="wood"][data-theme="dark"]{
+  --bg:#1c130a; --panel:#291c10; --ink:#e8d2a0; --muted:#b89361; --faint:#7d6440;
+  --line:#3f2c18; --coral:#c4813a; --accent-soft:#3a2712; --raise:#241a0e; --again:#d97954;
+  --again-bg:#3f2419; --again-br:#623527; --good:#8fae5c; --good-bg:#2f3a1f; --good-br:#4a5c30;
+  --easy:#a98ce0; --easy-bg:#332a52; --easy-br:#4c3f78; --amber:#d9a43e; --warn-bg:#3a2c10;
+  --warn-br:#5c451a; --warn-ink:#e0b355; --bad-bg:#3f2419; --bad-br:#623527; --bad-ink:#e07f5c;
+  --toast:#291c10;
+  --texture:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0,rgba(0,0,0,.10) 1px,transparent 1px,transparent 5px),
+    repeating-linear-gradient(0deg,rgba(232,210,160,.035) 2px,rgba(232,210,160,.035) 3px,transparent 3px,transparent 11px);
+  /* flag 1-7: fixed hues (Anki's own order), lightness solved per
+     palette so each clears 3:1 on this block's --panel. See
+     in-progress/TYING_AND_BROWSE_RESEARCH.md for the measurements. */
+  --flag1:#ff001e; --flag2:#ff9404; --flag3:#00ff49; --flag4:#0077fe; --flag5:#ff0699; --flag6:#00ffff; --flag7:#a200fe;
+}

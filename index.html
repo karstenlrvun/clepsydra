@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="vellum" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'self'; style-src 'unsafe-inline' 'self'; img-src 'self' data:; connect-src 'self' https://vocabula-sync.karsten-vun.workers.dev; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Clepsydra">
+<meta name="theme-color" content="#fbf7ec">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>Clepsydra</title>
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.1">
+<!-- Phase 2 (PHASE2_PLAN.md §2.1): the deck list itself, read by the script
+     below instead of a hand-written DECKS array. 'self' added to script-src
+     above for this -- the old 'unsafe-inline'-only policy blocks a real
+     src= script load, same class of gap as the connect-src CSP bug found
+     2026-08-16 (that one silently killed fetch(), this one would have
+     silently killed the entire page: REGISTRY undefined, every script below
+     throwing on first reference).
+
+     Two more pre-existing CSP gaps found live while testing this change,
+     fixed in the same line since both were sitting right here: `img-src
+     'self'` (no `data:`) was silently blocking the <select> arrow's inline
+     SVG background-image everywhere on this page, and `connect-src` never
+     included `'self'`, so the version-link self-correction fetch() a few
+     screens down (`fetch('deck.html')`) has likely never actually run --
+     the version text you see has only ever been the hardcoded fallback,
+     manually kept in step. Neither is new; both were just never caught
+     because nothing before this session read this page's own console. -->
+<script src="decks/registry.js?v=2026.09.17.1"></script>
+<!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
+     number must be bumped with BUILD (sec95c pins that it matches).
+     Why: these two are the only files both pages load by a fixed name, and a
+     browser keys its cache on the whole URL. Without the query, a returning
+     visitor gets the NEW deck.html against a cached OLD shared.js -- which is
+     not a cosmetic problem: 2026.08.20.2 moved avgMsPerRating() into
+     shared.js and renderCounts() calls it unguarded on every card, so the
+     study screen threw ReferenceError on the first word. Reproduced in the
+     in-app browser the same day (transferSize:0 on shared.js, currentStreak
+     defined, avgMsPerRating not). The query makes each build's pair a
+     distinct URL, so the two can never be mismatched again. -->
+<script src="shared.js?v=2026.09.17.1"></script>
+<script>
+// The launcher's own chrome is always Vellum (fixed, not switchable -- see the
+// :root comment below); only light/dark follows the system. Stamped on <html>
+// before first paint so palettes.css supplies every variable from the start.
+(function(){
+  var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');
+  var set=function(){ document.documentElement.dataset.theme=(mq&&mq.matches)?'dark':'light'; };
+  set(); if(mq&&mq.addEventListener) mq.addEventListener('change',set);
+})();
+</script>
+<style>
+/* Hidden means hidden (2026.09.14.0) -- the same rule as deck.html, for the
+   same reason: the browser's own rule for the hidden attribute sits at the
+   bottom of the cascade, so any display: set below would beat it. deck.html's
+   tie bar was drawn on every screen for a week that way. #fDeviceOther is
+   the one element this page shows and hides with the attribute. */
+[hidden]{display:none!important}
+:root{
+  --serif:"Palatino","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  /* Vellum, the launcher's own chrome colour -- fixed here, not switchable.
+     Every colour variable (--bg/--panel/--ink/--coral/--again/--good/...) comes
+     from palettes.css via the data-palette="vellum" + data-theme stamped on
+     <html> above -- the SAME file the decks read, so this page can never again
+     fall out of step with the palette list (it did, 2026-08-16: a hand-copied
+     table here lacked the five newest palettes and still carried two retired
+     ones, so a deck on Steel or Rubric got a Vellum border, and the retention-
+     coloured strip mixed an undefined --again into transparency). The palette
+     machinery is used here for exactly one other thing: reading each deck's
+     own --coral off a throwaway scoped probe element (paletteAccent() in the
+     script), so that deck's nav card can wear its own accent as a border. The
+     strip's own colours stay the launcher's vellum, deliberately (2026-08-16,
+     scaled back from a per-deck-themed card after it read as cluttered). */
+}
+/* Today's numbers, inside that deck's own nav card -- replaces the 35-day
+   dot-strip that used to live here (2026-08-16, his direct ask: the history
+   view is secondary, per-day stats for the deck in front of him matter more).
+   One line, no box of its own, same muted small-text idiom as .d above. */
+.todayStats{margin-top:8px;font-size:12.5px;color:var(--muted);min-height:1.3em}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg)}
+body{
+  color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
+  padding:calc(52px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
+  max-width:30rem; margin:0 auto;
+}
+h1{font-family:var(--serif);font-weight:400;font-size:2.05rem;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14.5px;margin:0 0 30px}
+
+/* ---------- nav cards, same visual language as the decks' own .dir cards ---------- */
+a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin-bottom:10px}
+a.card:active{border-color:var(--coral);background:var(--accent-soft)}
+a.card .t{font-family:var(--serif);font-size:1.28rem;margin-bottom:2px}
+a.card .d{color:var(--muted);font-size:13.5px}
+
+/* ---------- section labels, same idiom as the decks' .sect h2 ---------- */
+.sect{margin-top:30px}
+.sect h2{font-size:12.5px;font-weight:500;color:var(--faint);text-transform:uppercase;
+  letter-spacing:.07em;margin:0 0 12px}
+
+/* ---------- fields, identical component language to each deck's own Settings ---------- */
+.field{padding:14px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:none}
+.field label{display:block;font-size:15px;margin-bottom:5px}
+.field .fh{font-size:13px;color:var(--muted);line-height:1.55;margin-top:7px}
+.field input[type=text],.field input[type=password],.field select{
+  width:100%;height:46px;border:1px solid var(--line);border-radius:11px;padding:0 12px;
+  font-size:16px;background:var(--raise);color:var(--ink);font-family:inherit}
+.field select{-webkit-appearance:none;appearance:none;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M1 1l4 4 4-4" fill="none" stroke="%23988c75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:32px}
+.field #fDeviceOther{margin-top:10px}
+.savedTag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--good);
+  margin-left:8px;opacity:0;transition:opacity .25s ease}
+.savedTag.on{opacity:1}
+
+/* ---------- Export all (2026-08-21, his ask -- Riverbank's launcher feature,
+   re-plumbed for this page's async storage). The glyph is this page's own:
+   an arrow settling into an open tray, drawn in the select-arrow's stroke
+   style (1.5px, round caps, currentColor) rather than Riverbank's heavy
+   unicode arrow, which sat oddly against everything else here. Beside the
+   h1, so saving backups reads as an app-level act, not one deck's. ---------- */
+.h1Row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 4px}
+.h1Row h1{margin-bottom:0}
+.exportBtn{flex:0 0 auto;width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:11px;background:var(--raise);color:var(--muted);cursor:pointer;padding:0}
+.exportBtn:active{border-color:var(--coral);background:var(--accent-soft);color:var(--ink)}
+.exportBtn:disabled{opacity:.5;cursor:default}
+.exportNote{font-size:12.5px;color:var(--muted);margin:2px 0 0;min-height:0}
+.exportNote:empty{margin:0}
+.exportNote.bad{color:var(--coral)}
+
+/* ---------- version line, same idiom as the decks' own .build ---------- */
+.verlink{display:block;text-align:center;margin:34px 0 0;padding:8px;font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--faint);text-decoration:none}
+.verlink:active{color:var(--coral)}
+
+/* ---------- sync code row: the code field's action buttons + status line ---------- */
+.pairRow{display:flex;gap:10px;margin-top:10px}
+.pairBtn{flex:1;min-height:44px;border:1px solid var(--line);border-radius:11px;background:var(--raise);
+  color:var(--ink);font-size:14.5px;font-family:inherit;cursor:pointer;padding:8px 10px;line-height:1.25}
+.pairBtn:active{border-color:var(--coral);background:var(--accent-soft)}
+.pairPanel{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--raise)}
+.pairPanel textarea{width:100%;border:1px solid var(--line);border-radius:9px;
+  padding:8px 10px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:var(--muted);
+  background:var(--panel);resize:vertical;word-break:break-all}
+.pairStatus{font-size:13px;color:var(--good);margin-top:10px;min-height:1em}
+.pairStatus.bad{color:var(--coral)}
+
+/* ---------- manual force-refresh of the two cards above, straight off the
+   sync server -- see the big comment block near renderDeckProgress() below
+   for why this exists at all. Small and secondary by design: the automatic
+   check already runs on every load, this is only for "no, right now". ---------- */
+.refreshRow{display:flex;align-items:center;gap:12px;margin:2px 0 26px}
+.refreshBtn{height:34px;padding:0 16px;border:1px solid var(--line);border-radius:9px;
+  background:var(--raise);color:var(--ink);font-size:13.5px;font-family:inherit;cursor:pointer}
+.refreshBtn:active{border-color:var(--coral);background:var(--accent-soft)}
+.refreshBtn:disabled{opacity:.5;cursor:default}
+.refreshStatus{font-size:12.5px;color:var(--muted)}
+.refreshStatus.bad{color:var(--coral)}
+
+/* ---------- Phase 2 (PHASE2_PLAN.md §2.2): cross-deck dashboard. Read-only
+   throughout, same guarantee as the per-card strips above -- everything here
+   only ever reads state[KEY], nothing is written back to any deck. ---------- */
+.streakLine{font-size:13.5px;color:var(--muted);margin-bottom:10px;min-height:1.4em}
+/* One shared horizontal scroll for every visible deck's row, so scrolling is
+   a single action across all of them at once (PLATFORM_PLAN.md §6a) rather
+   than N independently-scrolling strips that drift out of alignment. */
+.calAllScroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 10px}
+.calDeckRow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.calDeckRow:last-child{margin-bottom:0}
+.calDeckRow .lbl{flex:0 0 auto;width:38px;font-size:10.5px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.05em;text-align:right}
+.calDeckRow .dots{display:flex;gap:2px}
+.calDot{width:9px;height:9px;border-radius:2px;background:var(--line);flex:0 0 auto}
+.calDot.today{box-shadow:inset 0 -2px 0 var(--coral)}
+</style>
+</head>
+<body>
+<div class="h1Row">
+  <h1>Clepsydra</h1>
+  <button type="button" id="btnExportAll" class="exportBtn" aria-label="Save a backup file of every deck">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path d="M9 2.5v8M5.8 7.3L9 10.5l3.2-3.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12v1.8A1.7 1.7 0 0 0 4.7 15.5h8.6a1.7 1.7 0 0 0 1.7-1.7V12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</div>
+<p class="sub">Freshers' vocabulary, against the clock</p>
+<p class="exportNote" id="exportNote"></p>
+
+<div id="deckCards"></div>
+<div class="refreshRow">
+  <button type="button" id="btnRefreshCards" class="refreshBtn">Refresh</button>
+  <span class="refreshStatus" id="refreshStatus"></span>
+</div>
+<div class="sect">
+  <h2>Activity</h2>
+  <div class="streakLine" id="streakLine"></div>
+  <div class="calAllScroll" id="calAllScroll"></div>
+</div>
+<div class="sect">
+  <h2>Sync</h2>
+  <div class="field">
+    <label for="fDevice">This device's name</label>
+    <select id="fDevice">
+      <option value="" disabled hidden>Choose…</option>
+      <option value="Mac">Mac</option>
+      <option value="Mac Web">Mac Web</option>
+      <option value="iPhone">iPhone</option>
+      <option value="iPhone Web">iPhone Web</option>
+      <option value="other">Other…</option>
+    </select>
+    <input type="text" id="fDeviceOther" placeholder="Device name" autocapitalize="words" autocorrect="off" spellcheck="false" hidden>
+    <div class="fh">Stamped onto anything synced or saved as a backup file, so if this device and another ever disagree, you can tell whose copy is whose.</div>
+  </div>
+  <div class="field">
+    <label for="fSyncCode">Sync code <span class="savedTag" id="savedCode">✓ saved</span></label>
+    <input type="text" id="fSyncCode" placeholder="e.g. ABCDE-FGHJK" autocapitalize="characters" autocorrect="off" spellcheck="false" autocomplete="off">
+    <div class="pairRow" style="margin-top:14px">
+      <button type="button" id="btnNewCode" class="pairBtn">Get a code for this device</button>
+      <button type="button" id="btnCopyCode" class="pairBtn">Copy code</button>
+    </div>
+    <div class="pairStatus" id="pairStatus"></div>
+    <div class="fh">One code is the whole setup: get one here on the first device, type the same code
+      into this box on the other, and both decks on every device stay in step. The code never leaves
+      this device — it is turned into a lookup key and an encryption key here, and only those reach
+      the sync server, which cannot read your data. Treat it like a password: anyone holding it can
+      read and overwrite your copy. Both decks read this same field automatically.</div>
+  </div>
+</div>
+
+<a class="verlink" id="verLink" href="deck.html?deck=latin#changelog">Version 2026.09.17.1</a>
+
+<script>
+// ---------- shared sync settings: the ONE place the sync code and this device's
+// name live, read by both decks (deck.html's loadSyncShared()) and this page.
+// The code is never copied into a deck's own state, so it can never end up in
+// a payload or an export. The old gist key (clepsydra.gist.v1) is read once for
+// its device name and then removed -- it held a token nothing needs any more.
+const SYNC_SHARED_KEY='clepsydra.sync.v1';
+const LEGACY_GIST_SHARED_KEY='clepsydra.gist.v1';
+const SYNC_ENDPOINT='https://vocabula-sync.karsten-vun.workers.dev';
+const SYNC_MAX_BYTES=20*1024*1024;   // mirrors deck.html's own cap -- matches the Worker's, KV values top out at 25 MiB
+const SYNC_KEEPALIVE_MAX=60*1024;    // mirrors deck.html's own -- a keepalive fetch over ~64KiB is a spec-level network error, not just a dropped flag
+const $=id=>document.getElementById(id);
+function loadShared(){
+  let cur={};
+  try{ cur=JSON.parse(localStorage.getItem(SYNC_SHARED_KEY))||{}; }catch(e){}
+  if(cur&&typeof cur==='object'&&Object.prototype.hasOwnProperty.call(cur,'__proto__')) delete cur['__proto__'];
+  // installId (2026.08.19.5): one permanent random id per copy of the app,
+  // minted by whichever page reads the shared blob first and never changed --
+  // same rule and same alphabet as deck.html's randomInstallId(). Stamped on
+  // the launcher's own push as `from` so the sync Worker can tell installs
+  // apart (it keeps a spare copy only when a different install takes over).
+  const out={syncCode:(typeof cur.syncCode==='string')?cur.syncCode:'', deviceName:(typeof cur.deviceName==='string')?cur.deviceName:'',
+             installId:(typeof cur.installId==='string'&&/^[a-z0-9]{8}$/.test(cur.installId))?cur.installId:''};
+  let changed=false;
+  try{
+    const legacy=localStorage.getItem(LEGACY_GIST_SHARED_KEY);
+    if(legacy){
+      try{ const g=JSON.parse(legacy); if(g&&typeof g.deviceName==='string'&&!out.deviceName) out.deviceName=g.deviceName; }catch(e){}
+      localStorage.removeItem(LEGACY_GIST_SHARED_KEY);
+      changed=true;
+    }
+  }catch(e){}
+  if(!out.installId){ out.installId=randomInstallId(); changed=true; }
+  if(changed) saveShared(out);
+  return out;
+}
+function randomInstallId(){
+  const chars='abcdefghijklmnopqrstuvwxyz0123456789';
+  const bytes=crypto.getRandomValues(new Uint8Array(8));
+  let s=''; for(let i=0;i<8;i++) s+=chars[bytes[i]%chars.length];
+  return s;
+}
+// Writes back on top of whatever the blob already holds. It used to rebuild
+// the blob from {syncCode, deviceName} alone and so silently dropped the
+// extraction key deck.html keeps in the same blob every time a name or a new
+// code was saved here (found 2026-08-19, fixed with the installId work --
+// deck.html's saveSyncShared() now spreads the current object the same way).
+function saveShared(patch){
+  let cur={};
+  try{ cur=JSON.parse(localStorage.getItem(SYNC_SHARED_KEY))||{}; }catch(e){}
+  if(cur&&typeof cur==='object'&&Object.prototype.hasOwnProperty.call(cur,'__proto__')) delete cur['__proto__'];
+  const next=Object.assign({syncCode:'',deviceName:''},cur,patch);
+  try{ localStorage.setItem(SYNC_SHARED_KEY, JSON.stringify(Object.assign({},next,{syncCode:next.syncCode||'',deviceName:next.deviceName||''}))); }catch(e){}
+  return next;
+}
+function flash(id){
+  const el=$(id);
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('on'),1600);
+}
+// Presets cover the devices actually in use; "Other…" reveals a free-text
+// field for anything else, so the dropdown never blocks an unlisted device.
+const DEVICE_PRESETS=['Mac','Mac Web','iPhone','iPhone Web'];
+function applyDeviceName(name){
+  if(DEVICE_PRESETS.includes(name)){
+    $('fDevice').value=name; $('fDeviceOther').hidden=true; $('fDeviceOther').value='';
+  }else if(name){
+    $('fDevice').value='other'; $('fDeviceOther').hidden=false; $('fDeviceOther').value=name;
+  }else{
+    $('fDevice').value=''; $('fDeviceOther').hidden=true; $('fDeviceOther').value='';
+  }
+}
+(function init(){
+  const s=loadShared();
+  applyDeviceName(s.deviceName||'');
+  $('fSyncCode').value=s.syncCode||'';
+})();
+$('fDevice').addEventListener('change',e=>{
+  const v=e.target.value;
+  if(v==='other'){
+    $('fDeviceOther').hidden=false; $('fDeviceOther').focus();
+    saveShared({deviceName:$('fDeviceOther').value.trim()});
+  }else{
+    $('fDeviceOther').hidden=true; $('fDeviceOther').value='';
+    saveShared({deviceName:v});
+  }
+});
+$('fDeviceOther').addEventListener('change',e=>{ saveShared({deviceName:e.target.value.trim()}); });
+
+// ---------- the sync code itself. Same helpers as deck.html's, kept
+// deliberately tiny and identical: a readable 10-character code with no
+// 0/O/1/I, normalised on input (case, spaces, optional dash), rejected rather
+// than guessed when it isn't one. Changing an existing code asks first --
+// this device stops syncing with anything still on the old one -- and Cancel
+// is a genuine no-op. What the DECKS do about a changed code (look at what the
+// new slot holds before pushing anything) is decided there, on their next
+// load, from this same field.
+function randomSyncCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes=crypto.getRandomValues(new Uint8Array(10));
+  let s=''; for(let i=0;i<10;i++){ s+=chars[bytes[i]%chars.length]; if(i===4) s+='-'; }
+  return s;
+}
+function normaliseSyncCode(raw){
+  const s=String(raw||'').toUpperCase().replace(/[^A-Z2-9]/g,'');
+  if(s.length!==10||/[01IO]/.test(s)) return null;
+  return s.slice(0,5)+'-'+s.slice(5);
+}
+function pairStatus(msg,bad){
+  const el=$('pairStatus');
+  el.textContent=msg||'';
+  el.classList.toggle('bad',!!bad);
+}
+function replaceMessage(){
+  return 'This device already has a sync code set up.\n\n'+
+    'OK = replace it with the new one. This device will stop syncing with anything still on the old code; '+
+    'each deck looks at what the new code holds before it pushes anything.\n'+
+    'Cancel = keep the code this device already has.';
+}
+// Distinct from replaceMessage() above, and used only by btnNewCode(): that
+// button now pushes both decks' local copies immediately (see
+// pushDeckFromLauncher()), unlike typing an existing code into the field
+// above, which still only ever defers to each deck's own reconcile-first
+// check on its next load. Sharing one message between the two would either
+// overclaim what typing a code in does, or underclaim what generating one now
+// does -- worth the extra function to keep both honest.
+function replaceAndPushMessage(){
+  return 'This device already has a sync code set up.\n\n'+
+    'OK = replace it with a new one and push what’s on this device up to it right now. '+
+    'This device will stop syncing with anything still on the old code.\n'+
+    'Cancel = keep the code this device already has.';
+}
+$('fSyncCode').addEventListener('change',e=>{
+  const raw=e.target.value, cur=loadShared().syncCode;
+  if(!raw.trim()){
+    if(cur&&confirm('Switch sync off on this device? Nothing is deleted anywhere; the other devices keep going. You can type the same code back in later.')){
+      saveShared({syncCode:''}); pairStatus('Sync switched off on this device.');
+    } else e.target.value=cur;
+    return;
+  }
+  const code=normaliseSyncCode(raw);
+  if(!code){ pairStatus('That doesn’t look like a sync code — it is ten letters/digits, like ABCDE-FGHJK.',true); e.target.value=cur; return; }
+  if(code===cur){ e.target.value=cur; return; }
+  if(cur&&!confirm(replaceMessage())){ e.target.value=cur; pairStatus('Left as it was.'); return; }
+  saveShared({syncCode:code}); e.target.value=code; flash('savedCode');
+  pairStatus('Code saved — open a deck and it will pick up whatever this code holds.');
+  renderAll(); checkSync(true);
+});
+// Pushes both decks' current local copies up under the fresh code, rather
+// than just minting it and hoping the owner remembers to open a deck
+// afterward -- see pushDeckFromLauncher()'s own comment for why that hope was
+// exactly the gap. The field and both buttons stay disabled for the round
+// trip: the old version showed a green "✓ saved" tag and a plain, calmly-
+// sitting code the instant it was minted, which read as "done" well before
+// anything had reached the server -- copy it and switch devices in that gap
+// and the other end found nothing under the code at all, not a stale copy
+// (FINALISATION_PLAN.md §5.2). Disabling the controls can't stop a tab close,
+// but it does make "not done yet" impossible to miss, and makes copying the
+// code out mid-push a deliberate act rather than the easy default.
+let newCodeBusy=false;
+$('btnNewCode').addEventListener('click',async()=>{
+  if(newCodeBusy) return;
+  const cur=loadShared().syncCode;
+  if(cur&&!confirm(replaceAndPushMessage())){ pairStatus('Left as it was.'); return; }
+  const code=randomSyncCode();
+  saveShared({syncCode:code}); $('fSyncCode').value=code;
+  newCodeBusy=true;
+  const btnNew=$('btnNewCode'), btnCopy=$('btnCopyCode'), field=$('fSyncCode');
+  btnNew.disabled=true; btnCopy.disabled=true; field.disabled=true;
+  btnNew.textContent='Saving…';
+  pairStatus('Saving to the sync server — don’t switch devices yet…');
+  try{
+    if(!dbPromise) dbPromise=openDeckDb();
+    const db=await dbPromise;
+    const deviceName=loadShared().deviceName||'';
+    const results=await Promise.allSettled(DECKS.map(d=>pushDeckFromLauncher(db,code,d,deviceName)));
+    const outcomes=results.map((r,i)=>r.status==='fulfilled'?r.value:{id:DECKS[i].id,ok:false,error:(r.reason&&r.reason.message)||String(r.reason)});
+    const pushed=outcomes.filter(o=>o.ok);
+    const failed=outcomes.filter(o=>o.ok===false&&!o.skipped);
+    const skipped=outcomes.filter(o=>o.skipped);
+    if(failed.length){
+      pairStatus('Pushed '+pushed.length+' of '+(outcomes.length-skipped.length)+' — '+
+        failed.map(o=>o.id+' failed ('+o.error+')').join('; ')+
+        '. Try again before switching devices.',true);
+    } else if(!pushed.length){
+      pairStatus('No deck has been opened on this device yet, so there was nothing local to push. '+
+        'Open Latin or Greek here first — it will push its own copy up on its own.');
+    } else {
+      flash('savedCode');
+      pairStatus('New code saved and pushed'+(skipped.length?' ('+skipped.map(o=>o.id).join(', ')+' skipped — never opened here)':'')+
+        ' — safe to type into the other device now.');
+    }
+    await renderAll();
+  } finally {
+    newCodeBusy=false;
+    btnNew.disabled=false; btnCopy.disabled=false; field.disabled=false;
+    btnNew.textContent='Get a code for this device';
+  }
+});
+$('btnCopyCode').addEventListener('click', async ()=>{
+  const code=loadShared().syncCode;
+  if(!code){ pairStatus('No code on this device yet — get one first.',true); return; }
+  try{ await navigator.clipboard.writeText(code); pairStatus('Copied — type or paste it into the other device.'); return; }catch(e){}
+  // navigator.clipboard.writeText can silently reject with no error a user
+  // ever sees, notably inside an installed (Add to Home Screen/Dock)
+  // standalone PWA on iOS -- exactly how this app is normally run. The
+  // older, synchronous execCommand path doesn't depend on the async
+  // Permissions API at all, so it's tried here as a second real attempt.
+  const el=$('fSyncCode'); el.focus(); el.select();
+  try{ if(document.execCommand('copy')){ pairStatus('Copied.'); return; } }catch(e){}
+  pairStatus('Couldn’t copy automatically — the code above is selected; copy it by hand.',true);
+});
+
+// ---------- version line: the text above is a hardcoded fallback (kept in step
+// by hand, same discipline as the rest of a BUILD bump) so it's never blank --
+// this then confirms/corrects it live against deck.html's own const BUILD, so
+// a forgotten hand-edit here can't go stale silently. ----------
+fetch('deck.html',{cache:'no-store'}).then(r=>r.text()).then(text=>{
+  const m=text.match(/const BUILD='([^']+)'/);
+  if(m) $('verLink').textContent='Version '+m[1];
+}).catch(()=>{ /* offline or blocked -- the hardcoded fallback above stands */ });
+
+// ============================================================
+// Per-deck card content: today's stats, one line, inside that deck's own
+// nav card. READ-ONLY throughout -- everything below only ever reads a
+// deck's stores, never writes them. This page cannot alter either deck's
+// real state. The maths (dayKey/heatCellBg/etc.) is copied verbatim from
+// deck.html, with S.settings.* turned into explicit parameters since this
+// page holds two decks' state at once, not one global S.
+//
+// Where a deck's state lives (Phase 1 step 3, 2026-08-16): IndexedDB
+// `vocabula`, store `state`, key = the deck's KEY -- everything but the review
+// log, which is all this page needs (days + settings + palette/theme/summary).
+// The pre-cutover copies (IndexedDB `kv` blob, localStorage full blob) are
+// read as fallbacks so a device that has not opened a deck since the cutover
+// still shows something. Palette/theme for the card border come from the
+// tiny boot record in localStorage (KEY.boot) synchronously, so the border
+// is right on the very first frame; everything else fills in as soon as
+// IndexedDB answers.
+//
+// This card's own content has been redesigned twice on the same day
+// (2026-08-16) and both times the record of what was tried and rejected is
+// worth keeping so a future session doesn't re-walk the same ground:
+//   1. Original: a two-line card (35-day dot-strip + four stat chips, all
+//      re-themed to that deck's own saved palette) -- cut for reading as
+//      cluttered (PLATFORM_PLAN.md §6b).
+//   2. Scaled back to one line, a plain 35-day dot-strip, no numbers, in the
+//      launcher's own fixed vellum.
+//   3. **This version**: even the dot-strip is gone from the card. His own
+//      direct ask -- history-over-time is secondary, what matters on this
+//      page is today's numbers for the deck in front of him. The 35-day (and
+//      full-history) view didn't disappear, it moved to its own "Activity"
+//      section below the cards, shared across both decks on one axis -- see
+//      that section's own comment further down. The card itself now shows
+//      only: the existing "what to do now" line (summaryLine(), unchanged)
+//      and a new one-line today readout (renderTodayStats(), below).
+// The deck's saved palette still shows up on the card, just as its border
+// only -- paletteAccent() below pulls one colour (--coral) off a throwaway
+// scoped probe element (palettes.css being the single source of truth).
+// ============================================================
+const HOUR=3600000, DAY=86400000;
+const dayKey=(ts,roll)=>Math.floor((ts-new Date(ts).getTimezoneOffset()*60000-roll*HOUR)/DAY);
+// Phase 2 (PHASE2_PLAN.md §2.1): DECKS now derives from REGISTRY (decks/
+// registry.js) instead of being hand-written here -- a deck added to the
+// registry shows up on the launcher with no index.html edit. Archived decks
+// (D3) are filtered out: hidden from the launcher, not deleted -- their
+// storage/sync slot is untouched and they stay reachable by a direct
+// deck.html?deck=<id> URL or a pinned icon.
+// Phase 4 (PHASE3_4_HANDOFF.md §2): mergeRegistry (shared.js) folds in any
+// device-created decks (localStorage, USER_DECKS_KEY) alongside the static
+// REGISTRY -- a triaged deck shows up on the launcher with no further
+// wiring, same as the static rows always have.
+function loadUserDecks(){
+  try{ const v=JSON.parse(localStorage.getItem(USER_DECKS_KEY)); return Array.isArray(v)?v:[]; }
+  catch(e){ return []; }
+}
+const DECKS=mergeRegistry(REGISTRY,loadUserDecks()).filter(d=>!d.archived).map(d=>({
+  id:d.id, key:d.key, title:d.title, blurb:d.blurb,
+  card:'card'+d.id, today:'today'+d.id
+}));
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Renders the deck nav cards from DECKS -- replaces two hand-written
+// <a class="card"> blocks. Must run before renderAll(), which looks up
+// each card/today/sub element by id.
+function renderDeckCards(){
+  $('deckCards').innerHTML=DECKS.map(d=>
+    '<a class="card" href="deck.html?deck='+esc(d.id)+'" id="'+d.card+'">'+
+      '<div class="t">'+esc(d.title)+'</div>'+
+      '<div class="d" id="'+d.card+'Sub">'+esc(d.blurb)+'</div>'+
+      '<div class="todayStats" id="'+d.today+'"></div>'+
+    '</a>'
+  ).join('');
+}
+
+
+// One colour, read off palettes.css via a throwaway scoped element rather
+// than a hand-copied hex table -- keeps the CSS the only place these values
+// are ever written down. display:none would risk an unresolved computed
+// style in some engines since it drops the box entirely; visibility:hidden
+// keeps the box (zero-sized, off-flow) so the custom property still resolves.
+// An unknown palette name simply inherits the launcher's own vellum accent.
+function paletteAccent(palette,theme){
+  const probe=document.createElement('div');
+  probe.style.cssText='position:absolute;visibility:hidden;width:0;height:0;overflow:hidden';
+  probe.dataset.palette=palette; probe.dataset.theme=theme;
+  document.body.appendChild(probe);
+  const c=getComputedStyle(probe).getPropertyValue('--coral').trim();
+  probe.remove();
+  return c;
+}
+function resolveTheme(theme){
+  if(theme==='auto') return (window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  return theme==='dark'?'dark':'light';
+}
+function paintBorder(cardId,palette,theme){
+  const c=paletteAccent(palette||'vellum',resolveTheme(theme));
+  if(c) $(cardId).style.borderColor=c;
+}
+// "What to do now" (PHASE2_PLAN.md §2.3/§2.2): reads a deck's own
+// S.summary, written by that deck on every save() and once at boot. A
+// device that has never opened this deck since the build carrying §2.3
+// shipped has no summary yet -- renderDeckCards()'s static blurb stands
+// until it does, same "never blank, degrade to the fallback" idiom as the
+// version link at the foot of this page.
+function relDay(day,todayKey){
+  const diff=todayKey-day;
+  if(diff<=0) return null;                 // today, or (clock skew) the future -- say nothing extra
+  return diff===1?'yesterday':(diff+' days ago');
+}
+function summaryLine(data,rollover){
+  if(!data||!data.summary) return null;
+  const sum=data.summary;
+  const d=dayKey(Date.now(),rollover);
+  const n=(sum.due|0)+(sum.learn|0)+(sum.intro|0);
+  const base=n?(n+' word'+(n===1?'':'s')+' ready'):'Nothing due right now';
+  const rel=relDay(sum.day,d);
+  return rel?(base+' · as of '+rel):base;
+}
+// Compact duration text -- "0m" / "<1m" / "6m" / "1h 12m". Rounds to the
+// minute; nothing on a launcher card needs second-level precision. Exact zero
+// is its own case: "<1m" for a day with no study at all claims a few seconds
+// that never happened, and it read especially oddly next to a done-count of
+// nothing. "<1m" now means what it says -- some study, under a minute of it.
+function fmtDuration(ms){
+  if(!(ms>0)) return '0m';
+  const mins=Math.round(ms/60000);
+  if(mins<1) return '<1m';
+  if(mins<60) return mins+'m';
+  return Math.floor(mins/60)+'h '+(mins%60)+'m';
+}
+// avgMsPerRating() moved to shared.js (2026-08-20) so deck.html's own
+// top-bar time estimate reads the exact same number, not a second
+// implementation that could drift from this one.
+// Today's numbers for one deck (his 2026-08-16 ask, replacing the 35-day
+// dot-strip that used to render here -- see the section comment above).
+// "Due" is deliberately the narrow FSRS sense (S.summary.due alone,
+// genuinely-scheduled reviews) rather than the broader due+learn+intro
+// "ready" total the .d line above already shows -- a distinct, useful
+// number, not a restatement. Time spent comes straight from today's day
+// record; the "~Nm to go" projection (spent + avg-ms/rating × words still
+// ready) only appears once there's enough trailing data to make it more
+// than a guess, and only when there's anything left to project.
+// `done` is read from today's own day record, NOT from summary.doneToday
+// (2026-08-17). The summary is a snapshot stamped when that deck last saved,
+// which is why summaryLine() above discloses "as of yesterday" when it is
+// stale -- but this line took doneToday from that same stale snapshot while
+// taking the time beside it from today's live day record. A deck last opened
+// yesterday therefore read "12 due · 143 done · 0m": yesterday's review count
+// presented as today's, next to today's true zero minutes, the two halves of
+// one sentence disagreeing about which day they meant. days[] is keyed by
+// day, so reading it directly cannot misattribute: on a stale snapshot
+// there is simply no record for today yet and it correctly says 0.
+// `due` genuinely cannot be recomputed here (it needs the scheduler this
+// page never loads), so it stays snapshot-derived -- with the staleness
+// already disclosed one line up.
+function renderTodayStats(el,data,rollover){
+  if(!data||!data.summary){ el.textContent=''; return; }
+  const sum=data.summary, days=data.days||{};
+  const d=dayKey(Date.now(),rollover);
+  const todayRec=days[d]||{};
+  const spentMs=todayRec.studyMs||0;
+  const done=todayRec.n|0;
+  const left=(sum.due|0)+(sum.learn|0)+(sum.intro|0);
+  const avg=avgMsPerRating(days,d,14);
+  const timePart=(avg&&left>0) ? (fmtDuration(spentMs)+' / ~'+fmtDuration(spentMs+avg*left)) : fmtDuration(spentMs);
+  el.textContent=(sum.due|0)+' due · '+done+' done · '+timePart;
+}
+// Paints the card border and both text lines for one deck, from a state
+// object shaped like that deck's own S (minus the log). Never throws on a
+// device that's never opened this deck: summaryLine()/renderTodayStats()
+// both degrade to their fallback (the static blurb; an empty stats line)
+// rather than showing stale or fabricated numbers.
+function renderDeckProgress(cardId,todayId,data){
+  const settings=(data&&data.settings)||{};
+  const rollover=(settings.rollover!=null)?settings.rollover:4;
+  if(data) paintBorder(cardId,data.palette,data.theme);
+  const line=summaryLine(data,rollover), subEl=document.getElementById(cardId+'Sub');
+  if(subEl&&line) subEl.textContent=line;
+  renderTodayStats($(todayId),data,rollover);
+}
+// Merges N decks' day maps into one: a day counts toward the COMBINED streak
+// if any visible deck studied that day. Each deck's days map is already
+// keyed by that deck's own dayKey (which depends on that deck's own
+// rollover hour) -- summing the integer keys directly assumes decks'
+// rollover hours are close enough that a study session lands in the same
+// calendar-day bucket either way. True for any realistic rollover gap; a
+// combined streak is a glance-level number, not a scheduling input, so this
+// approximation is deliberate, not an oversight.
+//
+// Each deck is passed as {days, since}: `since` is that deck's own
+// streakStart, the "count my streak from here" reset in its calendar gear.
+// Honouring it here is what keeps the headline consistent with the per-deck
+// figures printed right beside it (2026-08-17). Before, the merge ignored
+// streakStart entirely while the breakdown applied it, so a reset deck
+// produced a line that contradicted itself -- "247-day streak (Latin 12 ·
+// Greek 12)" -- the one number a reader trusts least being the biggest one.
+function mergeDayMaps(entries){
+  const merged={};
+  for(const e of entries){
+    const days=e.days||{}, since=e.since;
+    for(const k in days){
+      const n=(days[k]&&days[k].n)||0;
+      if(!n) continue;
+      if(since!=null&&+k<since) continue;   // before that deck's own streak reset
+      (merged[k]||(merged[k]={n:0})).n+=n;
+    }
+  }
+  return merged;
+}
+const CAL_REF_ROLL=4;   // shared reference rollover for the combined streak and the calendar's own date axis -- see mergeDayMaps' comment
+function renderStreakLine(datasById){
+  const merged=mergeDayMaps(DECKS.map(d=>{
+    const data=datasById[d.id];
+    return {days:(data&&data.days)||{}, since:(data&&data.settings&&data.settings.streakStart)};
+  }));
+  const combined=currentStreak(merged,dayKey(Date.now(),CAL_REF_ROLL),null);
+  const parts=DECKS.map(d=>{
+    const data=datasById[d.id]; if(!data) return null;
+    const settings=data.settings||{}, rollover=(settings.rollover!=null)?settings.rollover:CAL_REF_ROLL;
+    const s=currentStreak(data.days||{},dayKey(Date.now(),rollover),settings.streakStart);
+    return d.title+' '+s;
+  }).filter(Boolean);
+  $('streakLine').textContent=(combined?combined+'-day streak':'No streak yet — study something today to start one')+
+    (parts.length?' ('+parts.join(' · ')+')':'');
+}
+// One shared-scroll container, one row per visible deck, all sharing the
+// same day columns (PLATFORM_PLAN.md §6a) so scrolling is a single action
+// across every deck at once rather than N independently-scrolling strips.
+// Deliberately past-only (no forecast -- that needs the scheduling engine,
+// which this page never loads) and read-only with no click-through detail,
+// unlike deck.html's own per-deck calendar -- "the launcher stays a reader"
+// (§2.2).
+// Every non-archived deck always draws a row. The per-deck show/hide
+// checkboxes that used to sit above this were removed on the owner's call
+// (2026-08-26): with two decks the control was one tap to hide half of a
+// read-only summary and one more to bring it back, and nothing else on the
+// page reads the choice. Archiving a deck is still the way to take it off
+// the launcher, and that route already exists in the registry.
+function renderCalStack(datasById){
+  const visible=DECKS;
+  if(!visible.length){ $('calAllScroll').innerHTML=''; return; }
+  const d0=dayKey(Date.now(),CAL_REF_ROLL);
+  let startKey=d0;
+  for(const d of visible){
+    const data=datasById[d.id];
+    if(data&&data.created) startKey=Math.min(startKey,dayKey(data.created,CAL_REF_ROLL));
+    for(const k in ((data&&data.days)||{})) startKey=Math.min(startKey,+k);
+  }
+  let rowsHtml='';
+  for(const d of visible){
+    const data=datasById[d.id]||{};
+    const days=data.days||{}, settings=data.settings||{};
+    // Same baseline the deck's own heatmap chip displays -- read from that
+    // deck's saved heatmapAvgWindow, so a row here and that deck's own
+    // calendar colour identically instead of against two different averages.
+    const avgR=heatmapBaseline(days,d0,settings.heatmapAvgWindow||'month');
+    const mode=settings.heatmapColourMode||'volume', accent=settings.heatmapAccent||'coral';
+    let dots='';
+    for(let k=startKey;k<=d0;k++){
+      const bg=heatCellBg(heatRec(days,k),avgR,mode,accent);
+      dots+='<div class="calDot'+(k===d0?' today':'')+'"'+(bg?' style="'+bg+'"':'')+'></div>';
+    }
+    rowsHtml+='<div class="calDeckRow"><div class="lbl">'+esc(d.title)+'</div><div class="dots">'+dots+'</div></div>';
+  }
+  $('calAllScroll').innerHTML=rowsHtml;
+  const sc=$('calAllScroll'); sc.scrollLeft=sc.scrollWidth;
+}
+// The deck's tiny boot record (theme/palette) -- synchronous, so the border
+// is right before IndexedDB has answered.
+function bootRecord(key){
+  try{ return JSON.parse(localStorage.getItem(key+'.boot'))||null; }catch(e){ return null; }
+}
+// Read-only IndexedDB access. Opened WITHOUT a version so it never upgrades
+// anything; if the database does not exist yet on this device (no deck ever
+// opened here) the open would create an empty one -- aborted instead, so
+// this page leaves no trace. Falls back to the legacy blob and then to a
+// pre-cutover localStorage copy, longest log winning where both exist.
+function openDeckDb(){
+  return new Promise(res=>{
+    try{
+      const r=indexedDB.open('clepsydra');
+      r.onupgradeneeded=()=>{ try{ r.transaction.abort(); }catch(e){} res(null); };
+      r.onsuccess=()=>res(r.result);
+      r.onerror=()=>res(null);
+      r.onblocked=()=>res(null);
+      // WebKit has shipped states in which indexedDB.open() fires none of the
+      // four handlers above and the request simply never settles. Every caller
+      // here awaits this promise, so an open that never answers is not one
+      // missing statistic -- it is a button that dims and stays dim with
+      // nothing written anywhere to say why. Giving up after eight seconds
+      // lands on the null path, which every caller already handles, and which
+      // now falls back to the legacy copy rather than to nothing (see
+      // fullLocalData below). First settle wins, so a late real answer is
+      // simply ignored rather than racing anything.
+      setTimeout(()=>res(null),8000);
+    }catch(e){ res(null); }
+  });
+}
+function idbGet(db,store,key){
+  return new Promise(res=>{
+    try{
+      if(!db.objectStoreNames.contains(store)) return res(null);
+      const rq=db.transaction(store,'readonly').objectStore(store).get(key);
+      rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>res(null);
+    }catch(e){ res(null); }
+  });
+}
+async function localData(db,key){
+  let st=null, kv=null, ls=null;
+  if(db){ st=await idbGet(db,'state',key); kv=await idbGet(db,'kv',key); }
+  try{ ls=JSON.parse(localStorage.getItem(key)); }catch(e){}
+  // `state` has no log (by design); the legacy copies do. When both the new
+  // and an old copy exist, the new one is at least as fresh (every save has
+  // written it since the cutover), so prefer it outright; between the two
+  // legacy copies, longer log wins as the decks themselves always did.
+  if(st) return st;
+  if(kv&&ls) return ((kv.log&&kv.log.length)||0)>=((ls.log&&ls.log.length)||0)?kv:ls;
+  return kv||ls||null;
+}
+// Pure: which of a deck's own local copy and a freshly-fetched synced copy is
+// the one worth rendering from. Reduced to a display-only question with no
+// merge and nothing to write anywhere. Local (`state`) carries no log, so
+// the comparison uses the last-save/last-sync stamps the decks write on
+// every save and every landed push instead. A missing fetch always falls
+// back to local: no news is exactly the case where the old snapshot is all
+// there is.
+function fresherData(local,fetched){
+  if(!fetched) return local;
+  if(!local) return fetched;
+  const l=(local.lastSave||0), f=(fetched.lastSave||0);
+  return f>=l ? fetched : local;
+}
+let dbPromise=null;
+async function renderAll(fetched){
+  fetched=fetched||{};
+  for(const d of DECKS){
+    const b=bootRecord(d.key);
+    if(b) paintBorder(d.card,b.palette,b.theme);
+  }
+  if(!dbPromise) dbPromise=openDeckDb();
+  const db=await dbPromise;
+  const datasById={};
+  for(const d of DECKS){
+    const local=await localData(db,d.key);
+    const data=fresherData(local,fetched[d.id]||null);
+    datasById[d.id]=data;
+    renderDeckProgress(d.card,d.today,data);
+  }
+  // Phase 2 (PHASE2_PLAN.md §2.2): combined/per-deck streaks and the stacked
+  // calendar need every deck's data at once (a combined streak can't be
+  // computed one deck at a time), unlike the per-card strip/summary line
+  // just above, which update as each deck's own data resolves.
+  renderStreakLine(datasById);
+  renderCalStack(datasById);
+}
+renderDeckCards();  // must exist before renderAll() looks up any card/strip/sub element by id
+renderAll(); // straight from this device's stores -- the page is correct
+             // immediately, never blank while the sync check below is in flight
+
+// ============================================================
+// Force-refresh: this page can only ever show whatever a deck last wrote to
+// *this* device's storage, which is only current if that deck was actually
+// opened here since whatever changed (a palette switch, a study session)
+// elsewhere. Fetching each deck's synced copy straight from the sync server
+// closes that gap without giving up the read-only guarantee: fetchDeck()
+// only ever GETs and decrypts, and the result is handed to renderAll() as
+// data to render *from*, never written into a deck's stores.
+//
+// The crypto here mirrors deck.html's exactly (same key derivation, same
+// packet shape) -- one code, one slot per deck. Throttled to once a minute on
+// page load (the throttle clock lives in localStorage, not a module variable,
+// because this whole script re-runs on every fresh load); the button always
+// checks. Two GETs per check, one per deck.
+// ============================================================
+const IDX_SYNC_MIN=60000;
+const IDX_LAST_CHECK_KEY='clepsydra.indexLastCheck.v1';
+// The synced copies this page last pulled down, by deck id -- set by
+// checkSync() below, read by Export all. Deliberately a plain variable and
+// not storage: it is a cache of something the network can always re-answer,
+// and it must not outlive the page that fetched it.
+let lastFetched={};
+function syncKeyMaterial(code,deckKey){ return {kvInput:'kv:'+code+':'+deckKey, encInput:'enc:'+code+':'+deckKey}; }
+async function syncKeys(code,deckKey){
+  const enc=new TextEncoder(), mat=syncKeyMaterial(code,deckKey);
+  const kv=await crypto.subtle.digest('SHA-256',enc.encode(mat.kvInput));
+  const ek=await crypto.subtle.digest('SHA-256',enc.encode(mat.encInput));
+  const kvKey=Array.from(new Uint8Array(kv)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  // ['encrypt','decrypt'], not just 'decrypt': this page used to only ever
+  // fetch (checkSync/fetchDeck), but pushDeckFromLauncher() below now needs
+  // to encrypt too -- same derivation either way, just a wider usage list on
+  // the derived key.
+  const cryptoKey=await crypto.subtle.importKey('raw',ek,'AES-GCM',false,['encrypt','decrypt']);
+  return {kvKey,cryptoKey};
+}
+function unb64(s){ return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+async function gunzipBytes(bytes){
+  const ds=new DecompressionStream('gzip');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+async function decryptPayload(pkt,cryptoKey){
+  if(!pkt||typeof pkt.iv!=='string'||typeof pkt.data!=='string') throw new Error('bad packet');
+  let buf=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(pkt.iv)},cryptoKey,unb64(pkt.data)));
+  if(pkt.z) buf=await gunzipBytes(buf);
+  return JSON.parse(new TextDecoder().decode(buf));
+}
+// ---------- the write path, added so btnNewCode() (above) can push both
+// decks' current copies up itself instead of just minting a code and hoping
+// the owner remembers to open a deck afterward -- see pushDeckFromLauncher()'s
+// own comment for why that hope was exactly the gap (FINALISATION_PLAN.md
+// §5.2). b64/gzipBytes/encryptPayload mirror deck.html's own byte-for-byte
+// (same packet shape: {v,iv,data,z}) -- the read-side twins (unb64/
+// gunzipBytes/decryptPayload) already live just above, for fetchDeck().
+function b64(buf){
+  const u=new Uint8Array(buf); let s='';
+  for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));
+  return btoa(s);
+}
+async function gzipBytes(bytes){
+  if(typeof CompressionStream==='undefined') return null;
+  const cs=new CompressionStream('gzip');
+  const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function encryptPayload(obj,cryptoKey){
+  let plain=new TextEncoder().encode(JSON.stringify(obj)), z=0;
+  const gz=await gzipBytes(plain);
+  if(gz&&gz.length<plain.length){ plain=gz; z=1; }
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const data=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},cryptoKey,plain);
+  return {v:1, iv:b64(iv), data:b64(data), z:z};
+}
+// What leaves this device -- same choke point as deck.html's own sanitised(),
+// kept for the same reason: the sync code and any secret never live inside a
+// deck's own state to begin with, this only guards the case where one
+// somehow ends up in .settings anyway.
+function sanitisedForPush(full){
+  const st=Object.assign({},full.settings);
+  delete st.gistTok; delete st.gistId; delete st.syncCode;
+  return Object.assign({},full,{settings:st});
+}
+// The `state` store never carries the log (localData()'s own comment above
+// explains why) -- a real push needs it, so this reads the log store too and
+// stitches the two back into one state-shaped object, exactly what deck.html's
+// own readStructured() does for the same two stores. The legacy fallbacks (the
+// `kv` blob, pre-cutover localStorage) already carry their log inline -- see
+// localData() -- so only the primary, post-cutover branch needs the extra read.
+function idbGetLog(db,key){
+  return new Promise(res=>{
+    try{
+      if(!db.objectStoreNames.contains('log')) return res([]);
+      const rq=db.transaction('log','readonly').objectStore('log')
+        .getAll(IDBKeyRange.bound([key,0],[key,Infinity]));
+      rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>res([]);
+    }catch(e){ res([]); }
+  });
+}
+async function fullLocalData(db,key){
+  // "No database" is not "no data". localData() above has always fallen back
+  // to the pre-cutover localStorage blob; this one -- which feeds Export all
+  // and the launcher's own push -- returned null outright instead, so the
+  // very same page could draw a deck's card from the legacy copy and, in the
+  // same breath, call that deck empty when asked to back it up. Same
+  // fallback, same order, one rule for both.
+  if(!db){
+    let ls=null; try{ ls=JSON.parse(localStorage.getItem(key)); }catch(e){}
+    return (ls&&typeof ls==='object'&&!Array.isArray(ls))?ls:null;
+  }
+  const st=await idbGet(db,'state',key);
+  if(st){ const core=Object.assign({},st); core.log=await idbGetLog(db,key); return core; }
+  const kv=await idbGet(db,'kv',key);
+  let ls=null; try{ ls=JSON.parse(localStorage.getItem(key)); }catch(e){}
+  if(kv&&ls) return ((kv.log&&kv.log.length)||0)>=((ls.log&&ls.log.length)||0)?kv:ls;
+  return kv||ls||null;
+}
+// Writes back only the sync-bookkeeping fields a successful push just made
+// true -- lastSync/syncedLogLen/lastDevice/lastPushBytes/lastPushError --
+// never anything a deck's own log/cards/settings hold. The one deliberate,
+// narrow exception to this page's "read-only, cannot alter either deck's
+// real state" rule (see the per-deck-card section's own comment further
+// up): without it, opening that deck here afterwards would show Settings'
+// "nothing synced yet" for a push that, in fact, just landed -- the same
+// ambiguity §5.2 already flags for deck.html's own screens, recreated in
+// miniature the moment sync can happen from this page too.
+function markDeckPushed(db,key,lastSync,logLen,deviceName,bytes){
+  return new Promise(res=>{
+    try{
+      const tx=db.transaction('state','readwrite'), store=tx.objectStore('state');
+      const rq=store.get(key);
+      rq.onsuccess=()=>{
+        const core=rq.result; if(!core){ res(false); return; }
+        core.lastSync=lastSync; core.syncedLogLen=logLen; core.lastDevice=deviceName;
+        core.lastPushBytes=bytes; core.lastPushError=null; core.lastPushErrorAt=null;
+        store.put(core,key);
+      };
+      tx.oncomplete=()=>res(true); tx.onerror=()=>res(false); tx.onabort=()=>res(false);
+    }catch(e){ res(false); }
+  });
+}
+// Pushes one deck's current local copy up under `code`. Returns
+// {id, ok, skipped?, bytes?, error?} -- skipped means this device has never
+// opened that deck at all (nothing local to push, not a failure); ok:false
+// with an error means a real push attempt failed. A fresh code is provably
+// empty (nobody else can be holding it yet -- randomSyncCode() is only ever
+// called here to mint a brand new one), so pushing straight away with no
+// fetch-first check is exactly as safe as newSyncCode() already relies on in
+// deck.html for the same reason.
+async function pushDeckFromLauncher(db,code,deckEntry,deviceName){
+  const id=deckEntry.id;
+  try{
+    const full=await fullLocalData(db,deckEntry.key);
+    if(!full) return {id,ok:false,skipped:true};
+    full.lastDevice=deviceName||'this device';
+    const {kvKey,cryptoKey}=await syncKeys(code,deckEntry.key);
+    const pkt=await encryptPayload(sanitisedForPush(full),cryptoKey);
+    pkt.from=loadShared().installId||'';   // see loadShared(): the Worker's spare-copy rule compares this
+    const body=JSON.stringify(pkt);
+    if(body.length>SYNC_MAX_BYTES) throw new Error('too large');
+    const opts={method:'PUT',headers:{'Content-Type':'application/json'},body:body};
+    if(body.length<=SYNC_KEEPALIVE_MAX) opts.keepalive=true;
+    const r=await fetch(SYNC_ENDPOINT+'/sync/'+kvKey,opts);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    await markDeckPushed(db,deckEntry.key,Date.now(),(full.log&&full.log.length)||0,full.lastDevice,body.length);
+    return {id,ok:true,bytes:body.length};
+  }catch(e){
+    return {id,ok:false,error:(e&&e.message)||String(e)};
+  }
+}
+async function fetchDeck(code,deckKey){
+  const {kvKey,cryptoKey}=await syncKeys(code,deckKey);
+  const r=await fetch(SYNC_ENDPOINT+'/sync/'+kvKey);
+  if(r.status===404) return null;                       // nothing synced under this code for this deck yet
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const data=await decryptPayload(await r.json(),cryptoKey);
+  return (data&&data.deck===deckKey)?data:null;
+}
+function setRefreshStatus(msg,bad){
+  const el=$('refreshStatus');
+  el.textContent=msg||'';
+  el.classList.toggle('bad',!!bad);
+}
+// force=true (the button) always checks, throttle or not, and always says
+// something. force=false (page load) is silent whenever the throttle skips
+// it or there's no code yet -- a device that's never set up sync shouldn't
+// see a sync error it never asked for.
+async function checkSync(force){
+  const {syncCode}=loadShared();
+  if(!syncCode){
+    if(force) setRefreshStatus('Set up a sync code first',true);
+    return;
+  }
+  if(!force){
+    const last=Number(localStorage.getItem(IDX_LAST_CHECK_KEY))||0;
+    if(Date.now()-last<IDX_SYNC_MIN) return;
+  }
+  localStorage.setItem(IDX_LAST_CHECK_KEY,String(Date.now()));
+  if(force) setRefreshStatus('Checking…');
+  // allSettled, not all: the two decks are fetched and decrypted
+  // independently, and one failing shouldn't throw away a perfectly good
+  // result already in hand for the other.
+  const results=await Promise.allSettled(DECKS.map(d=>fetchDeck(syncCode,d.key)));
+  const fetched={}; let failed=null;
+  results.forEach((r,i)=>{ if(r.status==='fulfilled') fetched[DECKS[i].id]=r.value; else failed=r.reason; });
+  // Kept, not just rendered: Export all needs exactly what this page is
+  // showing, and re-fetching it on the press would be two more downloads of
+  // data already in hand. Whatever this check pulled down stands until the
+  // next one replaces it.
+  lastFetched=fetched;
+  await renderAll(fetched);
+  if(force){
+    if(failed) setRefreshStatus('Sync check failed ('+(failed.message||failed)+') — showing what’s on this device',true);
+    else setRefreshStatus('Checked just now');
+  }
+}
+$('btnRefreshCards').addEventListener('click',async()=>{
+  const btn=$('btnRefreshCards');
+  btn.disabled=true;
+  await checkSync(true);
+  btn.disabled=false;
+});
+// ---------- Export all (2026-08-21, his ask; Riverbank's launcher feature,
+// re-plumbed for this page's async IndexedDB storage). One tap saves one
+// dated backup file per deck that has any data on this device -- the SAME
+// per-deck file deck.html's own doExport() writes, deliberately not a new
+// combined format: restoring stays deck.html's own guarded, stamp-checked
+// path, and sync storage is per-deck anyway. Every deck that exists is
+// offered, archived ones included -- archiving hides a card, it does not
+// delete the history behind it, and a backup that skipped it would be the
+// one you reach for the day you need it. Downloads are spaced out, not
+// fired together: Safari can silently drop all but the first download
+// triggered in one instant (the same reason doExport() never triggers one
+// nobody tapped for).
+function downloadOneBackup(deckId,obj){
+  const blob=new Blob([JSON.stringify(obj)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='clepsydra-'+deckId+'-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);              // Safari needs it in the DOM
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },1500);
+}
+// Pure: the file that leaves for one deck. Two guarantees, both pinned by
+// tests: no secret rides along (sanitisedForPush(), the push's own choke
+// point), and the deck stamp is always present -- a legacy copy from before
+// the stamp existed gets it written in from the registry key it was read
+// under, or deck.html's own import guard would (rightly) refuse the very
+// file this button just saved.
+function backupFileFor(full,deckKey){
+  const obj=sanitisedForPush(full);
+  if(!obj.deck) obj.deck=deckKey;
+  return obj;
+}
+// Which copy of a deck this button saves (2026-08-26, the bug he reported).
+// It used to read this device's own storage and nothing else, and to call a
+// deck that wasn't there "nothing to save yet -- open a deck and study a
+// little first". Every other thing on this page renders from local OR the
+// synced copy (fresherData, above), so a launcher could sit there showing two
+// full decks, today's counts, the streak and the calendar, and refuse in the
+// same breath to back either of them up -- with a message telling him to go
+// and do the one thing that would not have helped.
+//
+// That is the normal case on his devices, not an edge one. A web app added to
+// the Dock or Home Screen "shares no browsing history, cookies, website data,
+// or settings with Safari" (Apple, HT104996), and no more shares it with
+// another web app: a deck opened from its OWN icon writes to its OWN storage,
+// where this launcher can never see it, however often he syncs or however
+// many times he opens the deck. Reproduced exactly in WebKit 26.5 -- empty
+// local stores, a synced copy in hand, cards and calendar drawn correctly,
+// and the button reporting nothing to save.
+//
+// So: local first (a backup should be of what is on this device where there
+// is one), the synced copy where there is not. That copy is the same
+// sanitised state a deck itself pushed, and fetchDeck() has already refused
+// anything not stamped for the deck it was asked for, so a file written from
+// it restores exactly like one written here. The network is touched only for
+// a deck with no local copy at all whose synced copy this page has not
+// already pulled down -- a healthy device still saves offline, with no
+// request made.
+async function exportAllBackups(){
+  const note=$('exportNote'), btn=$('btnExportAll');
+  btn.disabled=true; note.classList.remove('bad');
+  note.textContent='Looking for your decks\u2026';   // the press is never silent, whatever follows
+  try{
+    if(!dbPromise) dbPromise=openDeckDb();
+    const db=await dbPromise;
+    const {syncCode}=loadShared();
+    const found=[], fromSync=[], missing=[];
+    for(const d of mergeRegistry(REGISTRY,loadUserDecks())){
+      const local=await fullLocalData(db,d.key);
+      let remote=lastFetched[d.id]||null;
+      if(!local&&!remote&&syncCode){
+        try{ remote=await fetchDeck(syncCode,d.key); }catch(e){ remote=null; }
+      }
+      const best=fresherData(local,remote);
+      if(!best||typeof best!=='object'){ missing.push(d.title); continue; }
+      if(best!==local) fromSync.push(d.title);
+      found.push({id:d.id,title:d.title,obj:backupFileFor(best,d.key)});
+    }
+    if(!found.length){
+      note.textContent=syncCode
+        ? 'Nothing to save \u2014 no copy of '+missing.join(' or ')+' on this device, and nothing under your sync code either.'
+        : 'Nothing to save \u2014 no copy of '+missing.join(' or ')+' on this device. Open a deck and study a little, or set a sync code below and try again.';
+      note.classList.add('bad');
+      return;
+    }
+    note.textContent='Saving '+found.length+' file'+(found.length===1?'':'s')+'\u2026';
+    found.forEach((f,i)=>{ setTimeout(()=>downloadOneBackup(f.id,f.obj), i*600); });
+    await new Promise(r=>setTimeout(r,found.length*600));
+    // Says where each file came from. A backup taken from the synced copy is
+    // a real backup, but it is the copy some other device last pushed, not
+    // this one's -- and on a device whose own storage is empty that is worth
+    // knowing before the day he needs the file.
+    let msg='Saved '+found.map(f=>f.title).join(' and ')+(found.length===1
+      ? ' \u2014 one dated file, stamped for its own deck.'
+      : ' \u2014 one dated file each, stamped for its own deck.');
+    if(fromSync.length) msg+=' '+fromSync.join(' and ')+' came from the synced copy \u2014 this app\u2019s own storage holds none.';
+    if(missing.length) msg+=' Nothing found anywhere for '+missing.join(' or ')+'.';
+    note.textContent=msg;
+    if(missing.length) note.classList.add('bad');
+  }catch(e){
+    note.textContent='Could not save the backups ('+((e&&e.message)||e)+')'; note.classList.add('bad');
+  }finally{ btn.disabled=false; }
+}
+$('btnExportAll').addEventListener('click',exportAllBackups);
+checkSync(false);
+</script>
+</body>
+</html>

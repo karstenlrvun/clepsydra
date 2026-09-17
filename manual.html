@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to use Clepsydra</title>
+<style>
+:root{
+  --bg:#fffdfb; --ink:#1b1a18; --muted:#6f6c66; --faint:#a5a29b;
+  --line:#e7e3dc; --panel:#faf8f5; --coral:#c04d26;
+  --again:#a8372b; --hard:#8a6410; --good:#2b7049; --easy:#6a5cc0;
+  --serif:"Palatino","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1230; --ink:#e9ecf8; --muted:#a3abd0; --faint:#7780ab;
+    --line:#2a3169; --panel:#181d47; --coral:#ff8a5c;
+    --again:#ff8175; --hard:#e8b860; --good:#5ecb92; --easy:#b0a4ff;
+  }
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0 auto; padding:34px 22px 90px; max-width:37rem;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16.5px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+h1{font-family:var(--serif); font-weight:400; font-size:2.05rem; line-height:1.2; margin:0 0 6px}
+.sub{color:var(--muted); font-size:15px; margin:0 0 34px}
+h2{font-family:var(--serif); font-weight:400; font-size:1.42rem; line-height:1.25;
+   margin:44px 0 12px; padding-top:22px; border-top:1px solid var(--line)}
+h3{font-size:1rem; font-weight:600; margin:26px 0 6px}
+p{margin:0 0 14px}
+ul{margin:0 0 14px; padding-left:20px}
+li{margin-bottom:7px}
+strong{font-weight:600}
+em{font-style:italic}
+.lead{font-size:17.5px}
+.key{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:600; font-size:14.5px}
+.k-again{background:rgba(176,59,46,.11); color:var(--again)}
+.k-hard{background:rgba(154,115,24,.13); color:var(--hard)}
+.k-good{background:rgba(47,125,79,.12); color:var(--good)}
+.k-easy{background:rgba(122,107,207,.13); color:var(--easy)}
+table{width:100%; border-collapse:collapse; margin:6px 0 18px; font-size:15px}
+th,td{text-align:left; padding:8px 9px 8px 0; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-weight:600; color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.05em}
+/* Right-aligned, non-wrapping cells are for NUMBERS, and only for numbers.
+   Until this rebuild the rule below had no `table.nums` in front of it, so it
+   applied to every table on the page -- including the grade table, the settings
+   list and the key lists, whose second column is a paragraph. `white-space:
+   nowrap` on a paragraph makes it one line however long it is, so the document
+   was 15,481px wide against a 1,265px window: every table ran off the side, and
+   on a phone the whole page scrolled sideways. Scoped here, and the one genuinely
+   numeric table (the interval grid) opts in. */
+table.nums td:not(:first-child), table.nums th:not(:first-child){text-align:right; padding-right:0; white-space:nowrap}
+td, th{overflow-wrap:break-word}
+.box{background:var(--panel); border:1px solid var(--line); border-radius:12px;
+     padding:15px 17px; margin:20px 0}
+.box p:last-child{margin-bottom:0}
+.box h3{margin-top:0}
+.toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin-bottom:8px}
+.toc ol{margin:0; padding-left:19px}
+.toc li{margin-bottom:3px}
+.toc a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line)}
+.term{font-family:var(--serif); font-size:1.05em}
+.foot{margin-top:52px; padding-top:20px; border-top:1px solid var(--line);
+      color:var(--faint); font-size:13.5px}
+
+/* ---- the two-part split (rebuilt 2026.08.20.5, STUDY_SYSTEM.md 5.9.2) ----
+   One page, two audiences. Part One is a short read for someone meeting the
+   app for the first time; Part Two is a numbered reference to look things up
+   in. The failure this replaces is the one Diataxis names -- a single document
+   trying to teach and to serve as reference at once, doing neither. */
+.partHead{margin:60px 0 6px; padding-top:30px; border-top:3px solid var(--coral)}
+.partHead:first-of-type{margin-top:34px}
+.partLbl{display:block; font-family:var(--sans); font-size:12px; font-weight:600;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--coral); margin-bottom:7px}
+.partHead h2{font-size:1.72rem; margin:0; padding:0; border:none}
+.partSub{color:var(--muted); font-size:15px; margin:6px 0 0}
+.jump{display:inline-block; margin-top:14px; font-size:15px; color:var(--coral);
+  text-decoration:none; border-bottom:1px solid var(--line)}
+.rule{background:var(--panel); border-left:3px solid var(--coral); border-radius:0 10px 10px 0;
+  padding:13px 16px; margin:18px 0}
+.rule p:last-child{margin-bottom:0}
+.rule strong:first-child{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<h1>How to use the vocabulary app</h1>
+<p class="sub">Latin and Greek · a short read first, then everything else in a list</p>
+
+<div class="toc">
+<p style="margin:0 0 8px"><strong>Part One — Start here.</strong> Twenty minutes' reading, once. Everything you need to use the app well and nothing you don't.</p>
+<p style="margin:0"><strong><a href="#reference">Part Two — Reference.</a></strong> Ten numbered sections to look things up in. Skip to it if you already know how the app works.</p>
+</div>
+
+<!-- ==================== PART ONE ==================== -->
+
+<div class="partHead">
+  <span class="partLbl">Part One</span>
+  <h2 id="start">Start here</h2>
+  <p class="partSub">If you read nothing else, read this.</p>
+</div>
+
+<h2 id="clepsydra">This is Clepsydra, not vocabula</h2>
+<p class="lead">Clepsydra is an experiment built on vocabula. Everything below still holds, with five differences.</p>
+<p><b>You start with a first pass.</b> Before any reviewing, every word is shown once and you sort it: <b>Not seen</b>, <b>Shaky</b>, <b>Known</b>, or <b>Known well</b> (keys 1–4; tap the word or press Space to check its meaning first; Z takes the last answer back). Shaky words start with about 4 days of memory and Known words about 18, and each comes back for a real review inside that time. Not seen words become ordinary new words. Do it in as many sittings as you like — sorted words start their schedule straight away.</p>
+<p><b>Known well retires a word for good.</b> It never comes back, with one exception: a fixed 8% of retired words are asked once, a month or two later, to check that the button is honest. Pass and the word stays retired; miss and it rejoins the list. The front page shows how those checks are going, and Settings can bring every retired word back. A word that holds for 180 days retires the same way.</p>
+<p><b>You set minutes, not just a retention target.</b> Each deck has a daily limit. When it is spent the sitting ends — a word already on its steps is seen through, the rest waits for tomorrow, and <i>Five more minutes</i> is there if you want it. New words only start when the day's reviews leave time for them. The front page tells you what is due in minutes, and whether your minutes and your target agree; if they do not, it says by how much and what target those minutes would hold. Both dials stay yours.</p>
+<p><b>The target means what it says.</b> The scheduler runs on numbers fitted to your own history, writes down its prediction at every review, and compares it with what happened. Once 40 spaced reviews exist it aims at whatever paper figure actually delivers the retention you asked for.</p>
+<p><b>Answer time counts, a little.</b> A pass answered faster than your own usual earns somewhat more gap, a slow one somewhat less. It never changes which button you pressed.</p>
+
+<h2 id="idea">The one idea behind it</h2>
+<p class="lead">The app shows you a word. You try to remember it. You say how that went. It works out when to show you the word again — soon if you struggled, much later if you didn't.</p>
+<p>That's the whole system. Everything else is detail.</p>
+<p>It spaces things out because a word you review the moment before you'd have forgotten it sticks far better than one you review while it's still fresh. Reviewing something you already know solidly is close to wasted effort. So when the app says a word isn't due for two months, it isn't neglecting it — it's saying you don't need it yet, and it's usually right.</p>
+
+<h2 id="fourbuttons">The four buttons</h2>
+<p>After you reveal the answer you say how it went. Four buttons, always the same four, in the same order, on every word — new, relearned, or long settled. They are a ladder of <em>how much effort the recall took</em>, and only the bottom rung is a failure.</p>
+<table>
+  <tr><td><span class="key k-again">Again</span></td><td>You didn't recall it. <strong>The only failing grade.</strong></td></tr>
+  <tr><td><span class="key k-hard">Hard</span></td><td>You recalled it, but only just — a real struggle. A pass, a weak one.</td></tr>
+  <tr><td><span class="key k-good">Good</span></td><td>You recalled it, with a moment's thought — the normal case.</td></tr>
+  <tr><td><span class="key k-easy">Easy</span></td><td>It was there instantly, no thought.</td></tr>
+</table>
+<p>Each button shows the interval it will produce, so you can see the consequence before you commit.</p>
+
+<div class="rule">
+<p><strong>The two rules everyone drifts from.</strong> They are the two worth rereading in a month.</p>
+<p><strong>1. If you are not sure you recalled it, it is Again.</strong> Hard is not "I want to see this sooner", and not "I recognised it once I saw the answer" — that second one is Again. The line between Hard and Good is how hard you had to dig, not whether you got there. Both got there. A meaning you worked out &mdash; from the word's shape, from a cognate, from the parts &mdash; counts exactly the same as one you simply remembered, as long as it arrived before you looked. Grade the production, not the route.</p>
+<p><strong>2. Recall every meaning listed, or it's Again.</strong> The list was assigned to be known whole, and "I know one of the four" is not knowing the word. That holds whether the meanings are separate senses (<em>found, establish, store up, hide</em>), several English attempts at one sense (<em>thing, affair, matter</em>), or two words that only mark a range together (<em>by, from</em>) — the app does not tell these apart, so the card is the unit.</p>
+</div>
+
+<p>If what came to mind actually belongs to a <em>different</em> word, that's a mix-up between cards, not a lapse on this one: grade this card on its own meanings, then suspend both words and <strong>tie</strong> them from Browse. A tie keeps the two from being brought back out of the pile on the same day, which is what the evidence on confusable words actually asks for — meeting them apart while you are still learning them, not side by side.</p>
+
+<div class="box">
+<h3>The only way to break this</h3>
+<p>Press <strong>Easy</strong> on a word you actually half-guessed. Everything the app does rests on your grades being honest. If you're generous, it schedules words too far out, you forget them, and you'll conclude the app doesn't work. Being harsh on yourself costs you a few extra reviews. Being generous costs you the word.</p>
+</div>
+
+<h2 id="threethings">Three things that will surprise you</h2>
+
+<h3>A new word comes back in ten minutes, not tomorrow</h3>
+<p>Press <span class="key k-good">Good</span> on a word you're meeting for the first time and it comes back in ten minutes. Press Good again on that second look and it graduates — the ten-minute gap is a same-day survival check, and passing it is enough. <span class="key k-hard">Hard</span> walks the same steps and graduates the same way, only starting the word off weaker. <span class="key k-easy">Easy</span> skips the check. <span class="key k-again">Again</span> sends it back to one minute. A word you've just failed gets one ten-minute look the same way, then goes back into rotation.</p>
+<p>This only affects words being learned or relearned. A settled word behaves normally.</p>
+
+<h3>A slow Easy is recorded as Good</h3>
+<p>The app times the gap between seeing the word and revealing the answer. It never shows a clock and never interrupts you. One rule: <strong>take more than five seconds and an Easy is recorded as Good.</strong></p>
+<p>Nothing else is ever touched. Good stays Good however long you take, Hard stays Hard, Again is never altered, and nothing is ever recorded <em>higher</em> than what you pressed. When a grade is adjusted, a brief message says so. Put the phone down mid-card and that card's timing is discarded rather than counted against you. You can switch it off.</p>
+<p>The reasoning: "that was effortless" is the one claim a clock can check and no button can. Whether a pass was a <em>struggle</em> is a different question, and you answer that yourself with <span class="key k-hard">Hard</span>.</p>
+
+<h3>Hard still moves the word forward</h3>
+<p>This is the one most people get wrong, so it has its own line. Hard never repeats a step, never sends a word back to one minute, and never counts against the word. It advances it — just less far than Good, and it marks the word as harder so every later interval is shorter. A word you are half-getting, rated Hard honestly, still graduates.</p>
+
+<h2 id="firstweek">Your first week</h2>
+<p>Open it once a day and clear what's due. That's it. The app assumes you show up daily; skip days and the work doesn't vanish, it piles up.</p>
+<ul>
+  <li><strong>Do the reviews before the new words.</strong> The app already orders it that way. If a day is going to be short, reviews and no new words beats the reverse.</li>
+  <li><strong>If you fall behind</strong>, don't clear everything at once. Set new words to 0 for a few days and work through the backlog.</li>
+  <li><strong>Remember the tail.</strong> New words you add today generate reviews for months. Fifty a day through September means a few hundred reviews a day through Michaelmas. If you want term lighter, ease off in September, not after it starts.</li>
+</ul>
+
+<h2 id="wordfights">When a word keeps beating you</h2>
+<p>Once "Again" has landed on the same word twice in one day, two small buttons appear on the card. They are the two ways out, and the app never takes either of them for you.</p>
+<table>
+  <tr><td style="white-space:nowrap"><strong>&#10710; Bury</strong></td><td>Hides the word — both directions — until tomorrow. It comes back on its own at the start of the next study day, with nothing for you to remember. For "not this word, not right now".</td></tr>
+  <tr><td style="white-space:nowrap"><strong>&#9790; Suspend</strong></td><td>Takes the word out of review until it is brought back. For "I need to deal with this properly first". Suspended words gather in their own list on the front screen, and a few of the longest-rested are offered back each day — nothing returns on its own.</td></tr>
+</table>
+<p>On a keyboard, <code>-</code> is Bury and <code>@</code> is Suspend — Anki's own two keys, so anything you read there transfers. The keys work on any card; the icons wait for that second Again.</p>
+<p>A word cannot be both at once, and bringing a suspended word back clears both, so it genuinely returns.</p>
+<p><strong>Nothing here happens automatically.</strong> The app counts your failures and shows you the count; it does not act on it. If a word is fighting you, the answer usually isn't more repetitions — it's learning the word some other way, or fixing the card, and then bringing it back when you're ready. That is a judgement about the word, and it stays yours.</p>
+
+<h2 id="backupfirst">Back it up before you do anything else</h2>
+<p>Everything lives on the device you are using. There is no account. Losing it means losing every interval the app has learned about you, which is worth far more than the word list.</p>
+<p><strong>Do these two things now, once:</strong></p>
+<ol>
+  <li><strong>Install it to your Home Screen.</strong> Open it in Safari, tap Share, then Add to Home Screen, and use it from that icon rather than a browser tab. Safari deletes stored data for websites you haven't visited in a week; installed apps are exempt. This matters more than anything else on this page.</li>
+  <li><strong>Set up sync.</strong> One short code (ten letters and digits, like <code>ABCDE-FGHJK</code>) from <em>Get a code for this device</em> in Settings. Every save is pushed to the sync server a few seconds later; each launch fetches and merges whatever another copy left. The front screen shows how long ago that last worked, and turns amber then red as it ages. Treat the code like a password.</li>
+</ol>
+<p>Section 6 has the whole of it, including what happens when two devices disagree and how to undo a sync.</p>
+<p class="jump" style="border:none"><a class="jump" href="#reference">Now go and study. Part Two is here when you need to look something up. →</a></p>
+
+<!-- ==================== PART TWO ==================== -->
+
+<div class="partHead">
+  <span class="partLbl">Part Two</span>
+  <h2 id="reference">Reference</h2>
+  <p class="partSub">Ten sections, for looking things up rather than reading through.</p>
+</div>
+
+<div class="toc">
+<ol>
+  <li><a href="#buttons">The buttons, exactly</a></li>
+  <li><a href="#timing">The timing rule, and quick rate</a></li>
+  <li><a href="#when">When words come back</a></li>
+  <li><a href="#aside">Words that fight you</a></li>
+  <li><a href="#front">The front screen, stats and Browse</a></li>
+  <li><a href="#backup">Backing up and syncing</a></li>
+  <li><a href="#screen">The study screen itself</a></li>
+  <li><a href="#settings">Every setting, one line each</a></li>
+  <li><a href="#wrong">If something looks wrong</a></li>
+  <li><a href="#keys">Every key, one line each</a></li>
+</ol>
+</div>
+
+<h2 id="buttons">1. The buttons, exactly</h2>
+<p>A word is in one of three states: <em>learning</em> (brand new, walking short steps of 1 minute then 10 minutes), <em>relearning</em> (it slipped in review and gets one 10-minute look), or <em>review</em> (settled, coming back after days or weeks). This table is the whole rule for what a grade does.</p>
+<table id="gradeTable">
+  <tr><th></th><th>Learning (1m, 10m steps)</th><th>Relearning (one 10m step)</th><th>Review</th></tr>
+  <tr><td><span class="key k-again">Again</span></td><td>Back to the 1-minute step.</td><td>Stays on the 10-minute step.</td><td>A lapse: back for one 10-minute look, then review again.</td></tr>
+  <tr><td><span class="key k-hard">Hard</span></td><td><strong>Advances</strong> a step, and from the last step <strong>graduates</strong>, exactly as Good does — but the word is marked harder, so it comes back sooner from then on.</td><td><strong>Graduates</strong> back to review, as Good does, marked harder.</td><td>A shorter interval than Good.</td></tr>
+  <tr><td><span class="key k-good">Good</span></td><td>Advances a step; from the last step, graduates.</td><td>Graduates back to review.</td><td>The normal interval.</td></tr>
+  <tr><td><span class="key k-easy">Easy</span></td><td>Graduates at once, skipping the steps.</td><td>Graduates back to review, stronger.</td><td>A longer interval than Good.</td></tr>
+</table>
+<p><strong>Every button except Again moves the word forward.</strong> No word can get stuck circling the same short step. This is a deliberate departure from Anki, where Hard on a learning step <em>repeats</em> the step — so a single-step deck there can never graduate a card its user honestly rates Hard, an open request on the Anki forums since 2024. It is also why there is no "after N Hards, do X" rule anywhere: such a rule would only be needed if a button could fail to advance, and none can.</p>
+<p><strong>A second Again on the same look isn't a free pass, even though the step doesn't move.</strong> Relearning has one step, so failing it twice shows the same "back in 10 minutes" both times — the screen looks identical either way. Underneath, each fail still cuts the word's stored strength again, by roughly two thirds. The step stays put; what the app believes about the word keeps dropping.</p>
+
+<h3>Hard, in order of when you'll meet it</h3>
+<ul>
+  <li><strong>First press on a brand-new word:</strong> back in 10 minutes, same as Good — but starting weaker (about a day's strength, where Good starts it at about two days) and marked harder.</li>
+  <li><strong>Second press, same day:</strong> graduates into review, same as Good, and to the <em>same</em> first interval Good would give. What differs is the difficulty the word now carries, which shortens every interval from the second review on.</li>
+  <li><strong>On a word relearning after a slip:</strong> graduates it straight back to review, same as Good, marked harder.</li>
+  <li><strong>In review:</strong> a shorter interval than Good — roughly three-quarters of it, widening as the word matures (§3 gives the shape).</li>
+  <li><strong>What it never does:</strong> repeat a step, send a word back to one minute, or count towards anything. It is also never rewritten by the timing rule in §2 — a Hard you press is a Hard that's recorded.</li>
+  <li><strong>When it comes back, grade it afresh.</strong> A word that was Hard last time and comes easily this time is Good or Easy now; the app already remembers the struggle.</li>
+</ul>
+<p>One thing worth knowing so it doesn't look like a bug: on the second learning press of the same day, Hard and Good give you the exact same next date, not just "often." A pass never <em>lowers</em> its belief in a memory, so a same-day Hard leaves the word's stored strength only a hair below what Good would have left it at — too small a gap to ever move the day you're shown, checked across the whole range these presses actually reach. The difference is real, it just shows up from the second review on.</p>
+
+<h2 id="timing">2. The timing rule, and quick rate</h2>
+<p>Part One has the five-second rule: take more than five seconds and an Easy is recorded as Good. Two details for reference. It is the <em>only</em> thing that ever changes a press before the scheduler sees it — the <em>Calibration</em> panel (§5) says so under <em>Diagnostics</em>, and counts how often it has fired. If a second line ever appears there, something has been put back in between. And a reading over 300 seconds is treated as you having looked away, and discarded rather than counted.</p>
+
+<h3>Quick rate — grading without revealing</h3>
+<p>Off unless you switch it on, in Settings, under <strong>Quick rate</strong>. With it on, a word you know the instant you see it can be graded from the question side: press <code>4</code> on a keyboard, or tap the <strong>Knew it</strong> button beside <em>Show answer</em> on a phone. That records Easy and moves on.</p>
+<p>Three things worth knowing before you turn it on. <strong>It only appears on a word past its first learning steps</strong> — never on one you are still learning, which is where grading a word you don't really know costs the most. <strong>Only Easy can be pressed this way</strong>: 1, 2 and 3 do nothing before you reveal, and there is no equivalent on the phone, because Hard and Good are the two grades that mean "I actually looked at it", and an Again you could press without looking would tell you nothing. And <strong>the five-second rule still applies</strong>: press it slowly and Good is recorded. So this is never invisible, the answer flashes up straight afterwards <em>with the grade it recorded</em> underneath.</p>
+<p>Got one wrong? On a keyboard, <code>Z</code> immediately after corrects that word to Again in one stroke — not an undo, a correction, scheduled exactly as any other Again. On a phone, undo with the arrow at the top right, then reveal and press Again.</p>
+<p>A word graded this way never shows its card note, since it never reveals. That is deliberate: a mnemonic is for a word you did not have. If the flash tells you that you were wrong and you correct it, the word comes back within the minute through the ordinary reveal, note and all.</p>
+
+<h2 id="when">3. When words come back</h2>
+<p>Rough guide. The exact number depends on the word's own history, so treat these as the shape of it rather than a promise.</p>
+
+<h3>A word you've never seen</h3>
+<table>
+  <tr><th>You press</th><th>Comes back in</th></tr>
+  <tr><td>Again</td><td>1 minute</td></tr>
+  <tr><td>Hard</td><td>10 minutes — and a second Hard (or Good) then graduates it, to tomorrow</td></tr>
+  <tr><td>Good</td><td>10 minutes — and a second Good then graduates it, to about two days</td></tr>
+  <tr><td>Easy</td><td>8 days</td></tr>
+</table>
+
+<h3>A word already in the rotation</h3>
+<table class="nums">
+  <tr><th>Currently due every</th><th>Again</th><th>Hard</th><th>Good</th><th>Easy</th></tr>
+  <tr><td>3 days</td><td>10 min</td><td>9 d</td><td>12 d</td><td>21 d</td></tr>
+  <tr><td>10 days</td><td>10 min</td><td>4 wk</td><td>5 wk</td><td>8 wk</td></tr>
+  <tr><td>1 month</td><td>10 min</td><td>2 mo</td><td>3 mo</td><td>5 mo</td></tr>
+  <tr><td>3 months</td><td>10 min</td><td>6 mo</td><td>8 mo</td><td>1 yr</td></tr>
+</table>
+<p>A word you've failed before grows more slowly than one you've always got — roughly half these figures. The app tracks that per word.</p>
+
+<h3>Words carried over from your audit</h3>
+<p>These don't wait: they arrive through the daily new-word allowance like anything else, and <em>before</em> genuinely new words. What the audit changes is the strength a word starts with — one you marked <em>review</em> starts about a day strong, one you marked <em>know well</em> about three weeks strong (the head start is a setting) — so the app treats it as part-learned rather than new. Words marked known are also held back by the <em>Known</em> group chip, which is off by default.</p>
+
+<h3>When you fail a word you'd learned</h3>
+<p>A word due every month, failed, drops back to about two days' worth of strength and returns in ten minutes. Getting back to a month takes several sessions. That's the real cost of a lapse, and the real argument for grading honestly the first time.</p>
+<p>On the way back up, only one grade meaningfully speeds things. Press Easy on that first look back, wait for a real day to pass, and it earns a longer next date than Hard or Good would have. Clear the look in the very same sitting, though, and Hard, Good and Easy all land you on the same next date regardless — the gap is too short for any grade's extra credit to show up yet. And press Easy slowly (over five seconds) and the timing rule above turns it into Good anyway, so the speed-up only ever comes from a genuinely quick, honest Easy.</p>
+
+<h2 id="aside">4. Words that fight you</h2>
+<p>Part One introduces the two exits. Here is the rest of it.</p>
+
+<h3>The two exits, in full</h3>
+<p>Both appear on the study card once "Again" has landed on that word twice in one study day, side by side, as real tap targets rather than fiddly glyphs. Both are also keys, and the keys are not gated the way the icons are — they work on any card, because there is no reason a deliberate keypress should be refused on a word you have already decided about.</p>
+<table>
+  <tr><th></th><th>Bury</th><th>Suspend</th></tr>
+  <tr><td>Icon</td><td>&#10710; hourglass</td><td>&#9790; crescent</td></tr>
+  <tr><td>Key</td><td><code>-</code></td><td><code>@</code></td></tr>
+  <tr><td>How long</td><td>Until the next study day</td><td>Until you bring it back</td></tr>
+  <tr><td>Other direction</td><td>Goes with it</td><td>Stays as it is</td></tr>
+  <tr><td>To reverse</td><td>Nothing — it returns on its own</td><td>Press the flag again, or bring it back from the front screen or Browse — or take the daily offer</td></tr>
+</table>
+<p>These are Anki's own bury and suspend, keys included, adopted deliberately so that what you read about them elsewhere applies here. A word cannot be both at once: suspending a buried word clears the bury, and bringing a suspended word back clears both — so a word that returns from the pile genuinely returns, rather than vanishing again the same day with nothing on screen to explain it.</p>
+
+<h3>Flags</h3>
+<p>A flag is a small coloured marker you can put on a word — seven colours, and they are the same seven, in the same order and on the same keys, as the most widely used flashcard program uses. It is a bookmark and nothing more: <strong>a flag changes nothing about when a word comes back to you</strong>, nothing about its interval, and nothing about any count on the front screen.</p>
+<p><strong>Putting one on.</strong> The flag button sits in the top bar of the study screen, always — unlike Bury and Suspend, which only appear once a word has already beaten you twice in a day. Tap it and pick a colour. On a keyboard, <code>Ctrl</code> (or <code>&#8984;</code>) with <code>1</code> to <code>7</code> is faster, and pressing the same number again takes the flag off; pressing <code>F</code> instead opens the same colours by name, and <code>F</code> again closes it. That is deliberately how the phone version of that other program works too: one button, then a colour, rather than seven buttons competing for a thumb.</p>
+<p><strong>Setting one from Browse.</strong> Press a word in the list and its panel opens with all seven colours in it, one press each, the current one named underneath. Or press a number key <code>1</code>&ndash;<code>7</code> while pointing at a row, or right-click the row for its colours alongside Tie, Rest and Not today in one menu. It is the same picker either way, so a colour and its name never differ depending which screen set it.</p>
+<p><strong>Finding them again.</strong> The <em>Flag</em> button in Browse's bar opens the seven colours; press one to see only those words, press it again to clear. Each flagged word carries its colour — and its number — beside its term in the list. The <em>Sort</em> button beside it can also rank the whole list by difficulty, weakness or how soon a word is due, cutting across every Part — useful for picking your own worst words out by hand rather than guessing which category hides them.</p>
+<p><strong>Why the number as well as the colour.</strong> Two reasons. Colour alone is unreadable to anyone with a red-green deficiency, and in seven of this app's twenty-four palette-and-theme combinations a flag colour sits close to one of that palette's own rating-button colours. The digit is never ambiguous.</p>
+<p><strong>What a flag is not.</strong> It marks one word. Tying two words together — because you keep confusing them — is a different thing and works differently; a colour could only ever stand in for that up to seven pairs, at which point the colour is doing the job of the pair's name.</p>
+
+<h3>Tying two words together</h3>
+<p>Two words you keep confusing can be <strong>tied</strong>. Tick them both in the word list and press <em>Tie</em>, or open one word and use its panel&rsquo;s <em>Confused with</em> section to search for the partner by typing a few letters — either way you end up writing the same line and pressing the same button. Both words must be in the same direction. A tied word carries a small &#128279; in the list, and its panel shows the tie, the line that separates the pair, and a way to add to or remove it.</p>
+<p><strong>The line is the point, not the pairing.</strong> A tie carries one sentence saying what actually separates the two &mdash; <em>&ldquo;invisus is hateful (the s), invidus is envious (the d)&rdquo;</em>. You are asked for it when you tie them, you can add it later if you don&rsquo;t know it yet, and you can change it whenever the real difference finally lands.</p>
+<p><strong>Where to practise them: the Tied words screen.</strong> A button on the front screen, under the word list, showing how many ties this direction has. It gives you one word at a time with the meanings of everything it is tied to as the answers &mdash; so the wrong answer is always the word you actually confuse it with &mdash; and then shows the whole group side by side. That second half is the part that does the work: the point of a tie is the comparison, and a comparison you have to go looking for is not one you make.</p>
+<p><strong>It is not review.</strong> Nothing in that screen changes when a word is next due, and nothing is written to your record. Picking a meaning out of two is an easier thing than recalling it cold, and letting those two count as the same event would quietly corrupt the scheduler&rsquo;s picture of what you know. The screen keeps its own tally instead, on the tie rather than on either word, and uses it to put the ties you keep missing first next time.</p>
+<p><strong>When two words genuinely mean the same thing</strong> &mdash; the deck gives both <em>nefarius</em> and <em>scelestus</em> as &ldquo;wicked&rdquo;, and both <em>impendium</em> and <em>impensa</em> as &ldquo;expenditure, cost&rdquo; &mdash; either answer counts, and the screen says so rather than marking one wrong. That is the honest answer, and it turns the item into the place to write down whatever really separates them, if anything does.</p>
+<p><strong>What a tie does to your reviews: almost nothing.</strong> Both words carry on exactly as before, with one exception &mdash; if both are suspended, they are never offered back to you on the same day. A tie survives a word being brought back, so it is still there if that word is suspended again.</p>
+<p><strong>On the word itself.</strong> Tapping the ⓘ button on any row opens that word's own panel, and a tied word carries a <em>Confused with</em> line there: the sentence that separates them, and the other word with its meaning. It is deliberately not shown while you are being tested &mdash; seeing the pair before you answer would turn a recall question into a recognition one. You can edit the line from there as well as from the Tied words screen, which asks for it again each time you get one wrong &mdash; the moment you are most likely to know the answer.</p>
+<p>Note the difference from a flag. A flag marks one word. A tie is a relation between two or more, which is why it has a screen of its own: the word list is grouped by Part and alphabetical inside each Part, and it could put the two halves of a pair two hundred rows apart, losing the only thing that mattered. The list keeps two filters for ties &mdash; <em>Tied only</em> and <em>Not tied</em> &mdash; which combine with Part, Progress, Flag and the search box like any other filter; <em>Flag&nbsp;1 + Not tied</em> is the worklist of flagged words still waiting for a partner, and it empties as you tie them.</p>
+
+<h3>What happens when a word comes back</h3>
+<p>It depends on what the word was doing when you set it aside, and the app works that out for itself.</p>
+<p>A word you suspend <strong>while you are still learning it</strong> — one that never reached real spaced review — <strong>comes back as new</strong>. The app drops what it had concluded about how hard the word is and works it out again from your next answer. This matters more than it sounds. A word fails its way into the pile at the very top of the difficulty scale, and that judgement does not heal on its own: on the current settings twenty-five correct answers in a row walk it back from 9.97 out of ten only to 9.61, and difficulty throttles how fast intervals can grow for as long as the word lives. Before this change, six perfect answers on a word you had rescued left it on a three-day gap, where the same six answers on a word met fresh reach over a year. Coming back as new simply lets the scheduler measure the word again instead of holding one bad afternoon against it permanently.</p>
+<p>A word you suspend <strong>from real review</strong> — one you had genuinely learned, and then shelved — <strong>keeps everything</strong>: its interval, its difficulty, its history. That word has a real record worth having, relearning is quick precisely because of it, and Anki's own advice is not to throw it away.</p>
+<p>Either way <em>nothing you have pressed is lost</em>. Every rating stays on the record, and so do the counts of how many times you have seen the word; what resets is only the scheduler's current opinion of it.</p>
+<p>In Browse the same pair sits in a word&rsquo;s own panel, as <em>Rest</em> and <em>Not today</em>, and on the right-click menu; checkboxes and a bar do either to a whole selection at once.</p>
+
+<div class="rule">
+<p><strong>The app never sets a word aside for you.</strong> Until August 2026 it did — after enough failures in one day a word parked itself, with a warning one press beforehand and a key to override it. All of that is gone. The reason is worth stating, because it cuts against the obvious: the count it used was <em>same-day</em> failures, and same-day failures are what Anki and SuperMemo both deliberately <em>exclude</em> when deciding a word is a problem. Failing a word four times in the ten minutes you are first learning it says the card is badly made — too many meanings, a look-alike, no hook — not that you cannot retain it. The app still counts, and still shows you the count. It just no longer acts on it.</p>
+</div>
+
+<h3>The suspended pile, and the daily return</h3>
+<p>When there is anything in the pile, a line at the top of the front screen says so — how many words, and how long the oldest has rested. Tapping it opens them. It is there because a pile you never look at is just a place words go to be forgotten on purpose, and nothing on any screen used to mention it existed.</p>
+<p>The front screen's <em>Suspended</em> section lists every word you've suspended, each with its meaning, worst first. Tap a word's flag there to bring it back without waiting to meet it in a session; the note button keeps a short line about why it keeps catching you.</p>
+
+<h3>Earning a way out</h3>
+<p>Suspended words come back by <strong>resting</strong>, a few at a time, and only when you say so.</p>
+<p>Each day the app looks at the pile, takes the words that have rested longest, and offers them on that same front-screen line: <em>Bring back 3 words →</em>. Tap it and they rejoin ordinary review with the ordinary buttons — a word suspended while it was still being learnt comes back as new and joins the day's learning list; one suspended from real review keeps its history. Nothing else happens, and nothing happens without the tap — but nothing stops you tapping more than once: once the button reappears, it is offering another batch the same size, not repeating the first. That is also the whole difference between the two exits: <strong>Bury</strong> returns a card by itself tomorrow, and <strong>Suspend</strong> never returns one on its own, which is what makes it a place to park a word indefinitely.</p>
+<p>How many at a time is a slider in Settings, 0 to 20, starting at five — not a total for the day, just the size of one release. <strong>They are paid for out of your new-words allowance rather than added on top</strong>: bringing back five words is five fewer new ones that day, so your total workload never moves, and once that allowance is spent for the day the pile simply waits, however many taps it's had. Setting it to 0 switches the offer off entirely and leaves the pile where it is.</p>
+<p><strong>Which words, in what order.</strong> A fresh draw each day, and deliberately not by how long a word has rested. Words are introduced in deck order, so they fail in roughly deck order too — which means "longest rested" is very nearly "earliest in the deck", and serving the pile that way hands you back the exact cohort that failed together the first time. Measured on your own decks, a batch of five picked longest-rested-first is 95% (Latin) or 98% (Greek) same-Part and carries five to eleven times the look-alike collisions of a random draw. So the order is a fresh pseudo-random one every day. It is fixed within the day — the line names the same words however often you look at it — it is different tomorrow, so no word can be permanently last, a word suspended today competes from its first day rather than queueing behind everything already waiting, and any two devices holding the same pile work it out identically without syncing anything.</p>
+<p><strong>Tied words are never offered back on the same day.</strong> Meeting confusable words side by side while you are still learning them measures worse than meeting them apart, so a tie holds its partner back a day rather than delivering both at once. A tie survives a word coming back, so it is still there if that word is suspended again — it is your own knowledge about two words, not a property of one stay in the pile.</p>
+<p>That is the opposite of what the Tied words screen does, and deliberately so. The evidence splits on <em>when</em>: putting confusable words together while you are still learning them slows both down, and putting them together once you already know each one separately is the only thing that builds the distinction. Ordinary review cannot tell those two states apart, so it keeps them away from each other; the Tied words screen is where you ask for the comparison on purpose, once the words are past that stage.</p>
+<p>If a returned word fails again, suspend it again. It goes to the back of the queue with a fresh rest clock, so the next gap is longer than the last — and the <em>Suspended</em> panel in Stats reports how many returns actually stuck, which is the number that says whether five at a time is too fast.</p>
+<div class="note"><p><strong>What was here before.</strong> Until August 2026 the pile had a Drill screen of its own: fixed groups, a typed round, a self-graded flashcard round, a matching round for look-alike words, and a rule that let a word out after three clean days. It was removed in full. The matching round passed words by process of elimination — the last pair in any group is forced, so it could never be wrong — and roughly nine in ten of the pairs it built were words that merely shared a declension ending rather than words anyone confuses. More to the point it was a second graded system, with its own vocabulary, sitting outside the scheduler and deciding on its own evidence when a word could return. What replaced it does the one thing the scheduler genuinely cannot do by itself, and nothing else.</p></div>
+
+<h2 id="front">5. The front screen, stats and Browse</h2>
+<ul>
+  <li><strong>Part chips</strong> — which parts of the book are in play. Switch parts off to hold them back. Do this <em>before</em> you start a part, not after: switching one off later hides words you've already begun, and they'll be overdue when you switch it back on.</li>
+  <li><strong>Known / Shaky / Unseen</strong> — which audit groups can supply new words. Known is off by default. This only affects words that haven't started yet.</li>
+  <li><strong>Direction</strong> — Latin to English, or English to Latin. Both are open from the start; a reverse card arrives through its own new-word allowance, so at first the reverse direction simply has fewer words in play.</li>
+  <li><strong>New words today</strong> — a stepper that changes today's allowance only, without touching your normal setting.</li>
+  <li><strong>Rated today · studied</strong> — how many ratings you've made today and, once you've made one, how long that actually took: real wall-clock time, not a per-card estimate.</li>
+  <li><strong>Calibration check</strong> — a one-line reminder under the wordmark on 2 September 2026, staying until tapped. Tapping it opens the <em>Calibration</em> panel and clears the line; that panel's own "Remind me to look again in two weeks" sets up the next checkpoint. The fortnight is the point: only ratings made <em>after</em> a change tell you anything about how the scheduler behaves now.</li>
+  <li><strong>Where you stand</strong> — how many words are in each stage, and how often you've been right over the last month. Open <strong>Timing</strong> underneath for how quickly you've been answering; the "right but slow" count there is the words about to fail, before they fail.</li>
+  <li><strong>Suspended</strong> — every word you've suspended, each with its meaning, worst first. See §4.</li>
+</ul>
+
+<h3>The whole syllabus</h3>
+<p>Below the pace panel is an estimate of how much of the list you would get right if tested now, and again on the first day of term — once assuming you stop today, once assuming you keep going at your recent rate. Words never met count as zero, so the number starts low and stays honest. These are the scheduler's own predictions rather than measurements; the <em>how well the model is predicting you</em> fold is the check on them, and it needs a few hundred real reviews before it means anything.</p>
+
+<h3>The stats page</h3>
+<p>The grid icon next to the gear, top left. It always answers for the <em>whole</em> list in whichever direction is switched on — not just the parts in play, since the point is to see everything, including what you haven't started.</p>
+<ul>
+  <li><strong>Where you stand</strong> — the same stages as the front screen, as one bar: still to meet, in short-term steps, settling (under three weeks), holding (three weeks or more), and suspended, in proportion to the whole list.</li>
+  <li><strong>Calibration</strong> — is the scheduler keeping its promise? Every review is a small bet: it sends a word away for a stretch and predicts you'll still know it. This is how those bets came out, measured from your own ratings, over all time or the last 30 or 14 days. <em>By the interval you were given</em>: for words sent away 1–6, 7–13, 14–20, 21–29, 30–44 and 45-plus study days, how often you still knew them — each bar against the mark of your own target retention, amber where it falls short. <em>By the button you pressed</em>: for Hard, Good and Easy, how often the word was still known next time; Again never sets an interval, so it has nothing to test and says so. Read the rows against each other — if Hard passes about as often as Good, your Hard means Good; if Easy passes no more often than Good, the longer interval Easy buys is not being earned. Two honesty rules, deliberately: a bucket nothing has reached yet reads "not enough history yet" rather than 0% or an empty bar, and under twenty reviews the raw count is shown instead of a percentage. Under <em>Diagnostics</em>, folded away: the one rule that changes what you pressed (§2) and how often it has fired, and a note that it is the only one; how you've been pressing, week by week — Easy should not outnumber Good; recall by whether you reviewed on time, early, late or very late; recall by the time of day you rated, since grading late at night is both the most tired and the least reliable data the model gets; the share of same-day repeats, the lapse rate, your median time to recall; and how much of that timed group revealed the answer in under three-tenths of a second — too fast to have actually tried recalling first, worth reading against the median just before it.</li>
+  <li><strong>By part</strong> — a small box for every word, grouped by part, coloured as the <em>Where you stand</em> bar. Greek has no parts, so this is one block.</li>
+  <li><strong>Suspended</strong> — how the pile is behaving: how many words are in it and how long the longest-rested has waited; how many carry a note and how many are in for a second time; how many taps it would take to clear at the current batch size, and how much of today's offer is still available; how the pile has moved over the last fortnight, newly suspended against brought back; and — the figure the rest is really for — what share of returned words stuck rather than being suspended all over again.</li>
+</ul>
+
+<h3>Browsing the full list</h3>
+<p>"Browse the full list" opens every word in the deck at once, in either direction, grouped by part and alphabetised within each. A search box narrows it — matched against <em>both</em> sides of every card, so a Latin or Greek word finds its row from the English direction and an English gloss finds it from the other; accents, breathings and macrons are ignored, and a final sigma matches a middle one.</p>
+<p>In the Greek deck the box types Greek from an ordinary Latin keyboard, on the Hoplite scheme: <code>a</code> gives α, <code>u</code> θ, <code>j</code> ξ, <code>c</code> ψ, <code>v</code> ω, <code>w</code> final ς, and <code>1</code>–<code>9</code> add a rough breathing, smooth breathing, acute, grave, circumflex, macron, breve, iota subscript or diaeresis to the letter just typed (press again to remove). The αβγ/abc button switches that off for typing English; a real Greek keyboard is left alone either way.</p>
+<p>A bar across the top holds the filters, the same on a phone and on a laptop: the direction, the search box, then <em>Part</em>, <em>Progress</em>, <em>Flag</em> and <em>Sort</em> as buttons that each say what they are currently set to and open a menu naming the choices with a count beside each. Under it, how many words are showing and a <em>Clear all filters</em>. Each part starts collapsed; tap its heading to open it.</p>
+<p><strong>A row shows, a panel does.</strong> Each row carries only what you scan a list for — the select box, a dot for where the word stands, its flag if it has one, the word, and a quiet mark if it holds a note or a tie. Press the row and the word opens in a panel: on a wide window docked at the right edge, where it stays while you read down the list; on a phone as a card over it. Press the same word again to close it. The panel holds its meaning, its history, the seven flag colours, its note, its ties, and <em>Rest</em>, <em>Not today</em> and (for a word you added yourself) delete. Right-clicking a row — a long press on a phone — opens the same actions as a menu without leaving the list. Arriving here by tapping a day on the calendar filters the list to the words touched that day, with a bar to clear it.</p>
+
+<h2 id="backup">6. Backing up and syncing</h2>
+<p>Everything lives on the device you are using. There is no account and no server holding a readable copy. Three things protect you, in increasing order of reliability.</p>
+<ul>
+  <li><strong>It saves after every single rating</strong>, into the browser's own database, and checks the save was issued. The review log is only ever added to, never rewritten, so saving stays quick however long it grows. If it ever fails you'll see a red warning on the front screen — act on it.</li>
+  <li><strong>Backup files are saved by hand, never automatically.</strong> Safari silently blocks a download no tap asked for, so an automatic file backup could never be trusted — there isn't one. Use <em>Export a backup file</em> before anything risky; when sync is off or has gone quiet and fifty ratings have built up, a <em>Back up now</em> button appears too. The front page's download button saves one dated file per deck in a single tap. On iPhone the file lands in Files → Downloads.</li>
+  <li><strong>Sync is the primary backup.</strong> The code never leaves your device: it is turned into a lookup key and an encryption key there, and only those reach the server, which stores a copy it cannot read. One code serves both apps; each deck keeps its own slot under it.</li>
+</ul>
+
+<div class="box">
+<p><strong>Using it on more than one device.</strong> Give each device its own name first, in <em>This device's name</em>, then type the same sync code into every device. Each pushes a few seconds after you stop rating and fetches when you open the app or return to it, so the iPad picks up what you did on the phone without your thinking about it.</p>
+<p>The two copies are <strong>merged</strong>, the way Anki merges, rather than one replacing the other. In plain words: every rating from both copies is kept, and a rating is never lost to a sync; a word rated on both copies since they last agreed keeps whichever rating came <em>later</em>, with both still in its history; a rating you undid stays undone even if the other copy had seen it; the day's counts are recounted from the combined ratings, and study time is the sum of what each copy measured; each setting travels from whichever copy changed <em>it</em> more recently — only <em>This device's name</em> stays local.</p>
+<p>It happens quietly, with a one-line summary afterwards — "Merged — 12 reviews from iPhone · Safari, 30 from iPhone · Home Screen; 3 words rated on both, later rating kept" — kept in Settings under the sync code. Each copy labels its own ratings with what it is (the typed name plus <em>Home Screen</em>, <em>Safari</em>, <em>Chrome</em>), so two copies both called "iPhone" don't read as one. A device typing in a code for the first time still looks at what the code holds before pushing anything, and merges with it. One case to know: studying on a device <em>before</em> typing in its code is fine — pairing merges its ratings in like any others — but its settings block will be whichever is newer, so check them once after pairing.</p>
+<p><strong>The safety net.</strong> Two spares exist so any sync, merge or restore can be undone once. This device keeps the copy it last replaced, and <em>Restore the copy this replaced</em> brings it back (what it displaces becomes the new spare, so that step is reversible too). The sync server keeps one spare per deck — the last copy pushed by a <em>different</em> copy of the app than the one that pushed last — fetched by <em>Restore the other copy's last push</em>. A restored copy wins everywhere: its word states and settings take over at the next sync; no ratings are lost, because the other copy's ratings merge back in as ratings. The server's answers carry its own clock, and if this device's clock is more than five minutes off you are told once — ratings are ordered by the clock.</p>
+<p><strong>Adding a device.</strong> There is nothing to copy but the code: <em>Copy code</em> on the launcher page puts it on the clipboard. If the device already has a code of its own it asks before switching; Cancel changes nothing. Changing a code never deletes anything — the old slot stays as it was for any device still using it.</p>
+</div>
+
+<div class="box">
+<p><strong>Home Screen, and the two ways to install.</strong> Pin the launcher page (the one with the Latin/Greek links) and open both decks from its links — they share one icon and, because of that, one copy of the device name and sync code, so you fill those in once. Or pin Latin and Greek as two separate icons — each is then its own isolated app as far as the phone is concerned, and each keeps and needs its own copy of the code and name. Either is fine.</p>
+<p><strong>The launcher also shows progress, not just links.</strong> Each deck's card names how many words are ready to study right now. Underneath, an Activity section shows a study streak — combined, with each deck's own count alongside — and a small scrolling calendar per deck sharing one timeline, so a gap in one is easy to spot against the other.</p>
+<p><strong>The icon</strong> is a capital V in the same Palatino the wordmark uses, on the vellum theme's paper colour. iOS and macOS copy it the instant you add it and never check back for a new one.</p>
+</div>
+
+<h2 id="screen">7. The study screen itself</h2>
+<p><strong>Tap targets are bigger than they look.</strong> The invisible tappable area extends well above each button and into the gaps, so you don't need to aim. Tapping anywhere on the card reveals the answer, and for a fraction of a second afterwards the rating buttons ignore taps, so a reveal can't accidentally grade the card. The same fraction runs the other way: right after a new card appears, its "show answer" ignores taps for a moment, so the tail of a fast double-tap can't flash the next word's answer.</p>
+<p><strong>What the number on a button means.</strong> Each grade button shows how far that press would send the word. For anything due at a rollover — which every review is — the gap is counted in study days: "1d" is tomorrow, "2d" the day after, at any hour of the day. (It used to be the clock gap, so the same day read "14h" in the afternoon and "1d" in the evening, and a card whose three buttons all led to tomorrow morning read 14h / 14h / 14h as if they did the same thing.) A genuine learning step of minutes or hours is still said in minutes or hours.</p>
+<p><strong>Undo</strong> is the arrow at the top right, up to forty back. You may not need it: the app keeps a line naming the word you just rated, its answer, what you pressed and how far it jumped — often enough to answer "what did I just do". On a wide screen it sits in the card, just above the word you are reading now; on a phone held upright it is a line along the bottom of the card, above the buttons. It stays until you rate the next word, so there is nothing to catch in time, and it appears whether you revealed the word or pressed <em>Knew it</em> without looking — which is the only place the answer to a word you skipped ever shows. It never moves the word, and tapping it just reveals the answer like tapping anywhere else.</p>
+<p><strong>The running time</strong> under the counts is a plain stopwatch of today's total time in the study screen. It starts at zero each time you walk in, keeps running while you're looking at it, and pauses the moment you leave — back to the front screen, into Settings, or the app going to the background. Stepping away for a few seconds and coming back doesn't reset it; only leaving the screen does. What it adds up to across however many sittings is the figure the front screen shows next to <em>rated today</em>.</p>
+<p><strong>The sitting log.</strong> The same clock records each stretch it runs as one <em>sitting</em> — when it started, when it stopped, how many ratings you made (split at the day boundary if it crosses one; under thirty seconds with no rating isn't counted). Nothing shows it yet. It exists so that, after a few weeks, the stats page can answer two questions in a sentence each — whether words learnt in a long sitting survive their first review as well as words from a short one, and whether your grading goes better at some hours than others — which need sittings recorded, not just days.</p>
+<p><strong>The Done screen</strong> asks one thing when the queue runs out: <em>How did that feel? light · fine · heavy</em>. One tap, or none; it stores a single answer for the day, shown back on the calendar's day panel. It is the only direct measurement of "manageable" the app can have — what turns minute counts into something you can read against ("two-hour days felt heavy five times of six"). Tap the same word again to clear it.</p>
+<p><strong>A wide screen</strong> — a laptop, an iPad, or a phone turned sideways, any screen at least 700px wide in landscape — automatically gets a two-pane card instead of a single column, with the front screen, Settings and Browse laid out to match. That isn't a setting; it always happens, and a phone held upright is never affected &mdash; a phone always stacks the word above the answer, which is what the <em>Column</em> shape below makes available on a wide screen too. What fills the extra room <em>is</em> settable: see <em>Study card shape</em> in §8.</p>
+
+<h2 id="settings">8. Every setting, one line each</h2>
+<table>
+  <tr><td><strong>New words a day</strong></td><td>How many unseen words can start each day — one number per direction, so raising one doesn't raise the other.</td></tr>
+  <tr><td><strong>Target retention</strong></td><td>How often you want to be right when a word comes up. Higher means shorter gaps and more work. 90% is a sensible default. A change only reaches a word the next time you rate it; everything already on the calendar keeps the gap the old target gave it. The button beneath the slider catches the calendar up in one go: it recomputes every review word's due date from what the scheduler already knows about it — the same formula and the same day snap a real rating uses, anchored on the word's own last review — and changes nothing else: no rating, no stability, no difficulty, nothing in the log. It shows the counts first (how many move sooner, how many later, how many are due at once) and does nothing until you confirm. Best run once, after a recalibration, not after every nudge. It is not an undo: the old dates are not kept, so reversing it means running it again at the old percentage.</td></tr>
+  <tr><td><strong>Longest interval</strong></td><td>Shown, not editable: nothing is scheduled further out than this, and it reads 36500 days — a hundred years, so effectively no ceiling. Not a dial to tune.</td></tr>
+  <tr><td><strong>A study day begins at</strong></td><td>The hour everything scheduled for a day unlocks, together. Before it, a late-night session still counts as the previous day. Changing it takes effect from the next time the old hour comes around, not instantly, so switching it never makes anything look due that wasn't a moment before.</td></tr>
+  <tr><td><strong>Appearance</strong></td><td>Light, dark, or follow your phone.</td></tr>
+  <tr><td><strong>Let hesitation adjust the grade</strong></td><td>The five-second rule from §2 — a slow Easy recorded as Good. Off records exactly what you press.</td></tr>
+  <tr><td><strong>Head start for known words</strong></td><td>How long before a word you ticked in the audit is first tested.</td></tr>
+  <tr><td><strong>Introduce unseen before shaky</strong></td><td>Hardest words first, rather than working through in book order.</td></tr>
+  <tr><td><strong>Grade reminder</strong></td><td>On by default. Two small nudges, both display only — neither changes what any button does. At the start of each sitting a one-line reminder of the rules in Part One sits above the card until your first rating, the × or leaving the screen; the wording rotates between sittings so it doesn't fade into wallpaper. And once a study day, the first time a Hard passes a word still on its learning steps, a brief note says so at the moment it happens. Never a confirmation, never a gate. How to tell whether it's helping: the Calibration panel's <em>By the button you pressed</em> row (§5) — if Hard passes about as often as Good, Hard is being pressed as a mood rather than a judgement. Read it after a fortnight, not after a day.</td></tr>
+  <tr><td><strong>Quick rate</strong></td><td>Off by default. On, a word past its first learning steps can be graded <em>Easy</em> without revealing it — <code>4</code> on a keyboard, a <strong>Knew it</strong> button on a phone. Easy only: the other three grades stay behind the reveal on both devices. The five-second rule still applies, and the flash that follows says which grade it recorded. §2 has the whole of it.</td></tr>
+  <tr><td><strong>Michaelmas begins</strong></td><td>Feeds the countdown on the front screen. Nothing else uses it.</td></tr>
+  <tr><td><strong>Theme</strong></td><td>Twelve palettes, each with its own light and dark variant, chosen separately. Five are calm and muted (Vellum, Catppuccin, Rose Pine, Gruvbox, Legacy); two are deliberately bolder — Dracula, and Amphora, an original palette after black-figure and red-figure Attic pottery; five lean on material as much as colour — Marble, Wood, Steel, Glass and Neon. A preview above the grid shows the selected theme full-size, split down the middle, light half and dark half of the same mock card. Optionally a different one each day, in a shuffled cycle that shows every theme before repeating any.</td></tr>
+  <tr><td><strong>Study card shape</strong></td><td>Also only on the wide card, and two choices now. <em>Replace</em> puts the answer exactly where the word already was, so revealing never asks your eye to jump: the word fades out as the answer fades in. <em>Column</em> is the arrangement a phone already uses, offered here too &mdash; the word, a divider, then the answer underneath it, with both left on screen. Both keep the line about the word you last rated in a reserved space above the card, so it never moves anything when it appears. Replace by default. The old <em>Two panes</em> and <em>Swap</em> shapes were retired in build 2026.09.02.0: Swap revealed <em>into</em> that reserved space, which the line now occupies for good, and Two panes was the side-by-side layout the centred shapes had already replaced. A deck still set to either simply opens in Replace.</td></tr>
+  <tr><td><strong>Study screen, top bar</strong></td><td>The header above the study card: the new/learning/due split, a single "N of today's total" line instead, or neither. Whichever you pick, an estimate of how long what's left will take — "~N min left" — sits beside it, built from your last two weeks' own pace; it says nothing rather than guess when there isn't enough recent timing to trust.</td></tr>
+  <tr><td><strong>Export / restore</strong></td><td>Save a backup file by hand, or load one back in. A file from the other language is refused rather than loaded over the top — and so is a file with no deck marker at all, since nothing could then tell which deck it belongs to; every backup the app has saved since 16 August 2026 carries the marker.</td></tr>
+  <tr><td><strong>This device's name</strong></td><td>A label such as "iPhone" or "Mac", local to this device — the one setting that never travels by sync. Stamped, with what kind of copy this is (<em>Home Screen</em>, <em>Safari</em>, <em>Chrome</em>…), onto everything this device pushes or exports and onto each rating it records, so a merge summary can say where ratings came from even when two copies share a name. Also settable once from the launcher page.</td></tr>
+  <tr><td><strong>Sync between devices</strong></td><td>The sync code — the primary backup (§6). Pushes after every save, paced to once a minute during a sitting plus once when the app is put away; each launch fetches and merges. Before an automatic push writes, it looks at the synced copy and merges in anything another device pushed since this one last looked, so two devices studying at once can no longer overwrite each other. Restoring or pulling never changes the code or device name stored here, and the code is never included in what gets pushed. <em>Get a code for this device</em> mints a fresh one and pushes at once; <em>Push now</em> sends this copy up as it is; <em>Pull and merge</em> fetches and merges. Underneath: the last merge's one-line summary, and the two spares. Clearing the field switches sync off on this device only.</td></tr>
+  <tr><td><strong>What happens on its own</strong></td><td>Live state — last save, last push, what the queue is holding — and a list of every process the app runs without being asked.</td></tr>
+  <tr><td><strong>Suspended</strong></td><td>The list of words currently suspended, and a button to bring them all back at once. Setting a word aside is always a deliberate act — see §4 for the two exits and why neither happens on its own.</td></tr>
+  <tr><td><strong>New deck / import</strong></td><td>Turns a word list into its own deck, or adds it to the deck you're in. Paste text or open a file (<code>.txt</code>, <code>.csv</code>, <code>.tsv</code>, <code>.json</code>, <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>) — columns copied from a spreadsheet, a Quizlet or Anki export, "term — gloss" or "term: gloss" lines, numbered lists, chapter headings that become sections. A PDF is read by position rather than as flat text: the gaps between the columns of a printed vocabulary list are tab stops, so the columns come back separated instead of running together — which is what copying the same page out of Preview loses. A list that is really a table (an exam board's <em>Latin · Notes · Part of Speech · Classification · Meaning</em>, say) keeps every column, and its header row names them, so the meanings land in the gloss rather than in whichever column happened to come second. A page printed two-up is read down one column and then the other, not across. Page numbers go, repeated running heads and table headers go, a definition that wrapped onto the next line is rejoined, front matter above the header row is left out, and part headings survive as sections. The summary line above the preview says which shape was found, so a wrong guess is visible before anything is kept. A Word document is read the same way. An Excel or Numbers workbook's first sheet comes in like a paste from one. A scan or photograph has no text in it to read: let the phone read that one (Live Text, or Preview's text selection on a Mac) and paste the words in. It is all read on the device, with no key and no model: a preview shows every word found, every line skipped and why, and lets you change the separator, swap the two sides, or say which column is which. Then <em>Accept all</em>, <em>Review the flagged</em>, or <em>Triage everything</em>. Nothing is written until you press Create or Add. "Extract with the model instead" is the one path that needs the extraction key: for a passage of prose, or a list with no shape the parser can find.</td></tr>
+  <tr><td><strong>Export deck file</strong></td><td>Shown for a deck created on this device. Saves that deck's words as a file the import screen reads back on another device, keeping the same words and ids so a review-history backup restored there re-attaches to them. History travels in the ordinary backup or by sync, not in this file.</td></tr>
+  <tr><td><strong>Extraction key</strong></td><td>Only needed for "Extract with the model instead". Generate one here, then set the same value on the sync Worker once (<code>wrangler secret put EXTRACT_KEY</code>). Everything else on that screen works with no key at all.</td></tr>
+  <tr><td><strong>Erase all progress</strong></td><td>Pushes a backup to the sync server first and only wipes the device once that push is confirmed. Needs a sync code — without one this refuses, since there's no reliable way to confirm a local download actually happened.</td></tr>
+</table>
+
+<h3>Checking an import before you keep it</h3>
+<p>A parser gets a page wrong <em>quietly</em>. One column boundary read a word too far and every gloss on that page becomes the wrong answer — and a wrong card doesn't sit still: it gets scheduled, and you rehearse it until you notice. So read the preview, and read past the first screen. On a long import it shows three windows — the start, the middle and the end — because the top of a list is where the front matter is, while a boundary that drifts does so somewhere in the middle. The count line says how many rows it is showing of how many, and every line the parser refused is listed underneath with the reason.</p>
+<p>Check before you keep, rather than after: once a word is in a deck you can edit its <em>term</em>, suspend it, or delete it, but there is no way to edit a gloss in place — a mis-split gloss has to be deleted and added again.</p>
+
+<h3>When a page defeats it: converting with an AI first</h3>
+<p>Some pages have nothing to read — a scan, a photograph — and some come out wrong however the separator is set. One route is to hand the page to a chat assistant, have it produce plain tab-separated lines, read what comes back <em>against the page</em>, and bring that text back here. <em>Copy a prompt for an AI</em> on the import screen puts the instruction below on the clipboard.</p>
+<p>Know which way round the two fail. This parser fails loudly: rows go missing, columns come out visibly wrong, and it lists every line it skipped. A model fails quietly — an invented or silently "corrected" gloss reads exactly like a real one. That is why the prompt forbids invention and makes it declare anything it could not read, and why the output is worth checking against the page rather than merely read for plausibility.</p>
+<pre class="ipSkipped" style="white-space:pre-wrap">Turn this vocabulary list into tab-separated lines -- one entry per line, in this shape:
+
+term&lt;TAB&gt;gloss
+
+Rules:
+- Copy exactly what is printed. Do not translate, correct, modernise, expand abbreviations, or add anything that is not on the page.
+- Keep accents, breathings and macrons exactly as printed.
+- Keep grammatical information (principal parts, genitive endings, gender, "+ acc") with the term, in the order printed.
+- One printed entry is one line. Where a page has two columns of entries side by side, read the whole of one column before starting the other.
+- If the list is divided into parts, chapters or lessons, put that name in a third tab-separated column.
+- If you cannot read an entry with confidence, leave it out and list it at the end under a line reading SKIPPED.
+- Output nothing else: no commentary, no headings, no numbering, no markdown.</pre>
+
+<h2 id="wrong">9. If something looks wrong</h2>
+
+<h3>English to Latin is empty</h3>
+<p>Check the direction's own new-word allowance in Settings — the reverse direction has its own number, and 0 there means nothing new is introduced that way.</p>
+
+<h3>I've suddenly got hundreds due</h3>
+<p>Either you missed some days, or a big batch you learned together has come due together. Set new words to 0 until it clears. Don't skip the backlog — those are the words at the exact moment they're worth reviewing.</p>
+
+<h3>An interval looks far too long</h3>
+<p>A long gap is only ever given to a word the app has good evidence you know. If it genuinely feels wrong, press a lower grade next time you see it — that's the correction mechanism, and it works immediately. If it feels wrong across the board, don't guess: the <em>Calibration</em> panel (§5) shows, interval by interval, whether words sent away that far are coming back known at your target rate. If a bucket with a few hundred reviews behind it sits well under the mark, raise target retention a little; if it doesn't, the intervals are right and the feeling isn't.</p>
+
+<h3>I've been away a fortnight</h3>
+<p>Just start again. Overdue words are handled properly — the app knows how long it's been, and getting one right after a long gap counts for more than getting it right on time.</p>
+
+<h3>A word keeps beating me</h3>
+<p>§4 is the whole answer. In short: two Agains on the same word in one day put two buttons on the card — <em>Bury</em>, which hides it until tomorrow, and <em>Suspend</em>, which sets it aside until you fetch it back. Neither ever happens on its own.</p>
+
+<h3>I failed a word, came back the next day, and its gap looked longer than I expected</h3>
+<p>That's not a bug — the app is rewarding real evidence. Clear a failed word's ten-minute look in the same sitting and the app only has a few minutes of "you still know this" to go on. Come back the next day instead and clear it then, and a genuine day has passed with the word still holding — stronger proof, so the date it gives you next is further out, not closer. Waiting a day for that look genuinely banks more strength than clearing it there and then.</p>
+
+<h3>A word I brought back has disappeared again</h3>
+<p>It shouldn't: bringing a word back clears both exits, so it returns to normal review outright. If a word is genuinely missing, check the part chips — a part switched off hides words you've already begun.</p>
+
+<h3>The counts changed when I toggled something</h3>
+<p>Part and group chips filter which words can <em>start</em>. They never hide a word already in the rotation, and never affect anything you've already rated.</p>
+
+<h3>How do I know which version I'm running?</h3>
+<p>The version sits at the bottom of the front screen. Tap it for the list of what changed. The launcher page shows the same version at its foot, and tapping it jumps straight to that list — no need to open a deck first.</p>
+
+<h2 id="keys">10. Every key, one line each</h2>
+<p>Only on a keyboard — a Mac, or an iPad or phone with one attached. None of this appears as a button on a touchscreen; tap the on-screen buttons there instead. On a wide screen most of these are written right on the buttons already.</p>
+
+<h3>Studying</h3>
+<table>
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><code>Space</code> / <code>Enter</code></td><td>Reveal the answer — or, once it's showing, rate Good. Anki's own key and its own grade.</td></tr>
+  <tr><td><code>1</code> <code>2</code> <code>3</code> <code>4</code></td><td>Rate the word: 1 Again, 2 Hard, 3 Good, 4 Easy — the same four keys on every word, whatever state it is in. Each button prints its own number.</td></tr>
+  <tr><td><code>4</code> (before revealing)</td><td>Only with <em>Quick rate</em> on (§2, §8), and only on a word past its first learning steps: grades it Easy from the question side, with no reveal. 1, 2 and 3 do nothing there.</td></tr>
+  <tr><td><code>Z</code> / <code>0</code></td><td>Undo the last rating. <code>Shift</code>+<code>Z</code> does the same. Straight after a quick-rate press, <code>Z</code> corrects that word to Again instead.</td></tr>
+  <tr><td><code>-</code></td><td><strong>Bury</strong> — hide this word, both directions, until tomorrow, and move on. Anki's own bury key.</td></tr>
+  <tr><td><code>Ctrl</code>/<code>&#8984;</code> + <code>1</code>–<code>7</code></td><td><strong>Flag this word</strong> in one of seven colours — Anki's own keys. Pressing the colour a word already carries clears it. A flag changes nothing about when the word comes back. See §4b.</td></tr>
+  <tr><td><code>F</code></td><td>Opens the same flag menu, named — a card showing all seven colours by whatever you have called them, with a digit under each. Press <code>1</code>–<code>7</code> while it is open to choose, <code>0</code> for no flag. This app's own key, not Anki's; nothing is bound to plain <code>F</code> there.</td></tr>
+  <tr><td><code>@</code></td><td><strong>Suspend</strong> — take this word out of review until you bring it back; press again to bring it back. Anki's own suspend key.</td></tr>
+  <tr><td><code>S</code></td><td><strong>End the session</strong> — back to the front screen, exactly as tapping <span class="key">‹</span> does: the clock stops, the sitting closes, and anything not yet synced is sent on its way. Anki's own key for this. From the front screen the same <code>S</code> starts studying again. Not <code>Esc</code> — the browser keeps that one for leaving full screen and will not give it up.</td></tr>
+</table>
+
+<h3>The front screen</h3>
+<table>
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><code>S</code></td><td>Start studying — the same as pressing the big button, and it does nothing when nothing is due. The only key the front screen has.</td></tr>
+</table>
+
+<h3>Reviewing an import</h3>
+<p>While triaging a flagged row under <em>New deck / import</em> (§8) — not while typing in that row's term, gloss, section or note fields, where the same letters need to reach the text untouched.</p>
+<table>
+  <tr><th>Key</th><th>What it does</th></tr>
+  <tr><td><code>1</code></td><td>Bin — reject this row.</td></tr>
+  <tr><td><code>2</code> / <code>Space</code></td><td>Keep — accept this row.</td></tr>
+</table>
+
+<p class="foot">Both apps work the same way. Greek has no parts and no audit groups, so those chips don't appear, and it starts entirely from scratch. Your Latin and Greek progress are stored separately and can't affect each other. Dates and build numbers have been left out of this page on purpose — what changed and when is the changelog's job, reachable by tapping the version at the foot of the front screen.</p>
+
+</body>
+</html>
