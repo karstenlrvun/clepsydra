@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.5">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.6">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.5"></script>
+<script src="decks/registry.js?v=2026.09.17.6"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.5"></script>
+<script src="shared.js?v=2026.09.17.6"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1188,6 +1188,11 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .advToggle::after{content:" ▾";font-size:11px}
 #scSet[data-adv] .advToggle::after{content:" ▴"}
 #scSet:not([data-adv]) .advOnly{display:none}
+/* the lean pass (2026.09.17.6): a removed panel is hidden, never deleted */
+.leanOff{display:none!important}
+#scSet .fh.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+.fhMore{font:inherit;font-size:12.5px;color:var(--coral);background:none;border:0;padding:2px 0 0;cursor:pointer}
+.s-retired{background:var(--good);opacity:.28}
 .swatch{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;
   margin-right:7px;border:1px solid var(--line)}
 /* ---- theme previews (2026.08.15.6, shrunk 2026-08-16, ratings dots and the
@@ -2421,7 +2426,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <select id="fCalibrate" class="sel" style="margin-top:9px"><option value="1">Correct the target from my real results</option><option value="0">Schedule to the target as written</option></select>
         <div class="fh" id="fCalibNote"></div>
         <select id="fClock" class="sel" style="margin-top:9px"><option value="1">Let answer time scale the gain</option><option value="0">Ignore answer time</option></select>
-        <div class="fh">A pass answered faster than your own median earns a little more gap, a slow one a little less (between &times;0.6 and &times;1.6 of the gain, never the button). It never touches a fail, a same-day press or a learning step.</div>
+        <div class="fh">A pass answered well inside your own median earns a little more gap, up to what Easy used to give. A slow answer is never punished, and a fail, a same-day press or a learning step is never touched.</div>
       </div>
       <div class="field">
         <label for="fAutoRetire">Retire a word once it holds for — <b id="fAutoRetireVal">180</b> days</label>
@@ -2523,9 +2528,9 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <div class="fh">The fast lane for a word you knew before the card finished turning, on the button you are already pressing. On a keyboard, hold <code>Space</code> through the reveal and let go; on a phone, press and hold anywhere on the card once the answer is showing. A tap does exactly what it always did — reveal, then Good — and letting go early records nothing, so nothing you already do changes. The Easy button lights up while you hold, in the colour of the grade that will actually be recorded: the five-second rule still applies, so on a word that took you a while to turn over it lights green rather than purple and the word is recorded Good. Turn this off if you use VoiceOver, whose own press-and-hold means something else.</div>
       </div>
       <div class="field">
-        <label for="fTerm">Michaelmas begins</label>
+        <label for="fTerm">Test date</label>
         <input type="date" id="fTerm">
-        <div class="fh">Used for the countdown on the front screen. Nothing else depends on it.</div>
+        <div class="fh">No first review from the first pass is set later than two days before it.</div>
       </div>
       <div class="field">
         <label>Backups</label>
@@ -2582,7 +2587,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <div class="fh">Pushes a backup to the sync server first and only erases once that push is confirmed. Needs a sync code set up above -- without it, there is no reliable way to confirm a backup landed anywhere first.</div>
       </div>
       <div class="field" style="border-bottom:none">
-        <div class="fh">Grading rule: for a word with several glosses, count it as recalled only once you've produced every sense listed. Otherwise press Again.</div>
+        <div class="fh">Grading: the gist counts. If you had the sense of the word, it is a pass; a missed extra meaning is what the flag is for.</div>
       </div>
 
       <!-- Everything below is one thematic group: how the scheduler itself
@@ -4920,7 +4925,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.5';
+const BUILD='2026.09.17.6';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -7593,12 +7598,13 @@ function dirStats(dir){
 function statusOf(cs){
   if(!cs||cs.reps===0) return 'unseen';
   if(cs.susp) return 'susp';
+  if(cs.ret) return 'retired';                     // Clepsydra: out of the queue for good, not 'holding'
   if(cs.st!=='R') return 'learning';
   return cs.s<21 ? 'young' : 'mature';
 }
-const STATUS_ORDER=['unseen','learning','young','mature','susp'];
+const STATUS_ORDER=['unseen','learning','young','mature','retired','susp'];
 const STATUS_LABEL={unseen:'Still to meet',learning:'In short-term steps',
-  young:'Settling (under 3 weeks)',mature:'Holding (3 weeks or more)',susp:'Suspended'};
+  young:'Settling (under 3 weeks)',mature:'Holding (3 weeks or more)',retired:'Retired',susp:'Suspended'};
 // Per-rating stage classifier for crediting elapsed wall-clock time
 // (STATS_TIME_PLAN.md Phase 2a) -- distinct from statusOf() despite the
 // similar shape. statusOf() answers "what do I currently know of this
@@ -7621,7 +7627,7 @@ const LEARN_STAGE_ORDER=['new','learning','young','mature'];
 const LEARN_STAGE_LABEL={new:'New words',learning:'In short-term steps',
   young:'Settling (under 3 weeks)',mature:'Holding (3 weeks or more)'};
 function wholeSyllabusStats(dir){
-  const totals={unseen:0,learning:0,young:0,mature:0,susp:0};
+  const totals={unseen:0,learning:0,young:0,mature:0,retired:0,susp:0};
   const bySec={};
   CARDS.forEach(c=>{
     if(c.dir!==dir) return;
@@ -9609,12 +9615,12 @@ function renderPace(){
     h='<span class="n">'+met+'</span> of '+all.length+' met in '+dirName+
       ', <span class="n">'+left+'</span> to go.'+
       ' At '+(hasData?'your recent pace of '+fmtPace(rate):capToday)+' a day the last one arrives <b>'+fmt(finish)+'</b>'+
-      (toTerm>0?(daysNeeded<=toTerm?' — '+(toTerm-daysNeeded)+' days before term.':' — '+(daysNeeded-toTerm)+' days after term begins.'):'.');
+      (toTerm>0?(daysNeeded<=toTerm?' — '+(toTerm-daysNeeded)+' days before the test.':' — '+(daysNeeded-toTerm)+' days after the test.'):'.');
     const skip=new Date(Date.now()+(daysNeeded+1)*DAY);
     if(fmt(skip)!==fmt(finish)) h+='<span class="cost">A day off moves that to '+fmt(skip)+'.</span>';
     else h+='<span class="cost">Every day off pushes that date back.</span>';
   }
-  if(toTerm>0) h+='<span class="cost"><span class="n">'+toTerm+'</span> days until Michaelmas.</span>';
+  if(toTerm>0) h+='<span class="cost"><span class="n">'+toTerm+'</span> days until the test.</span>';
   $('pace').innerHTML=h;
   const m=MOTTOS[((d%MOTTOS.length)+MOTTOS.length)%MOTTOS.length];
   $('mottoLa').textContent=m[0]; $('mottoEn').textContent=m[1];
@@ -9888,25 +9894,21 @@ function renderSyllabus(){
   const willMeet=Math.min(nowS.total, nowS.scoring+Math.round(pace*toTerm));
   const keep=willMeet*R;
 
+  // Clepsydra: a word the first pass has not reached is UNKNOWN, not a zero. The
+  // headline is scored over what has been sorted or met, and says how many are not
+  // in it. The 'keep this pace' projection went with the new-words-a-day model.
+  const tp=(dir==='L'&&S.settings.firstPass!==false)?triageProgress():null;
+  const counted=tp?Math.max(tp.done,1):Math.max(nowS.met,1), outside=nowS.total-(tp?tp.done:nowS.met);
   let h='';
-  h+='<div class="pace"><span class="n">'+Math.round(nowS.sum)+'</span> of '+nowS.total+
-     ' — if you were tested on the whole '+dirName+' list right now, that is roughly what you would get. '+
-     '<b>'+pc(nowS.sum/nowS.total)+'</b> of the syllabus.</div>';
-  h+=row('Words met so far', nowS.met+' of '+nowS.total);
-  if(toTerm>0){
-    h+=row('On term day if you stop today', Math.round(flr.sum)+' ('+pc(flr.sum/flr.total)+')');
-    h+=row('On term day if you keep this pace', Math.round(keep)+' ('+pc(keep/nowS.total)+')');
-  }
+  h+='<div class="pace"><span class="n">'+Math.round(nowS.sum)+'</span> of '+counted+
+     ' — tested right now on the '+dirName+' words you have '+(tp?'sorted':'met')+', that is roughly what you would get. '+
+     '<b>'+pc(nowS.sum/counted)+'</b>.</div>';
+  if(outside>0) h+=row(tp?'Not sorted yet, so not counted':'Not met yet, so not counted', outside+' of '+nowS.total);
+  if(toTerm>0) h+=row('On the day of the test, if you stopped today', Math.round(flr.sum)+' ('+pc(flr.sum/counted)+')');
   const other=dir==='L'?'E':'L';
   const oS=expectedAt(other,now);
   h+=row((other==='L'?DECK.fwd:DECK.rev)+' — expected now', Math.round(oS.sum)+' of '+oS.total);
-  h+='<div class="note">The first figure is a model estimate, not a measurement: it is FSRS\'s own '+
-     'recall probability for every card, summed. Words never met count as zero. The second projection '+
-     (pace>0
-       ? 'assumes you clear reviews daily and keep introducing about '+fmtPace(pace)+' a day — it is an '+
-         'assumption, not a forecast.'
-       : 'assumes you clear reviews daily and introduce nothing new, which is your measured pace over '+
-         'the last fortnight — it is an assumption, not a forecast.')+'</div>';
+  h+='<div class="note">A model estimate, not a measurement: the scheduler\'s own recall probability for every word, summed. A retired word counts at what its last known strength predicts.</div>';
   $('syllabus').innerHTML=h;
 
   // by part
@@ -11788,7 +11790,47 @@ document.addEventListener('keydown',e=>{
 ['toHome','toHome2','toHome3','doneBack','statsBack','logBack','browseBack','tieBack']
   .forEach(id=>tapZone($(id),()=>{flushPendingPush();renderHome();show('scHome');}));
 tapZone($('toSettings'),()=>{renderSet();show('scSet');});
-tapZone($('toStats'),()=>{renderStats();show('scStats');});
+tapZone($('toStats'),()=>{renderStats();leanStats();show('scStats');});
+/* ---- the lean pass (2026.09.17.6) ----
+   His call: Home is for starting, Stats is for reading. Vocabula's panels had
+   piled up on Home until it ran four screens tall with every fold shut, and
+   four of them were on Stats as well. Nothing is deleted and no stored key
+   moves: a panel is either hidden (.leanOff) or lifted, whole and with its ids,
+   onto Stats, so every renderer that writes into it still finds it. */
+const sectOf=id=>{ const e=$(id); return e?e.closest('.sect'):null; };
+function leanInterface(){
+  const statsHome=$('calibSect')&&$('calibSect').parentNode;
+  // Home -> Stats: the clock and the syllabus figure (Stats has no copy of either)
+  if(statsHome){ [sectOf('clockBody'),sectOf('syllabus')].forEach(x=>{ if(x) statsHome.insertBefore(x,$('calibSect')); }); }
+  // duplicated on Stats already, or retired with the new-words-a-day model
+  ['pace','statList','asideFold'].forEach(id=>{ const x=sectOf(id); if(x) x.classList.add('leanOff'); });
+  ['partFold','trueFold','hmStats'].forEach(id=>{ const x=$(id); if(x) x.classList.add('leanOff'); });
+  // Stats: a Hard/Easy table under two buttons, and vocabula's fortnightly reminder
+  { const g=$('calibGradeBody'); if(g){ g.classList.add('leanOff'); const hd=g.previousElementSibling; if(hd) hd.classList.add('leanOff'); const nt=g.nextElementSibling; if(nt&&nt.classList.contains('note')) nt.classList.add('leanOff'); } }
+  { const r=$('calibRemind'); if(r&&r.parentNode) r.parentNode.classList.add('leanOff'); const n=$('calibRemindNote'); if(n) n.classList.add('leanOff'); }
+  // Settings: the experiment's switches and the rarely-touched go under Advanced
+  const adv=$('advBody');
+  if(adv){ ['fParams','fAutoRetire','fCardShape','fReturn','unsuspBtn','resetBtn'].forEach(id=>{ const e=$(id), f=e&&e.closest('.field'); if(f&&!f.classList.contains('advOnly')){ f.classList.add('advOnly'); adv.parentNode.insertBefore(f,adv); } }); }
+}
+// Every long explanation in Settings folds to one line with a "more". Run from
+// renderSetClep(), after hideSetting() has had its say, so a removed setting's
+// help line never grows a button of its own.
+function leanSettings(){
+  document.querySelectorAll('#scSet .fh').forEach(fh=>{
+    if(fh.id||fh.dataset.lean||fh.style.display==='none'||(fh.textContent||'').trim().length<120) return;
+    fh.dataset.lean='1'; fh.classList.add('clamp');
+    const b=document.createElement('button'); b.type='button'; b.className='fhMore'; b.textContent='more';
+    b.addEventListener('click',()=>{ const open=fh.classList.toggle('clamp'); b.textContent=open?'more':'less'; });
+    fh.insertAdjacentElement('afterend',b);
+  });
+}
+// The parts of Stats that depend on what is in the deck today.
+function leanStats(){
+  renderClep(); renderSyllabus();
+  const anySusp=Object.keys(S.cards).some(id=>S.cards[id].susp);
+  const ss=sectOf('suspStatsBody'); if(ss) ss.classList.toggle('leanOff',!anySusp);
+}
+try{ leanInterface(); }catch(e){ if(typeof console!=='undefined') console.error('lean',e); }
 
 /* ---------------- Clepsydra wiring ---------------- */
 function renderClep(){
@@ -11937,6 +11979,7 @@ function renderSetClep(){
   $('fClock').value=s.clockTerm===false?'0':'1';
   $('fAutoRetire').value=s.autoRetireDays|0; $('fAutoRetireVal').textContent=(s.autoRetireDays|0)||'off — 0';
   $('fAudit').value=s.auditPct|0; $('fAuditVal').textContent=s.auditPct|0;
+  if(typeof leanSettings==='function') leanSettings();
 }
 
 tapZone($('statsDirL'),()=>{S.dir='L';save();renderStats();});
