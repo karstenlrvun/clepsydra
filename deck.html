@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.11">
+<link rel="stylesheet" href="palettes.css?v=2026.09.18.0">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.11"></script>
+<script src="decks/registry.js?v=2026.09.18.0"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.11"></script>
+<script src="shared.js?v=2026.09.18.0"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1197,6 +1197,19 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 #scSet[data-adv] .advToggle::after{content:" ▴"}
 #scSet:not([data-adv]) .advOnly{display:none}
 .barRight{display:flex;align-items:center;gap:2px}#scHome .bar>#toStats{margin-right:42px}   /* two icons on the right: keep the deck's name centred */.syncMark{display:grid;place-items:center}.hmStat.lead b{color:var(--coral)}
+/* ---- Stats: three groups a tab, and the longer view (2026.09.18.0) ---- */
+.st-jump{display:flex;gap:6px;overflow-x:auto;margin:-6px 0 12px;padding-bottom:2px;position:sticky;top:41px;background:var(--bg);z-index:2;scrollbar-width:none}.st-jump::-webkit-scrollbar{display:none}
+.st-jump button{font:inherit;font-size:13px;line-height:1.3;white-space:nowrap;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;cursor:pointer}
+.st-col{min-width:0}.st-colhead{display:none}
+.lv{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 14px;margin:0 0 10px;scroll-margin-top:96px;font-variant-numeric:tabular-nums}
+.st-col,.st-sum,#scStats .sect{scroll-margin-top:96px}
+.lv-note{font-size:13px;color:var(--muted);margin-top:8px}.lv-note b{color:var(--ink);font-weight:500}
+.lv-bars{display:flex;align-items:flex-end;gap:3px;position:relative}.lv-bars>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%}.lv-bars i{display:block;background:var(--coral);opacity:.85;border-radius:2px 2px 0 0}.lv-bars i.b2{opacity:.35;border-radius:2px 2px 0 0}.lv-bars i.b2+i{border-radius:0}.lv-bars i.warn{background:var(--amber)}
+.lv-bars em{position:absolute;left:0;right:0;border-top:1.5px dashed var(--ink);opacity:.55}
+.lv-svg{display:block;width:100%;height:auto}.lv-svg .lh-ln{stroke-width:2.5}.lv-dot{fill:var(--coral);opacity:.8}
+.lv-grid{display:grid;grid-template-columns:16px repeat(24,1fr);gap:2px;align-items:center;font-size:11px;color:var(--faint)}.lv-grid i{display:block;aspect-ratio:1.45;border-radius:2px;background:var(--bg);border:1px solid var(--line)}
+.lh-stack i.bad{background:var(--again)}.lv-list .sr{padding:6px 0;font-size:13px}.lv-list .sr:last-child{border-bottom:0}
+.lh-fpb{border:1px solid var(--coral);border-radius:11px;padding:9px 12px;color:var(--coral)}.lh-fpb b{font-weight:600}.lh-fpb span{color:var(--coral);opacity:.85}
 /* ---- Stats as four tabs (2026.09.17.9) ---- */
 #scStats,#scSet,#scBrowse{line-height:1.4}
 .st-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin:4px 0 14px;position:sticky;top:0;background:var(--bg);z-index:2}
@@ -1212,9 +1225,17 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 #scStats details.flat>summary{list-style:none;pointer-events:none;cursor:default;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:14px 0 8px}#scStats details.flat>summary::-webkit-details-marker{display:none}#scStats details.flat>summary::after{content:none}
 #scStats .statRow{gap:14px}#scStats .statRow>span:first-child{flex:0 1 auto}#scStats .statRow>:last-child{text-align:right}
 @media (min-width:1100px){
-  #scStats .st-tabs,#scStats .dirs{max-width:560px}
-  #scStats .st-tab{column-count:2;column-gap:56px;max-width:1320px}#scStats .st-tab>*{break-inside:avoid;margin-top:0}
-  #scStats .st-tab[data-tab="days"]{column-count:1;max-width:760px}
+  /* three columns, each scrolling on its own: now | the tables | the longer view. The page itself stays put. */
+  #scStats .home{display:flex;flex-direction:column;overflow:hidden;padding:8px 44px 0}
+  #scStats .st-tabs,#scStats .dirs{max-width:560px}#scStats .st-tabs{position:static}
+  .st-jump{display:none}
+  #scStats .st-tab{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px}
+  #scStats .st-tab.leanOff{display:none!important}
+  #scStats .st-col{overflow-y:auto;padding:0 6px 28px 0;scrollbar-width:thin}
+  #scStats .st-now{order:1}#scStats .st-tables{order:2}#scStats .st-long{order:3}
+  .st-colhead{display:block;margin-bottom:10px}
+  #scStats .st-col>.sect:first-child,#scStats .st-col>.sect:first-child>details:first-child>summary{margin-top:0;padding-top:0;border-top:0}
+  #scStats .st-tab[data-tab="days"]{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}#scStats .st-tab[data-tab="days"] .st-tables{display:none}
 }
 /* ---- the lean Home (2026.09.17.8): one line spacing, six sizes, no wrapping rows ---- */
 #leanHome{display:flex;flex-direction:column;gap:12px;line-height:1.4;font-variant-numeric:tabular-nums;min-height:100%}
@@ -5141,6 +5162,184 @@ function statsDeckHtml(){
     h+=sr('Tied words',g.length?(g.length+' ties'+(hit+miss?' · '+Math.round(100*hit/(hit+miss))+'% right in the drill':' · not drilled yet')):'none yet'); }
   return h;
 }
+/* ---- Stats: the longer view (2026.09.18.0) ----
+   Twelve charts chosen by him from a survey of what Anki, its add-ons, the
+   FSRS tools and SuperMemo show. Each reads only what is already logged, and
+   each is here because it should change a decision. Pure readers; every one
+   says how much data it has, so a chart can say "not enough yet" honestly. */
+const inRotation=cs=>!!(cs&&cs.reps>0&&!cs.susp&&!cs.ret&&cs.s!=null&&cs.st==='R');
+// 1. Minutes due, day by day, to the test: what is already scheduled, plus
+//    what opening new words at today's rate would add. The app's own same-day
+//    guard cannot see this; it is the point of the chart.
+function dueForecast(now){
+  now=(now!=null)?now:Date.now();
+  const d0=dayKey(now), t=triDays(S.settings), horizon=Math.min(Math.max(Number.isFinite(t)&&t>now?dayKey(t)-d0+1:21,14),45);
+  const held=loadForecast(S.settings.retention,horizon,now).byDayMin;
+  // one new word's expected cost by days since it opened
+  const prof=new Array(horizon).fill(0); prof[0]=(timeFor('N')+expectedPresses(LEARN_STEPS.length,0.2)*timeFor('L'))/MIN;
+  { let s=P[2], day=0; for(let g=0;g<12;g++){ day+=Math.max(1,nextInterval(s,S.settings)); if(day>=horizon) break; prof[day]+=timeFor('R1')*1.25/MIN; s=recallS(D0FOR_GOOD(),s,S.settings.retention,GOOD); } }
+  const left={L:0,E:0}; for(const c of CARDS){ const cs=S.cards[c.id]; if(cs&&cs.reps>0) continue; if(c.dir==='L'&&S.settings.firstPass!==false&&!(cs&&cs.tri===TRI_UNSEEN)) continue; left[c.dir]++; }
+  const per={L:S.settings.newPerDayL|0,E:S.settings.newPerDayE|0}, fresh=new Array(horizon).fill(0);
+  for(const dir of ['L','E']){ let rem=left[dir]; for(let j=0;j<horizon&&rem>0;j++){ const n=Math.min(per[dir],rem); rem-=n; for(let k=j;k<horizon;k++) fresh[k]+=n*prof[k-j]; } }
+  return {days:horizon, held:held, fresh:fresh, limit:S.settings.minutesPerDay|0, startDay:d0, left:left,
+          firstOver:(()=>{ const lim=S.settings.minutesPerDay|0; if(!(lim>0)) return null; for(let k=1;k<horizon;k++) if(held[k]+fresh[k]>lim+0.5) return k; return null; })()};
+}
+const D0FOR_GOOD=()=>initD(GOOD,true);
+// 2. Standing load: the minutes a day the deck commits him to -- each word in
+//    rotation costs one review every interval. Replayed from the log.
+function loadTrend(days,now){
+  now=(now!=null)?now:Date.now(); days=days||60;
+  const d0=dayKey(now), first=d0-days+1, sec=timeFor('R1')*1.2/MIN, ivl={}, out=[]; let sum=0;
+  const ev=[]; for(const e of S.log){ if(e[7]==='R'&&e[3]>0) ev.push([e[2],e[0],Math.max(e[3]/86400,1)]); }
+  for(const t of (S.triLog||[])){ if(t[1]===TRI_SHAKY||t[1]===TRI_KNOWN) ev.push([t[2],t[0],Math.max((t[6]||TRI_PRIOR_S[t[1]]),1)]); else if(t[1]===TRI_WELL) ev.push([t[2],t[0],0]); }
+  ev.sort((a,b)=>a[0]-b[0]); let i=0;
+  for(let k=first;k<=d0;k++){ const end=dayStart(k+1);
+    while(i<ev.length&&ev[i][0]<end){ const id=ev[i][1], v=ev[i][2]; if(ivl[id]) sum-=1/ivl[id]; if(v>0){ ivl[id]=v; sum+=1/v; } else delete ivl[id]; i++; }
+    out.push(Math.max(sum,0)*sec); }
+  return out;
+}
+// 3. What the worst words cost: the share of review time, last 30 days, spent
+//    on words failed three or more times.
+function lapseLoad(now){
+  now=(now!=null)?now:Date.now(); const since=now-30*DAY; let bad=0, all=0; const ids=new Set();
+  for(const e of S.log){ if(e[2]<since) continue; const x=e[15]; if(!x||!Number.isFinite(x.ms)||(e[5]!=='R'&&e[5]!=='X')) continue; all+=x.ms; const cs=S.cards[e[0]]; if(cs&&(cs.lapses|0)>=3){ bad+=x.ms; ids.add(e[0]); } }
+  return {share:all>0?bad/all:null, words:ids.size, ms:all};
+}
+// 4. When he studies: answers by weekday and hour, last eight weeks.
+function studyGrid(now){
+  now=(now!=null)?now:Date.now(); const since=now-56*DAY, g=Array.from({length:7},()=>new Array(24).fill(0)); let n=0;
+  const add=t=>{ if(t<since) return; const d=new Date(t); g[(d.getDay()+6)%7][d.getHours()]++; n++; };
+  for(const e of S.log) add(e[2]); for(const t of (S.triLog||[])) add(t[2]);
+  return {grid:g, n:n, max:Math.max.apply(null,g.map(r=>Math.max.apply(null,r)).concat([1]))};
+}
+// 5. Predicted against actual: spaced reviews grouped by what the model said.
+function reliability(){
+  const edges=[0,0.7,0.8,0.85,0.9,0.95,1.0001], bins=edges.slice(1).map(()=>({n:0,pred:0,pass:0}));
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue; const p=(Number.isFinite(x.cr)?x.cr:x.pr); let b=0; while(p>=edges[b+1]) b++; bins[b].n++; bins[b].pred+=p; if(e[1]!==AGAIN) bins[b].pass++; }
+  const used=bins.filter(b=>b.n>=15), n=used.reduce((a,b)=>a+b.n,0);
+  return {bins:used.map(b=>({n:b.n,pred:b.pred/b.n,actual:b.pass/b.n})), n:n,
+          rmse:n?Math.sqrt(used.reduce((a,b)=>a+b.n*Math.pow(b.pred/b.n-b.pass/b.n,2),0)/n):null};
+}
+// 6. Does recall sag as a sitting goes on? Spaced reviews by place in the sitting.
+function sagByPosition(){
+  const cuts=[10,20,30,40,60,80,1e9], b=cuts.map(()=>({n:0,pass:0}));
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)||!Number.isFinite(x.i)) continue; let k=0; while(x.i>=cuts[k]) k++; b[k].n++; if(e[1]!==AGAIN) b[k].pass++; }
+  return b.map((x,i)=>({from:i?cuts[i-1]:0, n:x.n, rate:x.n>=20?x.pass/x.n:null}));
+}
+// 7. Is grading drifting? Share of Again among reviews, week by week.
+function againDrift(now,weeks){
+  now=(now!=null)?now:Date.now(); weeks=weeks||10; const d0=dayKey(now), out=Array.from({length:weeks},()=>({n:0,again:0}));
+  for(const e of S.log){ if(e[5]!=='R') continue; const w=weeks-1-Math.floor((d0-dayKey(e[2]))/7); if(w<0||w>=weeks) continue; out[w].n++; if(e[1]===AGAIN) out[w].again++; }
+  return out.map(x=>x.n>=20?x.again/x.n:null);
+}
+// 8. Words held, over time: the scheduler's own recall estimate summed over every
+//    word, retired words at their last known strength. Replayed from both logs.
+function heldOverTime(days,now){
+  now=(now!=null)?now:Date.now(); days=days||30; const d0=dayKey(now), st={}, ev=[];
+  for(const t of (S.triLog||[])) if(t[1]>TRI_UNSEEN&&t[6]>0) ev.push([t[2],t[0],t[6]]);
+  for(const e of S.log) if(e[7]==='R'&&e[9]>0) ev.push([e[2],e[0],e[9]]);
+  ev.sort((a,b)=>a[0]-b[0]); let i=0; const out=[];
+  for(let k=d0-days+1;k<=d0;k++){ const end=Math.min(dayStart(k+1),now);
+    while(i<ev.length&&ev[i][0]<end){ st[ev[i][1]]=[ev[i][2],ev[i][0]]; i++; }
+    let sum=0; for(const id in st){ if(id[0]!=='L') continue; const v=st[id]; sum+=Math.pow(1+FACTOR*Math.max((end-v[1])/DAY,0)/v[0],DECAY); }
+    out.push(sum); }
+  return out;
+}
+// 9. How long the words in rotation last, and which will be under 90% on the test day.
+function strengthHistogram(now){
+  now=(now!=null)?now:Date.now(); const cuts=[2,4,7,14,30,60,90,180,1e9], bins=cuts.map(()=>0), t=triDays(S.settings); let fragile=0, n=0;
+  for(const id in S.cards){ const cs=S.cards[id]; if(id[0]!==S.dir||!inRotation(cs)) continue; n++; let k=0; while(cs.s>=cuts[k]) k++; bins[k]++;
+    if(Number.isFinite(t)&&t>now&&cs.due>t&&Math.pow(1+FACTOR*((t-(cs.last||now))/DAY)/cs.s,DECAY)<0.9) fragile++; }
+  return {bins:bins, labels:['<2 d','2–4','4–7','1–2 wk','2–4 wk','1–2 mo','2–3 mo','3–6 mo','6 mo+'], n:n, underOnTest:fragile};
+}
+// 10. The fragile twenty: lowest chance of recall right now.
+function fragileWords(n,now){
+  now=(now!=null)?now:Date.now(); const out=[];
+  for(const id in S.cards){ const cs=S.cards[id]; if(id[0]!==S.dir||!inRotation(cs)||!BY_ID[id]) continue; out.push({id:id,r:retrievability(cs,now),due:cs.due}); }
+  out.sort((a,b)=>a.r-b.r); return out.slice(0,n||20);
+}
+// 11. Gained, lost, net: words whose strength passed three weeks, and words failed from beyond it.
+function gainedLost(days,now){
+  now=(now!=null)?now:Date.now(); days=days||14; const d0=dayKey(now), out=Array.from({length:days},()=>[0,0]);
+  for(const e of S.log){ const k=dayKey(e[2])-(d0-days+1); if(k<0||k>=days||!Number.isFinite(e[6])||!Number.isFinite(e[9])) continue;
+    if(e[1]===AGAIN){ if(e[6]>=21) out[k][1]++; } else if(e[6]<21&&e[9]>=21) out[k][0]++; }
+  return out;
+}
+// 12. Pass rate by hour of day.
+function passByHour(){
+  const h=Array.from({length:24},()=>({n:0,pass:0}));
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue; const b=h[new Date(e[2]).getHours()]; b.n++; if(e[1]!==AGAIN) b.pass++; }
+  return h.map(x=>x.n>=20?x.pass/x.n:null);
+}
+/* ---- the longer view: drawing (HTML builders, DOM-free) ---- */
+const lvAx=a=>'<div class="lh-ax">'+a.map(x=>'<span>'+x+'</span>').join('')+'</div>';
+const lvNote=t=>'<div class="lv-note">'+t+'</div>';
+const lvWait=t=>'<div class="lh-none">'+t+'</div>';
+function lvBars(a,h,opt){
+  opt=opt||{}; const mx=opt.max||Math.max.apply(null,a.map(v=>Array.isArray(v)?v[0]+v[1]:(v||0)).concat([1e-9]));
+  return '<div class="lv-bars" style="height:'+h+'px">'+(opt.ref>0?'<em style="bottom:'+Math.min(opt.ref/mx*100,100)+'%"></em>':'')+
+    a.map((v,i)=>Array.isArray(v)?'<div><i class="b2" style="height:'+(v[1]/mx*100)+'%"></i><i style="height:'+(v[0]/mx*100)+'%"></i></div>'
+                                 :'<div><i class="'+(opt.cls?opt.cls(v,i):'')+'" style="height:'+(v==null?0:Math.max(v/mx*100,1))+'%"></i></div>').join('')+'</div>';
+}
+function lvLine(a,h,opt){
+  opt=opt||{}; const v=a.filter(x=>x!=null); if(v.length<2) return lvWait('not enough yet');
+  const mn=opt.min!=null?opt.min:Math.min.apply(null,v), mx=opt.max!=null?opt.max:Math.max.apply(null,v), W=400, X=i=>i*(W/(a.length-1)), Y=x=>h-3-((x-mn)/((mx-mn)||1))*(h-6);
+  let p='', pen=false; a.forEach((x,i)=>{ if(x==null){ pen=false; return; } p+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(x).toFixed(1); pen=true; });
+  return '<svg viewBox="0 0 '+W+' '+h+'" height="'+h+'" preserveAspectRatio="none" class="lh-sp">'+(opt.ref!=null?'<line x1="0" x2="'+W+'" y1="'+Y(opt.ref)+'" y2="'+Y(opt.ref)+'" class="lh-ref"/>':'')+'<path d="'+p+'" class="lh-ln" vector-effect="non-scaling-stroke"/></svg>';
+}
+const lvDate=k=>{ const d=new Date(dayStart(k)+12*HOUR); return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]; };
+// tab -> [{id, title (the jump bar's word), head, html}]
+function statsLongCards(tab,now){
+  now=(now!=null)?now:Date.now(); const out=[], pc=x=>Math.round(x*100)+'%', add=(id,title,head,html)=>out.push({id:id,title:title,head:head,html:html});
+  if(tab==='time'){
+    { const f=dueForecast(now), a=f.held.map((h,i)=>[h,f.fresh[i]]), mx=Math.max.apply(null,a.map(x=>x[0]+x[1]).concat([f.limit,1]));
+      add('lvDue','Ahead','Minutes due, day by day',lvBars(a,96,{ref:f.limit,max:mx})+lvAx(['today',lvDate(f.startDay+Math.round(f.days/2)),lvDate(f.startDay+f.days-1)])+
+        lvNote('Solid is words you already hold; pale is new words opened at today’s rate ('+(f.left.L+f.left.E).toLocaleString()+' still to open). '+(f.limit>0?(f.firstOver==null?'It stays inside your '+f.limit+' minutes.':'<b>It crosses your '+f.limit+' minutes on '+lvDate(f.startDay+f.firstOver)+'.</b>'):''))); }
+    { const t=loadTrend(60,now), last=t[t.length-1]||0, was=t[Math.max(t.length-15,0)]||0;
+      add('lvLoad','Load','Standing load · 60 days',lvLine(t,56,{min:0,ref:S.settings.minutesPerDay>0?S.settings.minutesPerDay:null,max:Math.max.apply(null,t.concat([S.settings.minutesPerDay|0,1]))})+
+        lvNote('Minutes a day the words in rotation commit you to: '+lhMinP(last)+' now, '+(last>=was?'up ':'down ')+lhMinP(Math.abs(last-was))+' in a fortnight.')); }
+    { const l=lapseLoad(now);
+      add('lvWorst','Worst words','What your worst words cost',l.share==null?lvWait('No timed reviews in the last 30 days yet.'):
+        '<div class="lh-stack tall"><i class="bad" style="width:'+(l.share*100)+'%"></i></div>'+lvNote('<b>'+pc(l.share)+'</b> of review time in the last 30 days went on '+l.words+' word'+(l.words===1?'':'s')+' failed three times or more.')); }
+    { const g=studyGrid(now), names=['M','T','W','T','F','S','S'];
+      add('lvWhen','When','When you study',g.n<30?lvWait('Fills in after about thirty answers.'):
+        '<div class="lv-grid">'+g.grid.map((r,d)=>'<span>'+names[d]+'</span>'+r.map(v=>'<i style="'+(v?'background:color-mix(in srgb,var(--coral) '+Math.round(15+v/g.max*80)+'%,var(--panel))':'')+'"></i>').join('')).join('')+'</div>'+lvAx(['0','6','12','18','24'])); }
+  }
+  if(tab==='retention'){
+    { const r=reliability(); let svg='';
+      if(r.bins.length>=2){ const X=p=>30+(p-0.6)/0.4*360, Y=p=>150-(p-0.6)/0.4*140, mxn=Math.max.apply(null,r.bins.map(b=>b.n));
+        svg='<svg viewBox="0 0 400 170" class="lv-svg"><line x1="30" y1="150" x2="390" y2="10" class="lh-ref"/><polyline points="'+r.bins.map(b=>X(Math.max(b.pred,0.6))+','+Y(Math.max(b.actual,0.6))).join(' ')+'" class="lh-ln"/>'+
+            r.bins.map(b=>'<circle cx="'+X(Math.max(b.pred,0.6))+'" cy="'+Y(Math.max(b.actual,0.6))+'" r="'+(3+6*b.n/mxn).toFixed(1)+'" class="lv-dot"/>').join('')+'<text x="30" y="166" class="lh-tt">predicted 60%</text><text x="358" y="166" class="lh-tt">100%</text></svg>'; }
+      add('lvCal','Predicted','Predicted against actual',r.bins.length<2?lvWait('Needs spaced reviews in at least two bands of 15; '+r.n+' so far.'):svg+lvNote('Each dot is a group of reviews, bigger for more. On the dashed line the scheduler was exactly right. <b>Off by '+(r.rmse*100).toFixed(1)+' points</b> across '+r.n.toLocaleString()+' reviews.')); }
+    { const s=sagByPosition(), ok=s.filter(x=>x.rate!=null);
+      add('lvSag','Sittings','Does recall sag as a sitting goes on?',ok.length<3?lvWait('Needs twenty spaced reviews at three different points in a sitting.'):
+        lvBars(s.map(x=>x.rate==null?null:x.rate*100),80,{max:100,cls:v=>v!=null&&v<ok[0].rate*100-4?'warn':''})+lvAx(['1st–10th','30th','80th+'])+
+        lvNote('Passed '+pc(ok[0].rate)+' at the start of a sitting, '+pc(ok[ok.length-1].rate)+' by card '+ok[ok.length-1].from+'.')); }
+    { const a=againDrift(now,10), v=a.filter(x=>x!=null);
+      add('lvDrift','Grading','Is your grading drifting?',v.length<3?lvWait('Needs three weeks with twenty reviews each.'):lvLine(a.map(x=>x==null?null:x*100),60,{min:0,max:Math.max(30,Math.max.apply(null,v)*100)})+
+        lvNote('Share of Again among reviews, week by week: '+pc(v[v.length-1])+' this week, '+pc(v[0])+' at the start. Steady is good.')); }
+  }
+  if(tab==='deck'){
+    { const h=heldOverTime(30,now), last=h[h.length-1]||0, total=CARDS.filter(c=>c.dir==='L').length;
+      add('lvHeld','Held','Words held, over time',last<1?lvWait('Fills in once words have been sorted.'):lvLine(h,110,{min:Math.min.apply(null,h)*0.97})+
+        lvNote('The scheduler’s estimate of how many of '+total.toLocaleString()+' you hold today: <b>'+Math.round(last).toLocaleString()+'</b>, retired words counted at their last known strength.')); }
+    { const s=strengthHistogram(now);
+      add('lvStrength','Strength','How long your words last',s.n<10?lvWait('Needs ten words in rotation.'):lvBars(s.bins,90)+lvAx([s.labels[0],s.labels[3],s.labels[5],s.labels[8]])+
+        lvNote(s.n.toLocaleString()+' words in rotation, by memory strength.'+(s.underOnTest?' <b>'+s.underOnTest+'</b> will be under 90% on the day of the test and are not due before it.':''))); }
+    { const f=fragileWords(20,now);
+      add('lvFragile','Fragile','The fragile twenty',!f.length?lvWait('Nothing in rotation yet.'):'<div class="lv-list">'+f.map(x=>'<div class="sr"><span>'+escHtml(String(BY_ID[x.id].q).slice(0,26))+'</span><b>'+pc(x.r)+' · '+(x.due<=now?'due now':lvDate(dayKey(x.due)))+'</b></div>').join('')+'</div>'); }
+  }
+  if(tab==='days'){
+    { const g=gainedLost(14,now), net=g.reduce((n,x)=>n+x[0]-x[1],0), any=g.some(x=>x[0]||x[1]);
+      add('lvNet','Gained','Gained, lost, net · 14 days',!any?lvWait('Fills in when words pass three weeks, or are failed from beyond it.'):lvBars(g.map(x=>[x[0],x[1]]),90)+lvAx([lvDate(dayKey(now)-13),lvDate(dayKey(now)-6),'today'])+
+        lvNote('Solid is words whose strength passed three weeks that day; pale is words failed from beyond it. <b>Net '+(net>=0?'+':'')+net+'</b>.')); }
+    { const p=passByHour(), v=p.filter(x=>x!=null);
+      add('lvHour','By hour','Pass rate by hour',v.length<3?lvWait('Needs twenty spaced reviews in three different hours.'):lvBars(p.map(x=>x==null?null:x*100),80,{max:100,cls:x=>x!=null&&x<Math.max.apply(null,v)*100-5?'warn':''})+lvAx(['0','6','12','18','24'])+
+        lvNote('Best hour '+pc(Math.max.apply(null,v))+', worst '+pc(Math.min.apply(null,v))+'.')); }
+  }
+  return out;
+}
+const lhMinP=m=>(m>=10?Math.round(m):(Math.round(m*10)/10))+' min';
 function clepPanelHtml(now){
   now=(now!=null)?now:Date.now();
   const d=dayKey(now), used=usedMs(d), bud=budgetMs(d), q=buildQueue(S.dir), need=queueCostMs(q,now);
@@ -5225,7 +5424,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.17.11';
+const BUILD='2026.09.18.0';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -12177,7 +12376,7 @@ function lhHero(n){
 function lhFirstPass(){
   const tp=triageProgress(); if(!tp.left||S.settings.firstPass===false) return '';
   const w=k=>(100*(tp.by[k]|0)/tp.total)+'%';
-  return '<button type="button" class="lh-fp" data-go="toTriage"><div class="lh-row"><b>First pass</b><span>'+tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' · '+fmtMin(tp.left*timeFor('T')/MIN)+' left ›</span></div>'+
+  return '<button type="button" class="lh-fp" data-go="toTriage"><div class="lh-row lh-fpb"><b>Continue the first pass</b><span>'+tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' · '+fmtMin(tp.left*timeFor('T')/MIN)+' left ›</span></div>'+
     '<div class="lh-stack"><i class="p4" style="width:'+w(4)+'"></i><i class="p3" style="width:'+w(3)+'"></i><i class="p2" style="width:'+w(2)+'"></i><i class="p1" style="width:'+w(1)+'"></i></div>'+
     '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>not seen</div></div></button>';
 }
@@ -12229,7 +12428,7 @@ function renderLeanHome(){
   const short=s=>String(s).replace(/Latin/g,'La').replace(/Greek/g,'Gr').replace(/English/g,'En');
   const nTies=tieDrillGroups(S.dir).length, ready=n.waiting+n.fresh;
   const start='<div class="lh-acts"><button type="button" class="lh-go" data-go="startBtn"'+(ready?'':' disabled')+'>'+(ready?(n.waiting?'Start · '+lhMin(Math.max(n.due,1))+' min':'Start · '+n.fresh+' new'):'Nothing due')+'</button>'+
-    (nTies?'<button type="button" class="lh-sec" data-go="toTie">Tied · '+nTies+'</button>':'')+'</div>';
+    '<button type="button" class="lh-sec" data-go="'+(nTies?'toTie':'noTies')+'">Tied · '+nTies+'</button></div>';
   const seg='<div class="lh-seg"><button type="button" data-go="dirLtoE" class="'+(S.dir==='L'?'on':'')+'">'+short(DECK.fwd)+' · '+cnt(qL)+'</button><button type="button" data-go="dirEtoL" class="'+(S.dir==='E'?'on':'')+'">'+short(DECK.rev)+' · '+cnt(qE)+'</button></div>';
   const rc=(typeof reverseCheckHtml==='function')?reverseCheckHtml():'';
   const list='<button type="button" class="lh-wl" data-go="toBrowse"><b>Word list</b><span>'+CARDS.filter(c=>c.dir==='L').length.toLocaleString()+' words ›</span></button>';
@@ -12253,7 +12452,7 @@ $('scHome').addEventListener('click',e=>{
   const st=t.closest('[data-step]'); if(st&&lhDay!=null){ lhOpenDay(lhDay+(+st.dataset.step)); return; }
   const dy=t.closest('[data-day]'); if(dy){ lhOpenDay(+dy.dataset.day); return; }
   if(t.id==='lhVeil'){ lhCloseDay(); return; }
-  const go=t.closest('#leanHome [data-go]'); if(go&&!go.disabled){ const el=$(go.dataset.go); if(el) el.click(); }
+  const go=t.closest('#leanHome [data-go]'); if(go&&!go.disabled){ if(go.dataset.go==='noTies'){ toast('No tied pairs yet. Settings → Backups → Bring in tied pairs reads the file from the pairs page.',4200); return; } const el=$(go.dataset.go); if(el) el.click(); }
 });
 document.addEventListener('keydown',e=>{
   if(!$('scHome').classList.contains('on')||lhDay==null) return;
@@ -12275,14 +12474,19 @@ function statsTabs(){
   const names=[['time','Time'],['retention','Retention'],['deck','Deck'],['days','Days']], tabs={};
   bar.innerHTML=names.map(n=>'<button type="button" role="tab" data-tab="'+n[0]+'">'+n[1]+'</button>').join('');
   host.insertBefore(bar,first);
-  names.forEach(n=>{ const t=document.createElement('div'); t.className='st-tab'; t.dataset.tab=n[0]; host.insertBefore(t,first); tabs[n[0]]=t; });
+  const grp={};
+  names.forEach(n=>{ const t=document.createElement('div'); t.className='st-tab'; t.dataset.tab=n[0]; host.insertBefore(t,first); grp[n[0]]={};
+    ['now','long','tables'].forEach(g=>{ const c=document.createElement('div'); c.className='st-col st-'+g; t.appendChild(c); grp[n[0]][g]=c; }); tabs[n[0]]=grp[n[0]].tables; });
+  { const j=document.createElement('div'); j.id='stJump'; j.className='st-jump'; host.insertBefore(j,bar.nextSibling);
+    j.addEventListener('click',e=>{ const b=e.target.closest('[data-to]'); const el=b&&$(b.dataset.to); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }); }
   const sum=id=>{ const s=document.createElement('div'); s.className='sect st-sum'; s.id=id; return s; };
   const put=(tab,el)=>{ if(el) tabs[tab].appendChild(el); };
   const asSect=(id,title)=>{ const el=$(id); if(!el) return null; const s=document.createElement('div'); s.className='sect'; s.appendChild(el); return s; };
-  put('time',sum('stTime')); put('time',asSect('clockFold')); put('time',asSect('clockLearnFold')); put('time',sectOf('timeHeadline'));
-  put('retention',sum('stRet')); put('retention',$('calibSect'));
-  put('deck',first); put('deck',sum('stDeck')); put('deck',sectOf('syllabus')); put('deck',sectOf('statsGrid')); put('deck',asSect('clockRetFold')); put('deck',sectOf('suspStatsBody'));
-  put('days',sectOf('calFold'));
+  grp.time.now.appendChild(sum('stTime')); put('time',asSect('clockFold')); put('time',asSect('clockLearnFold')); put('time',sectOf('timeHeadline'));
+  grp.retention.now.appendChild(sum('stRet')); put('retention',$('calibSect'));
+  grp.deck.now.appendChild(first); grp.deck.now.appendChild(sum('stDeck')); put('deck',sectOf('syllabus')); put('deck',sectOf('statsGrid')); put('deck',asSect('clockRetFold')); put('deck',sectOf('suspStatsBody'));
+  { const x=sectOf('calFold'); if(x) grp.days.now.appendChild(x); }
+  names.forEach(n=>{ const l=document.createElement('div'); l.className='st-lv'; l.id='stLong-'+n[0]; grp[n[0]].long.appendChild(l); });
   { const old=sectOf('clockBody'); if(old) old.classList.add('leanOff'); }
   ['hmStats'].forEach(id=>{ const x=$(id); if(x) x.classList.remove('leanOff'); });
   { const x=document.querySelector('#scStats .syncRow'); if(x) x.classList.add('leanOff'); }   // the top-bar mark says this now
@@ -12299,11 +12503,25 @@ function showStatsTab(){
   if(stTab==='retention') $('stRet').innerHTML=statsRetentionHtml();
   if(stTab==='deck') $('stDeck').innerHTML=statsDeckHtml();
   if(stTab==='days'){ renderHeatmapStats(); renderCalendar(); }
+  { const cards=statsLongCards(stTab), box=$('stLong-'+stTab);
+    if(box) box.innerHTML='<div class="lh-k st-colhead">The longer view</div>'+cards.map(c=>'<div class="lv" id="'+c.id+'"><div class="lh-k">'+escHtml(c.head)+'</div>'+c.html+'</div>').join('');
+    const tab=sc.querySelector('.st-tab[data-tab="'+stTab+'"]'), tbl=tab&&tab.querySelector('.st-tables'), now=tab&&tab.querySelector('.st-now');
+    if(now&&!now.id) now.id='stNow-'+stTab; if(tbl&&!tbl.id) tbl.id='stTables-'+stTab;
+    $('stJump').innerHTML='<button type="button" data-to="stNow-'+stTab+'">Now</button>'+cards.map(c=>'<button type="button" data-to="'+c.id+'">'+escHtml(c.title)+'</button>').join('')+(tbl&&tbl.children.length?'<button type="button" data-to="stTables-'+stTab+'">Tables</button>':''); }
   // every fold on this screen stays open; one that only drew itself when opened is asked to draw again
   sc.querySelectorAll('.st-tab:not(.leanOff) details').forEach(d=>{ if(!d.open) d.open=true; else d.dispatchEvent(new Event('toggle')); });
   const scr=sc.querySelector('.st-tab:not(.leanOff)'); if(scr&&scr.parentNode) scr.parentNode.scrollTop=0;
 }
 try{ statsTabs(); }catch(e){ if(typeof console!=='undefined') console.error('stats tabs',e); }
+/* One layout, drawn for a 14-inch MacBook (1512 points across), scaled in
+   proportion on anything wider -- his 24-inch Dell shows the same screen,
+   larger, rather than the same sizes marooned in a wider window. Below 1512
+   nothing scales. #app's height is divided back so it still fills the window. */
+function fitWide(){
+  const w=window.innerWidth, z=(w>1512)?Math.min(w/1512,1.7):1, app=$('app');
+  app.style.zoom=z===1?'':String(z); app.style.height=z===1?'':('calc(100dvh / '+z+')');
+}
+window.addEventListener('resize',fitWide); fitWide();
 
 
 /* ---------------- Clepsydra wiring ---------------- */
