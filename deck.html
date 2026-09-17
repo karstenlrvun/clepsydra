@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.4">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.5">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.4"></script>
+<script src="decks/registry.js?v=2026.09.17.5"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.4"></script>
+<script src="shared.js?v=2026.09.17.5"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -2531,6 +2531,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <label>Backups</label>
         <button class="act" id="expBtn">Export a backup file</button>
         <button class="act" id="impBtn">Restore from a file</button>
+        <button class="act" id="tiesBtn">Bring in tied pairs</button>
         <input type="file" id="impFile" accept="application/json,.json" class="hidden">
         <div class="fh" id="backupNote"> — </div>
       </div>
@@ -3488,6 +3489,7 @@ const CAP_TERM=200, CAP_GLOSS=500, CAP_SECTION=60, CAP_NOTE=500;
 // for "invisus is hateful (the s), invidus is envious (the d)", short
 // enough to stay a heading rather than becoming a note.
 const CAP_TIE_LABEL=120;
+const CAP_TIE_MEMBERS=8;   // importTies() only -- no tie he has ever made is past six
 
 function freshCard(c){
   const st={id:c.id, st:'L', step:0, s:null, d:null, due:0, last:null,
@@ -4918,7 +4920,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.4';
+const BUILD='2026.09.17.5';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -6849,6 +6851,31 @@ function removeFromConfuseGroup(id,gid){
   if(!cs.confuseGroups||!cs.confuseGroups.includes(gid)) return;
   cs.confuseGroups=cs.confuseGroups.filter(g=>g!==gid); touchCard(cs);
   dissolveConfuseGroupIfThin(gid);
+}
+// Brings tied pairs in from a file (2026.09.17.5). Clepsydra began with no
+// ties; his 267 Latin pairs live in vocabula, and he chose which of them are
+// worth keeping under gist grading. The file is {kind:'clepsydra-ties',
+// deck:KEY, pairs:[{ids:[...], label}]} -- written by tools/ties-review.html.
+// Adds ties and nothing else: no card's s/d/due/tri is read or written, a
+// word not yet sorted stays in the first pass (triageList keys off reps/tri,
+// not off whether a card record exists), and a retired word can be a member
+// like any other -- the drill never asks the queue. Safe to run twice:
+// createConfuseGroup() reuses a tie with the same members, so a second run,
+// or a run after a sync merge dropped a membership, only repairs.
+function importTies(obj){
+  const out={added:0,already:0,skipped:0,why:null};
+  if(!obj||obj.kind!=='clepsydra-ties'||!Array.isArray(obj.pairs)){ out.why='not a tied-pairs file'; return out; }
+  if(obj.deck!==KEY){ out.why='that file is for the other deck'; return out; }
+  for(const p of obj.pairs){
+    const ids=p&&Array.isArray(p.ids)?[...new Set(p.ids.map(String))]:[];
+    // every member must be a forward card of this deck, and have room for one more tie
+    const okIds=ids.length>=2&&ids.length<=CAP_TIE_MEMBERS&&ids.every(id=>BY_ID[id]&&BY_ID[id].dir==='L');
+    if(!okIds){ out.skipped++; continue; }
+    if(tieWithMembers(ids)){ createConfuseGroup(ids,p.label); out.already++; continue; }
+    if(ids.some(id=>S.cards[id]&&(S.cards[id].confuseGroups||[]).length>=5)){ out.skipped++; continue; }
+    createConfuseGroup(ids,p.label); out.added++;
+  }
+  return out;
 }
 /* ---- one-off: the tie chains he decided on 2026-09-08 ----
    Not a rule and not an automatic migration. 36 of his ties turned out to be
@@ -10166,6 +10193,15 @@ function doImport(file){
   fr.onload=()=>{
     try{
       const parsed=JSON.parse(fr.result);
+      // A tied-pairs file is not a backup: it adds ties and replaces nothing,
+      // whichever of the two buttons it was picked from.
+      if(parsed&&parsed.kind==='clepsydra-ties'){
+        const r=importTies(parsed);
+        if(r.why){ toast('Nothing brought in — '+r.why+'.',4200); return; }
+        save(); renderSet();
+        toast(r.added+' tied pair'+(r.added===1?'':'s')+' brought in'+(r.already?', '+r.already+' already here':'')+(r.skipped?', '+r.skipped+' skipped':'')+'. Tied words is on the front screen.',5200);
+        return;
+      }
       if(importFileDecision(parsed)==='reject-unstamped'){
         toast('That file has no deck marker, so nothing can verify which deck it belongs to — refused, rather than risk restoring another deck’s history into this one. Backups saved since 16 Aug 2026 all carry the marker; export a fresh file and use that.',5600);
         return;
@@ -11555,6 +11591,7 @@ function renderSet(){
   $('backupNote').textContent=(S.lastExport?
       'Last backup '+new Date(S.lastExport).toLocaleString()+' · ':'No backup yet · ')+
       (S.sinceExport||0)+' ratings since.'+
+      (Object.keys(S.confuseGroups).length?'  '+Object.keys(S.confuseGroups).length+' tied pairs or groups.':'')+
       (loadSyncCode()
         ? '  Sync: '+(S.lastSync?'synced '+new Date(S.lastSync).toLocaleString():'not yet synced')+
           (S.lastDevice?' (last pushed by '+S.lastDevice+')':'')+'.'
@@ -12578,6 +12615,7 @@ tapZone($('doneMore'),()=>{
 });
 tapZone($('expBtn'),()=>doExport(false));
 tapZone($('impBtn'),()=>$('impFile').click());
+tapZone($('tiesBtn'),()=>$('impFile').click());
 $('impFile').addEventListener('change',e=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=''; });
 tapZone($('pushBtn'),()=>pushSync(false));
 tapZone($('pullBtn'),pullSync);
