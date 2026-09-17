@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.1">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.2">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.1"></script>
+<script src="decks/registry.js?v=2026.09.17.2"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.1"></script>
+<script src="shared.js?v=2026.09.17.2"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -676,7 +676,10 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .triBtn .tbCount{color:var(--muted);font-weight:400;font-size:14px;font-variant-numeric:tabular-nums}
 .triBtn.lead{background:var(--coral);color:#fff;border-color:transparent}
 .triBtn.lead .tbCount{color:#fff;opacity:.85}
-.triWrap{flex:1;display:flex;flex-direction:column;min-height:0}
+.triWrap{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.triFlagBtn{position:absolute;right:12px;bottom:92px;z-index:2;color:var(--faint)}
+.triFlagBtn.on{color:var(--flag1,var(--coral))}
+.triFlagBtn.on svg{fill:currentColor}
 .triProg{height:4px;background:var(--line);margin:0 14px;border-radius:2px;overflow:hidden}
 .triProg i{display:block;height:100%;background:var(--coral)}
 .triMeta{font-size:12.5px;color:var(--muted);text-align:center;padding:8px 14px 0;font-variant-numeric:tabular-nums}
@@ -2262,6 +2265,9 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
         <div class="triA" id="triA"></div>
         <div class="triHint" id="triHint">tap, or Space, to check the meaning</div>
       </div>
+      <!-- A flag for "I want a second look at this one", whatever pile it goes
+           in. Outside #triCard on purpose: a tap there checks the meaning. -->
+      <button class="cardFlagBtn triFlagBtn" id="triFlagBtn" aria-label="Flag this word for a second look"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V4h11l-1 3h6l-1.5 4L20 15h-9l-1-3H4"/></svg><span class="keycap" style="margin-left:4px">F</span></button>
       <div class="rateRow triRow">
         <button class="rate" id="tri1"><span class="lbl">Not seen</span><span class="ivl" id="triI1"></span><span class="keycap">1</span></button>
         <button class="rate" id="tri2"><span class="lbl">Shaky</span><span class="ivl" id="triI2"></span><span class="keycap">2</span></button>
@@ -4833,7 +4839,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return (S.parts&&S.parts.length)?S.parts:SECTIONS; }
-const BUILD='2026.09.17.1';
+const BUILD='2026.09.17.2';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -11701,6 +11707,23 @@ function triRender(){
   const lab=triButtonLabels(); for(const b of [1,2,3,4]) $('triI'+b).textContent=lab[b];
   $('triReceipt').innerHTML=triLast?('<b>'+escHtml(triLast.q)+'</b> — '+escHtml(triLast.a)+' · '+TRI_LABEL[triLast.b]):'';
   triShownAt=Date.now(); triRevealAt=0; triLooked=document.hidden;
+  triFlagRender();
+}
+// The first-pass flag: flag 1, toggled, on the word in front of you -- before
+// you sort it. It rides on the card like any other flag, so Word list ->
+// Flag finds every one of them afterwards, retired words included. Flag 1 is
+// named "Second look" the first time it is used, unless he has named it.
+const TRI_FLAG=1;
+function triFlagRender(){ const b=$('triFlagBtn'); if(b) b.classList.toggle('on',!!triCur&&flagOf(triCur)===TRI_FLAG); b&&b.classList.toggle('hidden',!triCur); }
+function triFlagToggle(){
+  if(!triCur) return;
+  const n=setFlag(triCur,TRI_FLAG);
+  if(n&&!(Array.isArray(S.settings.flagNames)&&S.settings.flagNames[TRI_FLAG-1])){
+    const names=Array.isArray(S.settings.flagNames)?S.settings.flagNames.slice():new Array(FLAG_COUNT).fill('');
+    names[TRI_FLAG-1]='Second look'; S.settings.flagNames=flagNamesFrom(names);
+  }
+  save(); triFlagRender();
+  toast(n?'Flagged for a second look — Word list → Flag finds it':'Flag cleared',1500);
 }
 function triReveal(){
   if(!triCur||triRevealAt) return;
@@ -11725,6 +11748,7 @@ tapZone($('toTriage'),()=>{ triLast=null; triRender(); show('scTriage'); });
 tapZone($('triBack'),()=>{ flushPendingPush(); renderHome(); show('scHome'); });
 tapZone($('triUndoBtn'),triUndoPress);
 tapZone($('triCard'),triReveal);
+tapZone($('triFlagBtn'),triFlagToggle);
 [1,2,3,4].forEach(b=>tapZone($('tri'+b),()=>{ lastInput='t'; triPress(b); }));
 document.addEventListener('visibilitychange',()=>{ if(document.hidden){ triLooked=true; cardHidden=true; } });
 document.addEventListener('keydown',e=>{
@@ -11732,6 +11756,7 @@ document.addEventListener('keydown',e=>{
   if(e.key===' '||e.key==='Enter'){ e.preventDefault(); triReveal(); }
   else if(/^[1-4]$/.test(e.key)){ e.preventDefault(); triPress(+e.key); }
   else if(e.key==='z'||e.key==='Z'||e.key==='0'){ e.preventDefault(); triUndoPress(); }
+  else if(e.key==='f'||e.key==='F'){ e.preventDefault(); triFlagToggle(); }
   else if(e.key==='Escape'||e.key==='s'||e.key==='S'){ e.preventDefault(); flushPendingPush(); renderHome(); show('scHome'); }
 });
 // which kind of input graded the card, for the ext column
