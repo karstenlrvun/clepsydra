@@ -72,11 +72,22 @@ function mergeRegistry(reg,userDecks){
 // functions behave as they always did and look at all of history.
 // Today not being studied yet does not break the current streak -- only a
 // gap strictly before today does.
+// What counts as a study day (Clepsydra 2026.09.17.11, his rule): a day he
+// finished what was due, or reached his limit, whichever came first -- the app
+// notes that on the day itself as rec.met (1 or 0). A day with nothing due
+// counts on its own. A record from before the rule has no `met` at all, and
+// counts if any study happened on it.
+function dayCounts(rec){
+  if(!rec) return false;
+  if(rec.met!==undefined) return rec.met===1;
+  return !!(rec.n||((rec.studyMs|0)+(rec.triMs|0))>0);
+}
+function metOfLast(days,todayKey,span){ let n=0; for(let k=todayKey-span+1;k<=todayKey;k++) if(dayCounts(days[k])) n++; return n; }
 function currentStreak(days,todayKey,since){
   let streak=0;
   for(let k=todayKey;;k--){
     if(since!=null&&k<since) break;
-    if(days[k]&&days[k].n) streak++;
+    if(dayCounts(days[k])) streak++;
     else { if(k!==todayKey) break; }
     if(todayKey-k>3650) break;
   }
@@ -86,7 +97,7 @@ function longestStreak(days,todayKey,since){
   let best=0,run=0;
   const floor=(since!=null)?Math.max(since,todayKey-3650):todayKey-3650;
   for(let k=floor;k<=todayKey;k++){
-    if(days[k]&&days[k].n){ run++; best=Math.max(best,run); } else run=0;
+    if(dayCounts(days[k])){ run++; best=Math.max(best,run); } else run=0;
   }
   return best;
 }

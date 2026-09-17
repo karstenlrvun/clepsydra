@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.17.10">
+<link rel="stylesheet" href="palettes.css?v=2026.09.17.11">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.17.10"></script>
+<script src="decks/registry.js?v=2026.09.17.11"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.17.10"></script>
+<script src="shared.js?v=2026.09.17.11"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -120,6 +120,10 @@ html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
    always show scroll bars drew two across the whole window: a bar takes room, the room it takes overflows the
    other axis, and that draws the second. */
 html,body{overflow:hidden}
+/* 2026.09.17.11: one line spacing, and a short type scale -- 11 label, 13 note, 15 body, 16 controls (an iPhone
+   zooms the page for an input under 16), 20 heading, 24 and 28 display. A test holds the sheet to it. */
+body{line-height:1.4}
+button,select,input,textarea{line-height:1.3}
 body{
   background-color:var(--bg); background-image:var(--texture,none); color:var(--ink); font-family:var(--sans);
   font-size:16px; -webkit-font-smoothing:antialiased;
@@ -138,15 +142,15 @@ button{font-family:inherit;font-size:inherit;color:inherit;background:none;borde
 /* ---------- top bar ---------- */
 .bar{display:flex;align-items:center;gap:10px;height:52px;padding:0 12px;flex:0 0 auto}
 .bar .icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  border-radius:12px;color:var(--muted);font-size:19px}
+  border-radius:12px;color:var(--muted);font-size:20px}
 .bar .icon:active{background:var(--panel)}
 .bar .title{flex:1;text-align:center;font-size:15px;font-weight:500;letter-spacing:.01em}
-.counts{display:flex;gap:12px;justify-content:center;font-size:14px;font-variant-numeric:tabular-nums}
+.counts{display:flex;gap:12px;justify-content:center;font-size:15px;font-variant-numeric:tabular-nums}
 .counts b{font-weight:600}
 .c-new{color:var(--coral)} .c-lrn{color:var(--amber)} .c-due{color:var(--good)}
 .c-prog{color:var(--ink)}
 .c-eta{color:var(--muted);font-weight:400}
-.studyTimer{margin-top:3px;text-align:center;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.studyTimer{margin-top:3px;text-align:center;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 
 /* ---------- keyboard-shortcuts reference (2026.08.30.5) ----------
    A third bar icon, same .icon styling #toHome/#undoBtn already use, so it
@@ -183,11 +187,11 @@ button{font-family:inherit;font-size:inherit;color:inherit;background:none;borde
 .shortcutsCard.on{display:block}
 .shortcutsCard .ddTitle{font-family:var(--serif);font-size:15px;margin-bottom:8px}
 .shortcutsCard .refGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 20px}
-.shortcutsCard .refCat{grid-column:1/-1;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+.shortcutsCard .refCat{grid-column:1/-1;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--faint);font-weight:600;margin:9px 0 3px}
 .shortcutsCard .refCat:first-child{margin-top:0}
-.shortcutsCard .refRow{display:flex;align-items:baseline;gap:9px;padding:3px 0;font-size:12.5px}
-.shortcutsCard .refRow .rk{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10.5px;
+.shortcutsCard .refRow{display:flex;align-items:baseline;gap:9px;padding:3px 0;font-size:13px}
+.shortcutsCard .refRow .rk{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;
   color:var(--coral);background:var(--accent-soft);border-radius:5px;padding:1px 6px;flex:0 0 auto;
   min-width:60px;text-align:center}
 .shortcutsCard .refRow .rd{color:var(--muted)}
@@ -273,7 +277,7 @@ html:not([data-layout="landscape"]) .quickFlash{
   position:absolute; left:22px; right:22px; bottom:58px; max-width:none;
   padding:8px 12px 9px; box-sizing:border-box;
   border:1px solid var(--line); border-radius:14px; background:var(--panel);
-  font-size:13.5px; line-height:1.2; text-align:left;
+  font-size:15px; line-height:1.2; text-align:left;
 }
 html:not([data-layout="landscape"]) .quickFlash.on{
   display:grid;
@@ -294,11 +298,11 @@ html:not([data-layout="landscape"]) .quickFlash.rc-hard::before {background:var(
 html:not([data-layout="landscape"]) .quickFlash.rc-good::before {background:var(--good)}
 html:not([data-layout="landscape"]) .quickFlash.rc-easy::before {background:var(--easy)}
 html:not([data-layout="landscape"]) .qfWord{
-  grid-area:word; font-size:12.5px; max-width:none; min-width:0;
+  grid-area:word; font-size:13px; max-width:none; min-width:0;
 }
 html:not([data-layout="landscape"]) .qfArrow{display:none}   /* the two rows say it */
 html:not([data-layout="landscape"]) .qfAns{
-  grid-area:ans; font-size:14.5px;
+  grid-area:ans; font-size:15px;
   white-space:normal; overflow:visible; text-overflow:clip;
 }
 /* The chip and the pill both lose their boxes here and keep their colour: two
@@ -331,7 +335,7 @@ html:not([data-layout="landscape"]) .qfIvl::before{
   border:1px solid var(--warn-br);background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;
   font-size:13px;line-height:1.45}
 .gradeNote .gnText{flex:1}
-.gradeNote .gnX{flex:0 0 auto;font-size:18px;line-height:1;padding:0 4px;color:var(--warn-ink);opacity:.8}
+.gradeNote .gnX{flex:0 0 auto;font-size:20px;line-height:1;padding:0 4px;color:var(--warn-ink);opacity:.8}
 html[data-layout="landscape"] #gradeNote{grid-row:-2/-1;grid-column:-2/-1;align-self:start;margin:14px 32px 0}
 html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:2/3;margin:14px 0 0}
 /* .suspBtn is shared with the Home struggling-word rows (their own small
@@ -355,10 +359,10 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
    palette's own rating-button colours (dracula dark Red/Again is the worst).
    A digit is also the only thing a red-green deficiency can still read. ---- */
 .cardFlagBtn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-  border-radius:12px;color:var(--faint);font-size:17px;background:none;border:none;position:relative}
+  border-radius:12px;color:var(--faint);font-size:16px;background:none;border:none;position:relative}
 .cardFlagBtn:active{background:var(--panel)}
 .cardFlagBtn.on{color:var(--flagNow)}
-.cardFlagBtn .fnum{position:absolute;right:5px;bottom:4px;font-size:9.5px;font-weight:600;
+.cardFlagBtn .fnum{position:absolute;right:5px;bottom:4px;font-size:11px;font-weight:600;
   line-height:1;color:var(--flagNow)}
 /* On the card, not the bar (2026-08-30) -- see the markup's own comment.
    .cardFlagBtn is already its own positioning context (position:relative,
@@ -380,7 +384,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
    count follows the dialog and the same bug cannot come back at a new width. */
 .flagGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px;margin:10px 0 4px}
 .flagPick{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;
-  border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:13.5px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:15px;
   font-family:inherit;text-align:left}
 .flagPick .fsw{width:14px;height:14px;border-radius:4px;flex:0 0 auto}
 .flagPick .fkey{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
@@ -391,7 +395,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .flagNames{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
 .flagNameRow{display:flex;align-items:center;gap:8px}
 .flagNameRow .fsw{width:14px;height:14px;border-radius:4px;flex:0 0 auto}
-.flagNameIn{flex:1 1 auto;min-width:0;font:inherit;font-size:14px;color:var(--ink);
+.flagNameIn{flex:1 1 auto;min-width:0;font:inherit;font-size:15px;color:var(--ink);
   background:var(--panel,transparent);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
 .flagNameIn:focus{outline:none;border-color:var(--accent,var(--line-strong))}
 /* the dot on a Browse row -- colour plus its digit, never colour alone */
@@ -410,7 +414,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
    rendering as bare text, because .tieOffer sat in #browseResults and nothing
    there styles a .small. Same rule, same look, two more homes. */
 #scTie button.small,.tieOffer button.small{border:1px solid var(--line);
-  background:var(--raise);border-radius:9px;padding:8px 13px;font-size:12.5px;
+  background:var(--raise);border-radius:9px;padding:8px 13px;font-size:13px;
   color:var(--muted);cursor:pointer;font-family:inherit}
 #scTie button.small.primary,.tieOffer button.small.primary{background:var(--coral);
   border-color:var(--coral);color:#fff}
@@ -420,8 +424,8 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .tdStats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .tdStats>div{flex:1 1 90px;background:var(--panel);border:1px solid var(--line);
   border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.tdStats b{font-size:22px;font-variant-numeric:tabular-nums;line-height:1}
-.tdStats span{font-size:12px;color:var(--muted)}
+.tdStats b{font-size:24px;font-variant-numeric:tabular-nums;line-height:1}
+.tdStats span{font-size:13px;color:var(--muted)}
 .tdAsk{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);
   text-align:center;margin-top:6px}
 /* The term carries the same weight it has on the study card: this is a test,
@@ -444,19 +448,19 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .tdMem{display:flex;gap:9px;align-items:baseline;padding:6px 0}
 .tdMem .tmSlot{width:18px;flex:0 0 auto}
 .tdMem .tmTerm{flex:0 0 42%;text-align:right;font-size:15px}
-.tdMem .tmGloss{flex:1 1 auto;font-size:14px;color:var(--muted)}
+.tdMem .tmGloss{flex:1 1 auto;font-size:15px;color:var(--muted)}
 /* The word that was actually asked, so the contrast has an anchor. */
 .tdMem.isTarget .tmTerm{font-weight:600}
 .tdMem.isTarget .tmGloss{color:var(--ink)}
 .tdLine{max-width:32em;margin:16px auto 0}
-.tdLine label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.tdLine label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
 .tdLine .tdOpt2{color:var(--faint)}
 .tdLine input{width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;
   border:1px solid var(--line);background:var(--panel);color:var(--ink)}
 .tdBtns{display:flex;gap:8px;align-items:center;max-width:32em;margin:14px auto 0}
 .tdBtns .tieDel{margin-left:auto}
 .tdFoot{display:flex;justify-content:space-between;max-width:32em;margin:18px auto 0;
-  font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+  font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
 .tdDone{text-align:center;padding-top:18px}
 .tdDone .tdBtns{justify-content:center}
 .tdDone .tdBtns .tieDel{margin-left:0}
@@ -472,14 +476,14 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .tieOffer>div:first-child{flex:1 1 240px;min-width:0}
 .tieOffer .fh{margin-top:4px}
 .tieOfferBtns{display:flex;gap:8px;flex:0 0 auto;align-items:center}
-.tieCard .tieLabel{font-size:13.5px;color:var(--ink);margin-bottom:2px;display:flex;gap:8px;align-items:flex-start}
+.tieCard .tieLabel{font-size:15px;color:var(--ink);margin-bottom:2px;display:flex;gap:8px;align-items:flex-start}
 .tieCard .tieLabel .tl{flex:1}
 .tieCard .tieLabel.empty .tl{color:var(--faint);font-style:italic}
-.tieCard .tieEdit{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:12.5px;padding:0 2px}
+.tieCard .tieEdit{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:13px;padding:0 2px}
 .tieMember{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)}
 .tieMember:first-of-type{border-top:1px solid var(--line);margin-top:8px}
-.tieMember .tmTerm{flex:0 0 42%;font-weight:500;font-size:14.5px}
-.tieMember .tmGloss{flex:1;color:var(--muted);font-size:13.5px}
+.tieMember .tmTerm{flex:0 0 42%;font-weight:500;font-size:15px}
+.tieMember .tmGloss{flex:1;color:var(--muted);font-size:15px}
 .tieMember .tmFlag{margin-right:0}
 /* always present, flag or not: an unreserved column shifts one term of
    the pair relative to the other, and lining them up is the entire job
@@ -493,7 +497,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .cwLine{font-size:13px;color:var(--ink);display:flex;gap:8px;align-items:flex-start;margin-bottom:5px}
 .cwLine .cwl{flex:1}
 .cwLine.empty .cwl{color:var(--faint);font-style:italic}
-.cwLine .cwEdit{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:12px;padding:0 2px}
+.cwLine .cwEdit{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:13px;padding:0 2px}
 /* Untie (word panel) and Delete (Tied view) both destroy something the
    owner wrote, so they read as the quietest thing on their row until
    pointed at -- never coral, which in this app means "current". */
@@ -504,13 +508,13 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .cwWord span{color:var(--muted)}
 .flagChips{gap:6px}
 .flagChip{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel);color:var(--fc);font-size:12px;font-weight:600;
+  background:var(--panel);color:var(--fc);font-size:13px;font-weight:600;
   font-variant-numeric:tabular-nums;position:relative}
 .flagChip::after{content:"";position:absolute;inset:4px;border-radius:5px;background:var(--fc);opacity:.22}
 .flagChip.on{border-color:var(--fc);box-shadow:0 0 0 1px var(--fc)}
 .flagChip.on::after{opacity:.34}
 .flagDot{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;
-  border-radius:4px;font-size:9.5px;font-weight:600;line-height:1;flex:0 0 auto;
+  border-radius:4px;font-size:11px;font-weight:600;line-height:1;flex:0 0 auto;
   color:var(--flagInk,#fff);margin-right:5px;vertical-align:-2px}
 .suspBtn.on{color:var(--bad-ink)}
 /* "Bury for today" -- same shape as .suspBtn right above, deliberately not
@@ -529,7 +533,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
    specifically -- #leechTag's own .suspBtn only, not the shared class above
    -- rather than the small inline glyph it used to be paired with text. */
 .leechtag{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:16px}
-#leechTag .suspBtn{padding:8px;font-size:26px;min-width:44px;min-height:44px;
+#leechTag .suspBtn{padding:8px;font-size:28px;min-width:44px;min-height:44px;
   display:flex;align-items:center;justify-content:center}
 /* The study card's gentler exit -- "Not today", the hourglass, sitting to the
    LEFT of the flag (2026.08.20.5, LEECH_RESEARCH.md §16.4 Section A). It
@@ -586,7 +590,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 /* enlarged invisible hit area — visual pill unchanged, tappable region reaches up and to the edges */
 .rate::before{content:"";position:absolute;top:-26px;bottom:-14px;left:-5px;right:-5px}
 .rate .lbl{font-size:16px;font-weight:500;line-height:1.1}
-.rate .ivl{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.1}
+.rate .ivl{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.1}
 .rate:active{filter:brightness(.94)}
 #bAgain{background:var(--again-bg);border-color:var(--again-br)} #bAgain .lbl{color:var(--again)}
 /* Hard reuses the --warn-* family rather than introducing a --hard one: the
@@ -634,13 +638,13 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 
 /* ---------- home ---------- */
 .home{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 18px 28px}
-.wordmark{font-family:var(--serif);font-size:30px;margin:6px 0 2px}
-.sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+.wordmark{font-family:var(--serif);font-size:28px;margin:6px 0 2px}
+.sub{color:var(--muted);font-size:15px;margin-bottom:22px}
 .dirs{display:flex;gap:10px;margin-bottom:20px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
 .chips.hide{display:none}
 .chip{position:relative;padding:9px 15px;border:1px solid var(--line);border-radius:999px;
-  background:var(--panel);font-size:14px;color:var(--muted)}
+  background:var(--panel);font-size:15px;color:var(--muted)}
 .chip::before{content:"";position:absolute;top:-7px;bottom:-7px;left:-3px;right:-3px}
 .chip.on{background:var(--accent-soft);border-color:var(--coral);color:var(--coral)}
 .dir{flex:1;border:1px solid var(--line);border-radius:14px;padding:13px 12px;background:var(--panel);text-align:left}
@@ -648,7 +652,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .dir .dt{font-size:15px;font-weight:500;margin-bottom:5px}
 .dir .dd{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .startBtn{position:relative;width:100%;height:58px;border-radius:15px;background:var(--coral);color:#fff;
-  font-size:17px;font-weight:500;margin-bottom:18px}
+  font-size:16px;font-weight:500;margin-bottom:18px}
 .startBtn::before{content:"";position:absolute;top:-16px;bottom:-12px;left:-6px;right:-6px}
 .startBtn:disabled{background:var(--panel);color:var(--faint);border:1px solid var(--line)}
 /* Same box as .startBtn above (it sets its own 18px bottom margin, which this
@@ -662,7 +666,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
    way the direction cards carry theirs. */
 .tieBtn{display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;margin-top:-12px}
-.tieBtn .tbCount{color:var(--muted);font-weight:400;font-size:14px;
+.tieBtn .tbCount{color:var(--muted);font-weight:400;font-size:15px;
   font-variant-numeric:tabular-nums}
 .browseBtn::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-6px;right:-6px}
 .toast{color:#fff}
@@ -679,15 +683,15 @@ html.twoBtn #bHard,html.twoBtn #bEasy,html.twoBtn #quickBtn{display:none!importa
 html.twoBtn #bGood .keycap{font-size:0}
 html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .clepPanel{margin:2px 0 16px;padding:13px 14px 12px;border:1px solid var(--line);border-radius:15px;background:var(--panel)}
-.clepPanel .cpTop{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
-.clepPanel .cpTop b{font-size:21px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.clepPanel .cpTop{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;color:var(--muted)}
+.clepPanel .cpTop b{font-size:20px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
 .clepBar{height:8px;border-radius:4px;background:var(--line);margin:9px 0 9px;overflow:hidden}
 .clepBar i{display:block;height:100%;background:var(--coral);border-radius:4px;transition:width .3s}
 .clepBar i.over{background:var(--again)}
-.clepPanel .cpLine{font-size:13.5px;line-height:1.5;color:var(--ink)}
-.clepPanel .cpSub{font-size:12.5px;line-height:1.5;color:var(--muted);margin-top:4px}
+.clepPanel .cpLine{font-size:15px;line-height:1.5;color:var(--ink)}
+.clepPanel .cpSub{font-size:13px;line-height:1.5;color:var(--muted);margin-top:4px}
 .triBtn{display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin:-6px 0 18px}
-.triBtn .tbCount{color:var(--muted);font-weight:400;font-size:14px;font-variant-numeric:tabular-nums}
+.triBtn .tbCount{color:var(--muted);font-weight:400;font-size:15px;font-variant-numeric:tabular-nums}
 .triBtn.lead{background:var(--coral);color:#fff;border-color:transparent}
 .triBtn.lead .tbCount{color:#fff;opacity:.85}
 .triWrap{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
@@ -696,36 +700,36 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .triFlagBtn.on svg{fill:currentColor}
 .triProg{height:4px;background:var(--line);margin:0 14px;border-radius:2px;overflow:hidden}
 .triProg i{display:block;height:100%;background:var(--coral)}
-.triMeta{font-size:12.5px;color:var(--muted);text-align:center;padding:8px 14px 0;font-variant-numeric:tabular-nums}
+.triMeta{font-size:13px;color:var(--muted);text-align:center;padding:8px 14px 0;font-variant-numeric:tabular-nums}
 .triReceipt{min-height:20px;font-size:13px;color:var(--muted);text-align:center;padding:6px 16px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .triReceipt b{font-weight:500;color:var(--ink)}
 .triCard{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px 22px;cursor:pointer;min-height:0}
 .triQ{font-family:var(--serif);font-size:clamp(31px,calc(25px + 1.6vw),38px);line-height:1.28;text-align:center;word-break:break-word}
 .triA{font-size:clamp(19px,calc(17px + 0.6vw),22px);line-height:1.42;text-align:center;margin-top:16px;min-height:1.5em;visibility:hidden}
 .triA.on{visibility:visible}
-.triHint{font-size:12.5px;color:var(--faint);margin-top:14px}
+.triHint{font-size:13px;color:var(--faint);margin-top:14px}
 #tri1{background:var(--again-bg);border-color:var(--again-br)} #tri1 .lbl{color:var(--again)}
 #tri2{background:var(--warn-bg);border-color:var(--warn-br)} #tri2 .lbl{color:var(--warn-ink)}
 #tri3{background:var(--good-bg);border-color:var(--good-br)} #tri3 .lbl{color:var(--good)}
 #tri4{background:var(--easy-bg);border-color:var(--easy-br)} #tri4 .lbl{color:var(--easy)}
 .triRow .rate .lbl{font-size:15px}
-.clockTbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 2px;font-variant-numeric:tabular-nums}
-.clockTbl th{font-weight:500;color:var(--faint);text-align:right;padding:4px 0 4px 8px;font-size:12px}
+.clockTbl{width:100%;border-collapse:collapse;font-size:15px;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+.clockTbl th{font-weight:500;color:var(--faint);text-align:right;padding:4px 0 4px 8px;font-size:13px}
 .clockTbl th:first-child,.clockTbl td:first-child{text-align:left;padding-left:0}
 .clockTbl td{text-align:right;padding:5px 0 5px 8px;border-top:1px solid var(--line)}
 .clockTbl tr.cur td{font-weight:500;color:var(--coral)}
 .stepper{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);
   border-radius:14px;background:var(--panel);padding:0 6px;height:56px;margin-bottom:12px}
 .stepper .sl{padding-left:10px;font-size:15px;color:var(--muted)}
-.stepper .sv{font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;min-width:2.6em;text-align:center}
-.stepper button{position:relative;width:52px;height:46px;border-radius:11px;font-size:23px;color:var(--coral)}
+.stepper .sv{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;min-width:2.6em;text-align:center}
+.stepper button{position:relative;width:52px;height:46px;border-radius:11px;font-size:24px;color:var(--coral)}
 .stepper button::before{content:"";position:absolute;top:-8px;bottom:-8px;left:-4px;right:-4px}
 .stepper button:active{background:var(--raise)}
-.pace{font-size:14.5px;line-height:1.62;color:var(--ink)}
+.pace{font-size:15px;line-height:1.62;color:var(--ink)}
 .pace .n{font-weight:600;font-variant-numeric:tabular-nums}
 .pace .cost{color:var(--muted);margin-top:7px;display:block}
 .motto{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
-.motto .la{font-family:var(--serif);font-style:italic;font-size:17.5px;line-height:1.45}
+.motto .la{font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.45}
 .motto .en{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
 .sect h2{font-size:13px;font-weight:500;color:var(--faint);text-transform:uppercase;
   letter-spacing:.07em;margin:0 0 11px}
@@ -734,16 +738,16 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .dot.did{background:var(--coral);border-color:var(--coral)}
 .dot.today{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--coral)}
 .calHead{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
-.calTitle{font-size:14.5px;font-weight:500}
+.calTitle{font-size:15px;font-weight:500}
 .calNav{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:none;
   display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink)}
 .calNav:active{background:var(--panel)}
 .calDow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;
-  font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+  font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;text-align:center}
 .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
 .calCell{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   min-height:54px;border-radius:8px;padding:4px 2px;
-  font-size:12.5px;font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--line)}
+  font-size:13px;font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--line)}
 .calCell.out{color:var(--faint);opacity:.35;border-color:transparent;background:none;cursor:default}
 .calCell.today{box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--coral)}
 .calCell.future{border-style:dashed}
@@ -755,12 +759,12 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    the cell's colour, so it is the only thing that has to clear the fill. */
 .calScale{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .calScaleBar{flex:1;height:9px;border-radius:5px;border:1px solid var(--line)}
-.calScaleEnd{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.calScaleEnd{font-size:11px;color:var(--muted);white-space:nowrap}
 /* inherits the cell's own colour, which paintCellInk() has already chosen
    against that cell's actual fill -- a fixed --faint could not clear the
    forecast greys at the busy end, and this is the same reason .calNew/
    .calWords/.calTot are gone. Held back with opacity, not a different hue. */
-.calDue{font-size:9.5px;line-height:1;font-weight:600;color:inherit;opacity:.72}
+.calDue{font-size:11px;line-height:1;font-weight:600;color:inherit;opacity:.72}
 .noteDot{position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--coral)}
 
 /* ---- heatmap stat chips: current/longest streak, days learned, daily
@@ -771,9 +775,9 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    display). ---- */
 .hmStats{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .hmStat{padding:8px 12px;border:1px solid var(--line);border-radius:13px;background:var(--raise);
-  font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:1px;min-width:80px}
-.hmStat b{font-size:15.5px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
-.hmStat select{margin-top:2px;font:inherit;font-size:10.5px;color:var(--faint);background:none;
+  font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:1px;min-width:80px}
+.hmStat b{font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
+.hmStat select{margin-top:2px;font:inherit;font-size:11px;color:var(--faint);background:none;
   border:none;padding:0}
 
 /* ---- calendar toolbar: month/all-time + volume/retention toggles (reuse
@@ -787,14 +791,14 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .calGearPanel{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .calGearPanel .field{margin-bottom:10px}
 .calGearPanel .field:last-child{margin-bottom:0}
-.calGearPanel label{display:block;font-size:11.5px;color:var(--faint);text-transform:uppercase;
+.calGearPanel label{display:block;font-size:11px;color:var(--faint);text-transform:uppercase;
   letter-spacing:.05em;margin-bottom:5px}
 .calGearPanel select,.calGearPanel input[type=date]{width:100%;padding:8px 10px;border:1px solid var(--line);
-  border-radius:9px;background:var(--raise);color:var(--ink);font:inherit;font-size:13.5px;box-sizing:border-box}
+  border-radius:9px;background:var(--raise);color:var(--ink);font:inherit;font-size:15px;box-sizing:border-box}
 .calGearRow{display:flex;gap:8px;align-items:center}
 .calGearRow input{flex:1;min-width:0}
 .calGearRow button{border:1px solid var(--line);background:var(--raise);border-radius:9px;
-  padding:8px 12px;font-size:12.5px;color:var(--muted);white-space:nowrap;flex:0 0 auto}
+  padding:8px 12px;font-size:13px;color:var(--muted);white-space:nowrap;flex:0 0 auto}
 
 /* ---- all-time continuous strip: weeks as columns, small colour-only dots,
    horizontally scrollable (auto-scrolled to today on render) -- the
@@ -814,9 +818,9 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    Browse now (browseDate filter), reached via this panel's own button --
    see renderBrowse()'s own comment for why click-through went there
    instead of an in-place list. ---- */
-.feelRow{margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.feelRow{margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:15px;color:var(--muted)}
 .feelRow .feelQ{margin-right:2px}
-.feelBtn{border:1px solid var(--line);background:var(--raise);border-radius:999px;padding:6px 13px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.feelBtn{border:1px solid var(--line);background:var(--raise);border-radius:999px;padding:6px 13px;font:inherit;font-size:15px;color:var(--ink);cursor:pointer}
 .feelBtn.on{background:var(--coral);border-color:var(--coral);color:#fff}
 .dayDetail{display:none;margin-top:14px;padding:14px 16px;border:1px solid var(--line);
   border-radius:13px;background:var(--panel)}
@@ -827,7 +831,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   resize:vertical;min-height:44px;box-sizing:border-box}
 .dayDetail .ddBtns{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
 .dayDetail button.small{border:1px solid var(--line);background:var(--raise);border-radius:9px;
-  padding:8px 13px;font-size:12.5px;color:var(--muted)}
+  padding:8px 13px;font-size:13px;color:var(--muted)}
 .dayDetail button.small.primary{background:var(--coral);border-color:var(--coral);color:#fff}
 .dayDetail button.small.danger{color:var(--again)}
 /* word-note modal (openWordNote/#wordNoteOverlay) -- reuses .dayDetail's own
@@ -853,7 +857,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .cgGroupRow{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:9px 0;border-bottom:1px solid var(--line)}
 .cgGroupRow:last-of-type{border-bottom:none}
-.cgGroupWith{font-size:12px;color:var(--faint);margin-top:2px}
+.cgGroupWith{font-size:13px;color:var(--faint);margin-top:2px}
 .cgAddRow{display:flex;gap:8px;margin-top:10px}
 .cgAddRow select{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;
   background:var(--raise);color:var(--ink);font:inherit;font-size:13px;padding:8px 9px}
@@ -862,17 +866,17 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .cgTiePick #cgSearch{margin:0}
 .cgPickList{max-height:200px;overflow-y:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px}
 .cgPickRow{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
-  padding:9px 11px;font-size:14px;border-bottom:1px solid var(--line)}
+  padding:9px 11px;font-size:15px;border-bottom:1px solid var(--line)}
 .cgPickRow:last-child{border-bottom:none}
 .cgPickRow:active{background:var(--panel)}
 .cgPickRow .pt{font-family:var(--serif);flex:0 0 auto}
-.cgPickRow .pg{color:var(--faint);font-size:12.5px;flex:1;min-width:0;overflow:hidden;
+.cgPickRow .pg{color:var(--faint);font-size:13px;flex:1;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 .statRow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
 .statRow:last-child{border-bottom:none}
 .statRow span{color:var(--muted)}
 .statRow b{font-weight:500;font-variant-numeric:tabular-nums}
-.suspRow{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.suspRow{padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
 .suspRow:last-child{border-bottom:none}
 /* .suspTop carries the row's controls (term/count/note/flag); .gloss, when
    present, sits below full-width -- the same split the drill's own list row used
@@ -881,7 +885,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .suspRow .suspTop{display:flex;align-items:center;gap:10px}
 .suspRow .term{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .suspRow .cnt{color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
-.suspRow .gloss{display:block;margin-top:3px;color:var(--muted);font-size:13.5px;line-height:1.4}
+.suspRow .gloss{display:block;margin-top:3px;color:var(--muted);font-size:15px;line-height:1.4}
 /* the words in today's return offer (returnCandidates) -- accent-coloured,
    not a warning: nothing has gone wrong, these have simply rested longest */
 .suspRow.isReady .term::after{content:' \2713';color:var(--coral);font-weight:600}
@@ -893,7 +897,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .searchRow{display:flex;gap:8px;align-items:center;margin:12px 0}
 .searchRow .searchInput{margin:0;flex:1 1 auto;min-width:0}
 .kbdToggle{flex:0 0 auto;height:46px;padding:0 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel);
-  color:var(--muted);font-size:14px;font-family:var(--serif);letter-spacing:.02em}
+  color:var(--muted);font-size:15px;font-family:var(--serif);letter-spacing:.02em}
 .kbdToggle.on{color:var(--coral);border-color:var(--coral)}
 .kbdToggle.hidden{display:none}
 /* One row, one target (2026.08.30.8). Every per-row action button is gone:
@@ -906,7 +910,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    so there is no hover-dependent style for the browser to fail to update.
    The only hover rule left is the row's own background, a single property
    on the row itself with no descendant selector to re-match. */
-.wordRow{padding:0;border-bottom:1px solid var(--line);font-size:14.5px}
+.wordRow{padding:0;border-bottom:1px solid var(--line);font-size:15px}
 .wordRow:last-child{border-bottom:none}
 .wordRow .wrTop{display:flex;align-items:center;gap:9px;padding:10px 8px;
   border-radius:9px;cursor:pointer}
@@ -936,9 +940,9 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    inspect button used to say it. Not buttons: the row already opens the
    panel that acts on them, so a second target here would only be a smaller
    version of the one the whole row already is. */
-.wordRow .wrMarks{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;color:var(--faint);font-size:11.5px}
+.wordRow .wrMarks{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;color:var(--faint);font-size:11px}
 .wordRow .wrMarks .mk{display:inline-flex;align-items:center;gap:2px;line-height:1}
-.wordRow .wrNote{display:none;margin:0 0 8px 33px;color:var(--warn-ink);font-size:12px}
+.wordRow .wrNote{display:none;margin:0 0 8px 33px;color:var(--warn-ink);font-size:13px}
 .wordRow.buried .wrNote{display:block}
 
 /* ---------- Liquid Browse, 2026.08.30.8: fully 1B. The rail is gone at
@@ -954,10 +958,10 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    pair. The counts stay visible -- they are the reason the cards were big --
    just as a small number beside the name rather than a line of their own. */
 .dirSeg{display:inline-flex;flex:0 0 auto;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-.dirSeg .segBtn{display:inline-flex;align-items:baseline;gap:5px;font:inherit;font-size:12.5px;
+.dirSeg .segBtn{display:inline-flex;align-items:baseline;gap:5px;font:inherit;font-size:13px;
   color:var(--muted);background:var(--panel);border:none;padding:7px 9px;white-space:nowrap;cursor:pointer}
 .dirSeg .segBtn + .segBtn{border-left:1px solid var(--line)}
-.dirSeg .segBtn .sgN{font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.dirSeg .segBtn .sgN{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
 .dirSeg .segBtn.sel{background:var(--accent-soft);color:var(--coral)}
 .dirSeg .segBtn.sel .sgN{color:var(--coral);opacity:.75}
 .browseBar .searchRow{margin:0;flex:1 1 190px;min-width:140px;max-width:330px}
@@ -970,16 +974,16 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   border:1px solid var(--line);border-radius:9px;padding:7px 11px;white-space:nowrap;cursor:pointer}
 /* label then current value, e.g. Sort · Deck order. The value is what you
    came to read; the label is there so an unset filter still says what it is. */
-.ddBtn .cv{color:var(--faint);font-size:12px}
+.ddBtn .cv{color:var(--faint);font-size:13px}
 .ddBtn .cv::before{content:' \00b7 ';opacity:.6}
-.ddBtn .cx{color:var(--faint);font-size:9px;margin-left:5px;vertical-align:1px}
+.ddBtn .cx{color:var(--faint);font-size:11px;margin-left:5px;vertical-align:1px}
 .ddBtn.on .cx{color:var(--coral)}
 .ddBtn.on{color:var(--coral);border-color:var(--coral);background:var(--accent-soft)}
 .ddBtn.on .cv{color:var(--coral);opacity:.75}
 /* The flag filter's button wears the colour it is filtering to, so the bar
    says which flag without needing its name spelled out at toolbar size. */
 .ddBtn .ddSw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.browseSummary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;
+.browseSummary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;
   color:var(--faint);padding:9px 0 11px;border-bottom:1px solid var(--line);margin-bottom:10px}
 .browseSummary b{color:var(--ink);font-variant-numeric:tabular-nums}
 .browseClearAll{color:var(--coral);text-decoration:underline;cursor:pointer}
@@ -1012,19 +1016,19 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .rowMenu .rmFlag.none{background:none;border:1.5px dashed var(--faint);color:var(--faint)}
 .rowMenu .rmFlag.cur{border-color:var(--ink)}
 .rowMenu hr{border:none;border-top:1px solid var(--line);margin:6px 2px}
-.rowMenu .rmi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font-size:13.5px;
+.rowMenu .rmi{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font-size:15px;
   padding:8px 8px;border-radius:9px;color:var(--ink);cursor:pointer}
 .rowMenu .rmi:hover,.rowMenu .rmi:active{background:var(--panel)}
 .rowMenu .rmi.cur{color:var(--coral)}
 .rowMenu .rmi .ic{width:18px;text-align:center;color:var(--faint);flex:0 0 auto}
 .rowMenu .rmi .rmn{flex:1 1 auto;min-width:0}
-.rowMenu .rmi .rmc{flex:0 0 auto;color:var(--faint);font-size:11.5px;font-variant-numeric:tabular-nums}
+.rowMenu .rmi .rmc{flex:0 0 auto;color:var(--faint);font-size:11px;font-variant-numeric:tabular-nums}
 /* The flag menu's colour chip. .ddSw is styled for the toolbar BUTTON, whose
    rule is scoped .ddBtn .ddSw and so does not reach inside this popover --
    the swatch needs its own size here, sitting where .ic sits in the rows
    that carry an icon instead. */
 .rowMenu .rmi .ddSw{flex:0 0 auto;width:11px;height:11px;border-radius:3px;display:block}
-.rowMenu .rmHead{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+.rowMenu .rmHead{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
   font-weight:600;padding:2px 8px 6px}
 .rowMenu .rmScroll{max-height:min(52vh,340px);overflow-y:auto}
 
@@ -1036,9 +1040,9 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    under it in grey, the numbers small and faint, then labelled sections
    with real air between them. Same overlay, same open/close plumbing. ---- */
 #cardInspectorDetail{padding:20px 20px 18px}
-#cardInspectorDetail .ciTerm{font-family:var(--serif);font-size:21px;line-height:1.25;color:var(--ink)}
-#cardInspectorDetail .ciGloss{color:var(--muted);font-size:14.5px;margin:3px 0 10px;line-height:1.45}
-#cardInspectorDetail .ciStats{font-size:12.5px;color:var(--faint);line-height:1.5;margin:0}
+#cardInspectorDetail .ciTerm{font-family:var(--serif);font-size:20px;line-height:1.25;color:var(--ink)}
+#cardInspectorDetail .ciGloss{color:var(--muted);font-size:15px;margin:3px 0 10px;line-height:1.45}
+#cardInspectorDetail .ciStats{font-size:13px;color:var(--faint);line-height:1.5;margin:0}
 /* The timeline half of the panel's numbers, one step quieter than the miss
    count above it -- see renderCardInspector()'s own comment for why the
    figures are split this way rather than run into one wrapping sentence. */
@@ -1046,7 +1050,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 #cardInspectorDetail .ciLbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);font-weight:600;margin:18px 0 7px}
 #cardInspectorDetail textarea{width:100%;margin:0;background:var(--bg,var(--panel));border:1px solid var(--line);
-  border-radius:9px;color:var(--ink);font:inherit;font-size:13.5px;padding:9px 11px;min-height:58px;resize:vertical}
+  border-radius:9px;color:var(--ink);font:inherit;font-size:15px;padding:9px 11px;min-height:58px;resize:vertical}
 #cardInspectorDetail .ddBtns{margin-top:14px}
 /* The flag picker, inline. Seven colours and a clear, one press each --
    the same grid the study screen opens as a dialog, at the size a panel
@@ -1054,16 +1058,16 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    name; the full names live behind the picker's own rename face. */
 .ciFlags{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .ciFlags .cif{width:29px;height:29px;border-radius:9px;border:2px solid transparent;cursor:pointer;
-  font-size:12px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums;
+  font-size:13px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums;
   display:inline-flex;align-items:center;justify-content:center;padding:0}
 .ciFlags .cif:hover{transform:scale(1.08)}
 .ciFlags .cif.cur{border-color:var(--ink)}
 .ciFlags .cif.none{background:none;border:1.5px dashed var(--faint);color:var(--faint)}
 .ciFlags .cif.none.cur{border-color:var(--ink);border-style:solid}
-.ciFlagName{font-size:12px;color:var(--faint);margin-top:7px;min-height:1em}
-.ciFlagName button{background:none;border:none;color:var(--muted);font:inherit;font-size:12px;
+.ciFlagName{font-size:13px;color:var(--faint);margin-top:7px;min-height:1em}
+.ciFlagName button{background:none;border:none;color:var(--muted);font:inherit;font-size:13px;
   text-decoration:underline;padding:0;cursor:pointer}
-.ciEmpty{color:var(--faint);font-size:13.5px;padding:40px 16px;text-align:center;line-height:1.5}
+.ciEmpty{color:var(--faint);font-size:15px;padding:40px 16px;text-align:center;line-height:1.5}
 @media (min-width:860px){
   #scBrowse .home{padding-right:404px}
   /* html[data-layout="landscape"] already carries its OWN padding rule for
@@ -1098,7 +1102,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .bulkBar b{font-size:13px;color:var(--ink)}
 .bulkBtns{display:flex;gap:7px;flex-wrap:wrap}
 .bulkBtns button{border:1px solid var(--line);background:var(--raise);border-radius:9px;
-  padding:7px 12px;font-size:12px;color:var(--muted);white-space:nowrap}
+  padding:7px 12px;font-size:13px;color:var(--muted);white-space:nowrap}
 #bulkSusp{color:var(--bad-ink);border-color:var(--bad-br)}
 #bulkBury{color:var(--warn-ink);border-color:var(--warn-br)}
 #bulkGroup{color:var(--coral);border-color:var(--coral)}
@@ -1106,7 +1110,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   padding:9px 13px;border:1px solid var(--coral);border-radius:11px;background:var(--accent-soft);
   color:var(--coral);font-size:13px;margin-bottom:12px}
 .browseDateBar button{border:1px solid var(--coral);background:none;color:var(--coral);
-  border-radius:8px;padding:5px 10px;font-size:12px;flex:0 0 auto}
+  border-radius:8px;padding:5px 10px;font-size:13px;flex:0 0 auto}
 .stackbar{display:flex;height:20px;border-radius:7px;overflow:hidden;background:var(--panel);margin-top:4px}
 .stackbar>div{height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin-top:12px;font-size:13px;color:var(--muted)}
@@ -1123,7 +1127,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    track and says so in words (.calRow.text) -- never 0% or an empty bar. */
 .calibH{font-size:13px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.07em;margin:18px 0 2px}
 .calRow{display:grid;grid-template-columns:8.5em 1fr auto;gap:12px;align-items:center;
-  padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}   /* a fixed label column, so the tracks line up row to row */
+  padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}   /* a fixed label column, so the tracks line up row to row */
 .calRow:last-child{border-bottom:none}
 .calRow .lab{color:var(--muted)}
 .calRow .val{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
@@ -1156,22 +1160,22 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .histBarWrap{height:110px;width:100%;max-width:36px;display:flex;flex-direction:column-reverse;
   border-radius:4px 4px 0 0;overflow:hidden;background:var(--panel)}
 .histBarWrap>div{width:100%;flex:0 0 auto}
-.histLabel{font-size:10px;color:var(--faint);margin-top:6px;text-align:center;line-height:1.3}
+.histLabel{font-size:11px;color:var(--faint);margin-top:6px;text-align:center;line-height:1.3}
 .histFlat{background:var(--coral)}
 .histGroup{margin-top:18px}
 .histGroup:first-child{margin-top:4px}
-.histGroup h3{font-size:12px;font-weight:500;color:var(--faint);margin:0 0 4px}
+.histGroup h3{font-size:13px;font-weight:500;color:var(--faint);margin:0 0 4px}
 .build{margin:30px 0 8px;text-align:center;font-size:11px;letter-spacing:.09em;
   text-transform:uppercase;color:var(--faint);padding:8px;cursor:pointer}
 .logv{font-size:13px;font-weight:600;color:var(--coral);margin:16px 0 6px;font-family:var(--sans)}
 .logv:first-child{margin-top:0}
-.logi{font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 4px;padding-left:14px;
+.logi{font-size:15px;color:var(--muted);line-height:1.6;margin:0 0 4px;padding-left:14px;
   text-indent:-14px}
 .logi::before{content:"— ";color:var(--faint)}
 /* Two directions under one label, instead of two near-identical fields whose
    only difference was which way round the arrow pointed. */
 .pairRow{display:flex;align-items:center;gap:10px;margin-top:8px}
-.pairRow .pairLbl{flex:1;min-width:0;font-size:13.5px;color:var(--muted)}
+.pairRow .pairLbl{flex:1;min-width:0;font-size:15px;color:var(--muted)}
 /* Specificity must beat .field input[type=number]{width:100%} above, or the
    input reclaims the row and squeezes .pairLbl to 0 width -- its text then
    wraps and bleeds out behind the input instead of sitting beside it. */
@@ -1186,18 +1190,19 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    and lopsided the two columns the moment it opened. */
 .advToggle{display:block;width:100%;margin:18px 0 4px;padding:13px 14px;
   background:var(--warn-bg);border:1px solid var(--warn-br);border-radius:11px;
-  color:var(--warn-ink);font:inherit;font-size:14px;font-weight:600;
+  color:var(--warn-ink);font:inherit;font-size:15px;font-weight:600;
   text-align:center;cursor:pointer;-webkit-appearance:none;appearance:none}
 .advToggle:active{opacity:.75}
 .advToggle::after{content:" ▾";font-size:11px}
 #scSet[data-adv] .advToggle::after{content:" ▴"}
 #scSet:not([data-adv]) .advOnly{display:none}
+.barRight{display:flex;align-items:center;gap:2px}#scHome .bar>#toStats{margin-right:42px}   /* two icons on the right: keep the deck's name centred */.syncMark{display:grid;place-items:center}.hmStat.lead b{color:var(--coral)}
 /* ---- Stats as four tabs (2026.09.17.9) ---- */
 #scStats,#scSet,#scBrowse{line-height:1.4}
 .st-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin:4px 0 14px;position:sticky;top:0;background:var(--bg);z-index:2}
-.st-tabs button{font:inherit;font-size:14px;line-height:1.4;color:var(--muted);background:none;border:0;padding:10px 0;cursor:pointer}.st-tabs button.on{color:var(--coral);font-weight:600;box-shadow:inset 0 -2px 0 var(--coral)}
+.st-tabs button{font:inherit;font-size:15px;line-height:1.4;color:var(--muted);background:none;border:0;padding:10px 0;cursor:pointer}.st-tabs button.on{color:var(--coral);font-weight:600;box-shadow:inset 0 -2px 0 var(--coral)}
 .st-sum{font-variant-numeric:tabular-nums}.st-sum .lh-k{margin:16px 0 8px}.st-sum .lh-k:first-child{margin-top:2px}
-.sr{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:9px 0;font-size:14px;white-space:nowrap}.sr span{color:var(--muted)}.sr b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
+.sr{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:9px 0;font-size:15px;white-space:nowrap}.sr span{color:var(--muted)}.sr b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
 .st-pva{display:flex;align-items:flex-end;gap:8px;height:74px}.st-pva div{flex:1;display:flex;gap:2px;align-items:flex-end;height:100%}.st-pva i{flex:1;border-radius:3px 3px 0 0;display:block;min-height:1px}
 .p{background:var(--faint)}.a{background:var(--coral)}.lh-ax.key{justify-content:flex-start;gap:16px}.lh-ax span{flex:0 1 auto}.st-pva+.lh-ax span{flex:1;text-align:center}
 .st-hb{display:grid;gap:8px;position:relative;font-size:13px;color:var(--muted)}.st-hb div{display:grid;grid-template-columns:36px 1fr 64px;gap:8px;align-items:center}.st-hb u{display:block;height:9px;border-radius:5px;background:var(--panel);text-decoration:none;overflow:hidden}
@@ -1217,40 +1222,40 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 /* on a phone the three groups dissolve into one column, so the word list can sit at the foot of the screen */
 .lh-c1,.lh-c2,.lh-c3{display:contents}
 .lh-c1>*{order:1}.lh-c3>*{order:2}.lh-c2>*{order:3}#leanHome .lh-wl{order:9}.lh-c2>.lh-k{margin-bottom:-6px}
-.lh-name{display:none;font:400 30px/1.2 var(--serif)}
+.lh-name{display:none;font:400 28px/1.2 var(--serif)}
 .lh-k{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);line-height:1;margin-bottom:6px}
-.lh-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;white-space:nowrap;font-size:13px}.lh-row span{color:var(--muted);overflow:hidden;text-overflow:ellipsis}.lh-row b{font-weight:500}.lh-row.sm{font-size:12px;color:var(--muted)}
-.lh-big{font:400 46px/1 var(--serif);white-space:nowrap}.lh-big span{font:14px/1 var(--sans);color:var(--muted)}
+.lh-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;white-space:nowrap;font-size:13px}.lh-row span{color:var(--muted);overflow:hidden;text-overflow:ellipsis}.lh-row b{font-weight:500}.lh-row.sm{font-size:13px;color:var(--muted)}
+.lh-big{font:400 46px/1 var(--serif);white-space:nowrap}.lh-big span{font:15px/1 var(--sans);color:var(--muted)}
 .lh-facts{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);white-space:nowrap}.lh-facts.col{flex-direction:column;gap:5px;margin-top:10px}.lh-f b{color:var(--ink);font-weight:500}
 .lh-line{display:grid;gap:10px;padding:6px 0 2px}
 .lh-bar{position:relative;height:16px;border-radius:8px;background:var(--panel);overflow:hidden;border:1px solid var(--line)}.lh-bar i{position:absolute;top:0;bottom:0;left:0;background:var(--coral)}.lh-bar i.q{opacity:.32}.lh-bar u{position:absolute;top:0;bottom:0;width:1.5px;background:var(--bg)}
 .lh-vessel{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:2px 0}
-.lh-empty{fill:var(--panel)}.lh-full{fill:var(--coral)}.lh-hb{fill:var(--panel)}.lh-hl{stroke:var(--coral);stroke-width:2.2;opacity:.75}.lh-glass{fill:none;stroke:var(--line);stroke-width:1.5}.lh-tk{stroke:var(--faint)}.lh-tt{font:10px var(--sans);fill:var(--faint)}
+.lh-empty{fill:var(--panel)}.lh-full{fill:var(--coral)}.lh-hb{fill:var(--panel)}.lh-hl{stroke:var(--coral);stroke-width:2.2;opacity:.75}.lh-glass{fill:none;stroke:var(--line);stroke-width:1.5}.lh-tk{stroke:var(--faint)}.lh-tt{font:11px var(--sans);fill:var(--faint)}
 .lh-acts{display:grid;grid-template-columns:1fr auto;gap:9px}
 #leanHome .lh-go{background:var(--coral);color:var(--bg);border:0;border-radius:13px;padding:14px 10px;font-weight:600;font-size:15px;white-space:nowrap}#leanHome .lh-go:disabled{opacity:.45;cursor:default}
-#leanHome .lh-sec{border:1px solid var(--coral);color:var(--coral);background:transparent;border-radius:13px;padding:14px;font-weight:500;font-size:14px;white-space:nowrap}
+#leanHome .lh-sec{border:1px solid var(--coral);color:var(--coral);background:transparent;border-radius:13px;padding:14px;font-weight:500;font-size:15px;white-space:nowrap}
 .lh-seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:11px;overflow:hidden}
 #leanHome .lh-seg button{border:0;background:transparent;padding:9px 6px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#leanHome .lh-seg button.on{background:var(--panel);color:var(--coral);font-weight:500}
 #leanHome .lh-fp{display:grid;gap:6px;text-align:left;border:0;background:none;padding:0;width:100%}
 .lh-stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--panel)}.lh-stack.tall{height:12px;margin-bottom:4px}.lh-stack i{display:block}
 .p4{background:var(--good)}.p3{background:var(--good);opacity:.5}.p2{background:var(--amber)}.p1{background:var(--faint)}.rv{background:var(--coral)}.nw{background:var(--amber)}.fp{background:var(--good);opacity:.6}
 .lh-piles{display:grid;grid-template-columns:repeat(4,1fr);font-size:11px;color:var(--muted);line-height:1.25;white-space:nowrap}.lh-piles b{display:block;color:var(--ink);font-weight:500;font-size:13px}.lh-piles i,.lh-ax i{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px}
-.lh-note .cpSub{font-size:12px;color:var(--muted);margin:0}
+.lh-note .cpSub{font-size:13px;color:var(--muted);margin:0}
 .lh-tr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .lh-tc{border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:8px 10px 6px;min-width:0}.lh-tc .lh-k{margin-bottom:3px}.lh-tc .lh-row b{font-size:15px}.lh-tc .lh-row span{font-size:11px}
 .lh-sp{display:block;width:100%}.lh-ln{fill:none;stroke:var(--coral);stroke-width:1.8}.lh-ref{stroke:var(--faint);stroke-dasharray:3 3;stroke-width:1}
 .lh-ah{display:flex;gap:3px;align-items:flex-end}.lh-ah i{flex:1;background:var(--coral);opacity:.55;border-radius:2px 2px 0 0;display:block}
-.lh-none{font-size:12px;color:var(--faint);padding:6px 0}
+.lh-none{font-size:13px;color:var(--faint);padding:6px 0}
 .lh-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-#leanHome .lh-cal button{aspect-ratio:1.9;border-radius:4px;background:var(--panel);border:1px solid var(--line);padding:0;font-size:12px;color:var(--muted);text-align:left}
+#leanHome .lh-cal button{aspect-ratio:1.9;border-radius:4px;background:var(--panel);border:1px solid var(--line);padding:0;font-size:13px;color:var(--muted);text-align:left}
 #leanHome .lh-cal button.t{outline:1.5px solid var(--ink);outline-offset:1px}#leanHome .lh-cal button.s{outline:2px solid var(--coral);outline-offset:1px}
-#leanHome .lh-wl{margin-top:auto;display:flex;justify-content:space-between;border:0;border-top:1px solid var(--line);background:none;padding:10px 0 0;font-size:14px;width:100%;white-space:nowrap}.lh-wl b{font-weight:500}.lh-wl span{color:var(--muted)}
+#leanHome .lh-wl{margin-top:auto;display:flex;justify-content:space-between;border:0;border-top:1px solid var(--line);background:none;padding:10px 0 0;font-size:15px;width:100%;white-space:nowrap}.lh-wl b{font-weight:500}.lh-wl span{color:var(--muted)}
 .lh-side{display:none}
 .lh-dh{display:flex;justify-content:space-between;align-items:baseline;font:400 20px/1.2 var(--serif);margin-bottom:10px}.lh-dh b{font-weight:400}
-.lh-dh button{font:400 22px/1 var(--sans);color:var(--coral);background:none;border:0;padding:0 8px;cursor:pointer}
-.lh-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}.lh-tile{border:1px solid var(--line);border-radius:10px;padding:7px 8px;background:var(--panel);white-space:nowrap;overflow:hidden}.lh-tile b{display:block;font-size:17px;font-weight:500;line-height:1.2}.lh-tile span{font-size:10.5px;color:var(--muted)}
+.lh-dh button{font:400 24px/1 var(--sans);color:var(--coral);background:none;border:0;padding:0 8px;cursor:pointer}
+.lh-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}.lh-tile{border:1px solid var(--line);border-radius:10px;padding:7px 8px;background:var(--panel);white-space:nowrap;overflow:hidden}.lh-tile b{display:block;font-size:16px;font-weight:500;line-height:1.2}.lh-tile span{font-size:11px;color:var(--muted)}
 .lh-hrs{display:flex;align-items:flex-end;gap:2px;height:42px}.lh-hrs i{flex:1;background:var(--coral);opacity:.8;border-radius:2px 2px 0 0;min-height:1px;display:block}
-.lh-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin:3px 0 10px;white-space:nowrap}
+.lh-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin:3px 0 10px;white-space:nowrap}
 #lhSheet{position:fixed;inset:0;z-index:40;pointer-events:none}
 #lhVeil{position:absolute;inset:0;background:#0006;opacity:0;transition:opacity .22s}
 #lhSheetBody{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .38s cubic-bezier(.2,.9,.25,1);visibility:hidden;line-height:1.4;font-variant-numeric:tabular-nums}
@@ -1264,7 +1269,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   .lh-tr{grid-template-columns:1fr;gap:12px}.lh-tc{padding:12px 14px}
   .lh-cal{gap:7px}#leanHome .lh-cal button{aspect-ratio:1.35;border-radius:7px;padding:6px 8px}
   .lh-side{display:block;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:16px 18px}.lh-side .lh-tile{background:var(--bg)}
-  .lh-hrs{height:64px}#leanHome .lh-go{font-size:17px;padding:16px}.lh-big{font-size:54px}
+  .lh-hrs{height:64px}#leanHome .lh-go{font-size:16px;padding:16px}.lh-big{font-size:54px}
 }
 /* what the lean Home replaces stays in the page, unseen, so its handlers still run */
 #scHome.lean .homeLead>*:not(#leanHome):not(#homeWarn), #scHome.lean .homeCols>*:not(.homeLead):not(.mcCol), #scHome.lean .mcCol>*:not(.homeLead){display:none!important}
@@ -1275,7 +1280,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 /* the lean pass (2026.09.17.6): a removed panel is hidden, never deleted */
 .leanOff{display:none!important}
 #scSet .fh.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
-.fhMore{font:inherit;font-size:12.5px;color:var(--coral);background:none;border:0;padding:2px 0 0;cursor:pointer}
+.fhMore{font:inherit;font-size:13px;color:var(--coral);background:none;border:0;padding:2px 0 0;cursor:pointer}
 .s-retired{background:var(--good);opacity:.28}
 .swatch{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;
   margin-right:7px;border:1px solid var(--line)}
@@ -1356,14 +1361,14 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    on, the headline claim of each panel and any control they are invited to
    press. Nothing else on the screen glows. */
 .dxWrap{max-width:640px;margin:0 auto}
-.dxLede{color:var(--muted);font-size:14.5px;line-height:1.6;margin:2px 0 22px}
+.dxLede{color:var(--muted);font-size:15px;line-height:1.6;margin:2px 0 22px}
 .dxPanel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
   padding:18px 17px;margin-bottom:14px}
-.dxEyebrow{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.13em;
+.dxEyebrow{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.13em;
   text-transform:uppercase;color:var(--muted);margin-bottom:7px}
 .dxClaim{font-family:var(--serif);font-size:20px;line-height:1.28;color:var(--coral);
   margin-bottom:9px;text-shadow:var(--glow-text,0 0 5px currentColor,0 0 14px currentColor)}
-.dxBody{font-size:14px;line-height:1.62;color:var(--ink)}
+.dxBody{font-size:15px;line-height:1.62;color:var(--ink)}
 .dxBody + .dxBody{margin-top:9px}
 .dxBody b{font-weight:600}
 .dxMuted{color:var(--muted);font-size:13px;line-height:1.6;margin-top:9px}
@@ -1375,7 +1380,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .dxOut .k{color:var(--muted)}
 /* The press-me treatment. Same glow as the claims, so "this is the bit that
    matters" reads the same way in prose and in a control. */
-.dxBtn{font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;
+.dxBtn{font:inherit;font-size:15px;font-weight:500;cursor:pointer;
   background:var(--bg);color:var(--coral);border:1px solid var(--line);
   border-radius:9px;padding:8px 13px;
   text-shadow:var(--glow-text,0 0 5px currentColor,0 0 14px currentColor)}
@@ -1384,15 +1389,15 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .dxGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .dxCol h4{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-.dxTape{font-family:var(--sans);font-size:12px;line-height:1.85;font-variant-numeric:tabular-nums;
+.dxTape{font-family:var(--sans);font-size:13px;line-height:1.85;font-variant-numeric:tabular-nums;
   color:var(--ink);min-height:1.85em}
 .dxTape .flat{color:var(--again)}
 .dxTape .grow{color:var(--good)}
 .dxTape .gone{color:var(--faint);font-style:italic}
-.dxLedger{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;
+.dxLedger{display:flex;justify-content:space-between;gap:10px;font-size:15px;
   padding:7px 0;border-bottom:1px solid var(--line)}
 .dxLedger:last-child{border-bottom:0}
-.dxLedger .who{color:var(--muted);text-align:right;flex:0 0 auto;font-size:12.5px}
+.dxLedger .who{color:var(--muted);text-align:right;flex:0 0 auto;font-size:13px}
 .dxOwn{color:var(--coral)}
 .palName{display:block;padding:5px 3px;font-size:11px;font-weight:500;color:var(--ink);
   border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1415,16 +1420,16 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .cardPreviewHalf{flex:1;min-width:0;background-color:var(--bg);background-image:var(--texture,none);
   display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 10px 14px}
 .cardPreviewHalf:first-child{box-shadow:inset -1px 0 0 rgba(128,128,128,.35)}
-.cardPreviewWord{font-family:var(--serif);color:var(--ink);font-size:19px;line-height:1.25;text-align:center;word-break:break-word}
+.cardPreviewWord{font-family:var(--serif);color:var(--ink);font-size:20px;line-height:1.25;text-align:center;word-break:break-word}
 .cardPreviewRule{width:34px;height:1px;background:var(--line)}
-.cardPreviewGloss{font-size:12px;color:var(--muted);text-align:center}
+.cardPreviewGloss{font-size:13px;color:var(--muted);text-align:center}
 .cardPreviewRates{display:flex;gap:4px;margin-top:3px}
-.cpRate{font-size:9.5px;font-weight:600;padding:4px 7px;border-radius:8px;border:1px solid;white-space:nowrap}
+.cpRate{font-size:11px;font-weight:600;padding:4px 7px;border-radius:8px;border:1px solid;white-space:nowrap}
 .cpRate.again{color:var(--again);background:var(--again-bg);border-color:var(--again-br)}
 .cpRate.hard{color:var(--warn-ink);background:var(--warn-bg);border-color:var(--warn-br)}
 .cpRate.good{color:var(--good);background:var(--good-bg);border-color:var(--good-br)}
 .cpRate.easy{color:var(--easy);background:var(--easy-bg);border-color:var(--easy-br)}
-.cardPreviewLbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-top:auto;padding-top:4px}
+.cardPreviewLbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-top:auto;padding-top:4px}
 .fold{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
 .fold summary{font-size:13px;color:var(--faint);text-transform:uppercase;letter-spacing:.07em;
   list-style:none;cursor:pointer;padding:6px 0}
@@ -1439,13 +1444,13 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    both see and fix "how stale is my backup" before switching devices. */
 .syncRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .syncRow .note{margin-top:12px;flex:1 1 auto}
-.syncNow{flex:0 0 auto;font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;
+.syncNow{flex:0 0 auto;font-size:13px;font-weight:600;padding:7px 13px;border-radius:9px;
   border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer;white-space:nowrap}
 .syncNow:active{opacity:.6}
 .syncNow:disabled{opacity:.5}
 .note.bad{color:#c0392b}
 .warn{background:var(--warn-bg);border:1px solid var(--warn-br);border-radius:12px;padding:11px 13px;
-  font-size:13.5px;line-height:1.5;color:var(--warn-ink);margin-bottom:16px}
+  font-size:15px;line-height:1.5;color:var(--warn-ink);margin-bottom:16px}
 .warn.bad{background:var(--bad-bg);border-color:var(--bad-br);color:var(--bad-ink)}
 /* the calibration reminder is a tap target, not a warning: the app's own
    call-to-action colours (see .browseDateBar), and a pointer */
@@ -1500,10 +1505,10 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .act.primary{background:var(--coral);color:#fff;border-color:var(--coral)}
 .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0 30px;text-align:center;gap:8px}
-.done .big{font-family:var(--serif);font-size:27px}
-.done .small{font-size:14.5px;color:var(--muted);line-height:1.6}
+.done .big{font-family:var(--serif);font-size:28px}
+.done .small{font-size:15px;color:var(--muted);line-height:1.6}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));
-  background:var(--toast);color:#fff;font-size:14px;padding:11px 17px;border-radius:11px;opacity:0;
+  background:var(--toast);color:#fff;font-size:15px;padding:11px 17px;border-radius:11px;opacity:0;
   transition:opacity .2s;pointer-events:none;z-index:50;max-width:84%;text-align:center}
 .toast.on{opacity:.95}
 /* A toast you can answer (2026.09.08). The plain toast says what happened and
@@ -1515,7 +1520,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .actBar{position:fixed;left:50%;transform:translateX(-50%);
   bottom:calc(22px + env(safe-area-inset-bottom));z-index:55;max-width:min(92%,460px);
   background:var(--toast);color:#fff;border-radius:11px;padding:8px 10px;
-  display:flex;align-items:center;gap:8px;font-size:13.5px;
+  display:flex;align-items:center;gap:8px;font-size:15px;
   box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
 .actBar .abTxt{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* On a phone the three controls leave the text about eighty pixels, which
@@ -1529,7 +1534,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   .actBar>:not(.abTxt){margin-left:0}
   .actBar .abFlags{flex:1 1 auto;justify-content:space-between}
 }
-.actBar button{font:inherit;font-size:12.5px;color:#fff;background:transparent;
+.actBar button{font:inherit;font-size:13px;color:#fff;background:transparent;
   border:1px solid rgba(255,255,255,.45);border-radius:6px;padding:4px 9px;cursor:pointer;flex:0 0 auto}
 .actBar button:hover{border-color:#fff;background:rgba(255,255,255,.12)}
 .actBar .abFlags{display:flex;gap:4px;flex:0 0 auto}
@@ -1616,15 +1621,15 @@ html[data-layout="landscape"] #leechTag{grid-area:leech;justify-content:flex-sta
 html[data-layout="landscape"] #hintline{grid-area:hint;text-align:left;padding:10px 32px 0;margin-top:0}
 html[data-layout="landscape"] #revealRow{grid-area:controls;padding:24px 32px 0}
 html[data-layout="landscape"] #rateRow{grid-area:controls;padding:24px 32px 0}
-html[data-layout="landscape"] #scStudy .revealBtn{height:76px;font-size:19px;border-radius:18px}
-html[data-layout="landscape"] #scStudy .quickBtn{height:76px;font-size:19px;border-radius:18px}
+html[data-layout="landscape"] #scStudy .revealBtn{height:76px;font-size:20px;border-radius:18px}
+html[data-layout="landscape"] #scStudy .quickBtn{height:76px;font-size:20px;border-radius:18px}
 /* The receipt's grade tag sits under a left-aligned answer in every landscape
    shape -- the spread layout's own answer column, and the fixed banner
    replace/swap gets below -- so it aligns left there and stays centred in
    portrait, where the card itself is centred. (2026.08.20.1) */
 html[data-layout="landscape"] .qfTag{margin-left:0}
 html[data-layout="landscape"] #scStudy .rate{height:82px;border-radius:18px}
-html[data-layout="landscape"] #scStudy .rate .lbl{font-size:19px}
+html[data-layout="landscape"] #scStudy .rate .lbl{font-size:20px}
 html[data-layout="landscape"] #scStudy .rate .ivl{font-size:13px}
 
 /* study screen extras (2026.08.04): three independent settings, each a
@@ -1652,7 +1657,7 @@ html[data-layout="landscape"] #scStudy .rate .ivl{font-size:13px}
 .keycap{display:none}
 html[data-layout="landscape"] .keycap{
   display:inline-flex; align-items:center; justify-content:center; margin-top:4px;
-  font-family:var(--sans); font-size:10.5px; font-weight:500; color:var(--faint);
+  font-family:var(--sans); font-size:11px; font-weight:500; color:var(--faint);
   background:var(--raise); border:1px solid var(--line); border-radius:6px;
   padding:1px 7px; min-width:16px; letter-spacing:.01em;
 }
@@ -1663,7 +1668,7 @@ html[data-layout="landscape"] #quickBtn .keycap{
 html[data-layout="landscape"] #undoBtn,
 html[data-layout="landscape"] #toHome{position:relative}
 html[data-layout="landscape"] .iconKeycap{
-  position:absolute; bottom:-3px; right:-6px; margin:0; font-size:9px; padding:0 5px;
+  position:absolute; bottom:-3px; right:-6px; margin:0; font-size:11px; padding:0 5px;
 }
 /* #toHome is the LEFT-hand icon in the bar, so its cap hangs off the left
    edge -- the shared rule above is written for #undoBtn, which sits at the
@@ -1797,7 +1802,7 @@ html[data-layout="landscape"][data-study-card="column"] #quickFlash{
   margin:0; padding:0 32px; max-width:none; box-sizing:border-box;
   border:none; background:none; text-align:center;
   max-height:34px; overflow:hidden;
-  font-size:14.5px; line-height:1.2;
+  font-size:15px; line-height:1.2;
 }
 /* The answer is the flexible part and the grade chip is not, deliberately: a
    merged list of alternatives is the only thing here that can outgrow the row,
@@ -1811,10 +1816,10 @@ html[data-layout="landscape"][data-study-card="column"] #quickFlash{
 .qfAns{flex:0 1 auto; min-width:0; font-family:var(--sans); color:var(--ink);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .qfAns.lat{font-family:var(--serif)}
-.qfTag{flex:0 0 auto; font-family:var(--sans); font-size:11.5px; font-weight:500;
+.qfTag{flex:0 0 auto; font-family:var(--sans); font-size:11px; font-weight:500;
   letter-spacing:.01em; border:1px solid var(--line); border-radius:6px; padding:1px 7px;
   white-space:nowrap}
-.qfIvl{flex:0 0 auto; font-family:var(--sans); font-size:11.5px; color:var(--muted);
+.qfIvl{flex:0 0 auto; font-family:var(--sans); font-size:11px; color:var(--muted);
   background:var(--raise); border:1px solid var(--line); border-radius:100px;
   padding:1px 9px; font-variant-numeric:tabular-nums; white-space:nowrap}
 .qfTag.rc-again{background:var(--again-bg);border-color:var(--again-br);color:var(--again)}
@@ -1877,7 +1882,7 @@ html[data-layout="landscape"][data-study-card="replace"] #hintline{
   html[data-layout="landscape"][data-study-card="column"] #quickFlash{
     font-size:13px; gap:7px; padding:0 20px;
   }
-  .qfTag,.qfIvl{font-size:10.5px; padding:0 6px}
+  .qfTag,.qfIvl{font-size:11px; padding:0 6px}
 }
 /* Replace (F1): the prompt just disappears on reveal -- #answer, already
    sharing its cell, is the only thing left opaque via its own .on class.
@@ -2022,152 +2027,6 @@ html[data-layout="landscape"] #scSet .setCols .mcCol{flex:1;min-width:0}
    2026.08.30.8) -- the filters are a toolbar across the top now, which needs
    no column of its own at any width. Only the screen's own padding is left. */
 html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
-/* TYPE6:BEGIN (generated by tools/gen_type_scale.py -- do not edit) */
-html.t6 body{line-height:1.4}
-html.t6 button,html.t6 select,html.t6 input,html.t6 textarea{line-height:1.3}
-html.t6 .bar .icon{font-size:20px}
-html.t6 .counts{font-size:15px}
-html.t6 .studyTimer{font-size:11px}
-html.t6 .shortcutsCard .refCat{font-size:11px}
-html.t6 .shortcutsCard .refRow{font-size:13px}
-html.t6 .shortcutsCard .refRow .rk{font-size:11px}
-html.t6:not([data-layout="landscape"]) .quickFlash{font-size:15px}
-html.t6:not([data-layout="landscape"]) .qfWord{font-size:13px}
-html.t6:not([data-layout="landscape"]) .qfAns{font-size:15px}
-html.t6 .gradeNote .gnX{font-size:20px}
-html.t6 .cardFlagBtn{font-size:16px}
-html.t6 .cardFlagBtn .fnum{font-size:11px}
-html.t6 .flagPick{font-size:15px}
-html.t6 .flagNameIn{font-size:15px}
-html.t6 #scTie button.small,html.t6 .tieOffer button.small{font-size:13px}
-html.t6 .tdStats b{font-size:24px}
-html.t6 .tdStats span{font-size:13px}
-html.t6 .tdMem .tmGloss{font-size:15px}
-html.t6 .tdLine label{font-size:13px}
-html.t6 .tdFoot{font-size:13px}
-html.t6 .tieCard .tieLabel{font-size:15px}
-html.t6 .tieCard .tieEdit{font-size:13px}
-html.t6 .tieMember .tmTerm{font-size:15px}
-html.t6 .tieMember .tmGloss{font-size:15px}
-html.t6 .cwLine .cwEdit{font-size:13px}
-html.t6 .flagChip{font-size:13px}
-html.t6 .flagDot{font-size:11px}
-html.t6 #leechTag .suspBtn{font-size:28px}
-html.t6 .rate .ivl{font-size:13px}
-html.t6 .wordmark{font-size:28px}
-html.t6 .sub{font-size:15px}
-html.t6 .chip{font-size:15px}
-html.t6 .startBtn{font-size:16px}
-html.t6 .tieBtn .tbCount{font-size:15px}
-html.t6 .clepPanel .cpTop{font-size:15px}
-html.t6 .clepPanel .cpTop b{font-size:20px}
-html.t6 .clepPanel .cpLine{font-size:15px}
-html.t6 .clepPanel .cpSub{font-size:13px}
-html.t6 .triBtn .tbCount{font-size:15px}
-html.t6 .triMeta{font-size:13px}
-html.t6 .triHint{font-size:13px}
-html.t6 .clockTbl{font-size:15px}
-html.t6 .clockTbl th{font-size:13px}
-html.t6 .stepper .sv{font-size:20px}
-html.t6 .stepper button{font-size:24px}
-html.t6 .pace{font-size:15px}
-html.t6 .motto .la{font-size:16px}
-html.t6 .calTitle{font-size:15px}
-html.t6 .calDow{font-size:11px}
-html.t6 .calCell{font-size:13px}
-html.t6 .calScaleEnd{font-size:11px}
-html.t6 .calDue{font-size:11px}
-html.t6 .hmStat{font-size:11px}
-html.t6 .hmStat b{font-size:16px}
-html.t6 .hmStat select{font-size:11px}
-html.t6 .calGearPanel label{font-size:11px}
-html.t6 .calGearPanel select,html.t6 .calGearPanel input[type=date]{font-size:15px}
-html.t6 .calGearRow button{font-size:13px}
-html.t6 .feelRow{font-size:15px}
-html.t6 .feelBtn{font-size:15px}
-html.t6 .dayDetail button.small{font-size:13px}
-html.t6 .cgGroupWith{font-size:13px}
-html.t6 .cgPickRow{font-size:15px}
-html.t6 .cgPickRow .pg{font-size:13px}
-html.t6 .suspRow{font-size:15px}
-html.t6 .suspRow .gloss{font-size:15px}
-html.t6 .kbdToggle{font-size:15px}
-html.t6 .wordRow{font-size:15px}
-html.t6 .wordRow .wrMarks{font-size:11px}
-html.t6 .wordRow .wrNote{font-size:13px}
-html.t6 .dirSeg .segBtn{font-size:13px}
-html.t6 .dirSeg .segBtn .sgN{font-size:11px}
-html.t6 .ddBtn .cv{font-size:13px}
-html.t6 .ddBtn .cx{font-size:11px}
-html.t6 .browseSummary{font-size:13px}
-html.t6 .rowMenu .rmi{font-size:15px}
-html.t6 .rowMenu .rmi .rmc{font-size:11px}
-html.t6 .rowMenu .rmHead{font-size:11px}
-html.t6 #cardInspectorDetail .ciTerm{font-size:20px}
-html.t6 #cardInspectorDetail .ciGloss{font-size:15px}
-html.t6 #cardInspectorDetail .ciStats{font-size:13px}
-html.t6 #cardInspectorDetail textarea{font-size:15px}
-html.t6 .ciFlags .cif{font-size:13px}
-html.t6 .ciFlagName{font-size:13px}
-html.t6 .ciFlagName button{font-size:13px}
-html.t6 .ciEmpty{font-size:15px}
-html.t6 .bulkBtns button{font-size:13px}
-html.t6 .browseDateBar button{font-size:13px}
-html.t6 .calRow{font-size:15px}
-html.t6 .histLabel{font-size:11px}
-html.t6 .histGroup h3{font-size:13px}
-html.t6 .logi{font-size:15px}
-html.t6 .pairRow .pairLbl{font-size:15px}
-html.t6 .advToggle{font-size:15px}
-html.t6 .st-tabs button{font-size:15px}
-html.t6 .sr{font-size:15px}
-html.t6 .lh-name{font-size:28px}
-html.t6 .lh-row.sm{font-size:13px}
-html.t6 .lh-big span{font-size:15px}
-html.t6 .lh-tt{font-size:11px}
-html.t6 #leanHome .lh-sec{font-size:15px}
-html.t6 .lh-note .cpSub{font-size:13px}
-html.t6 .lh-none{font-size:13px}
-html.t6 #leanHome .lh-cal button{font-size:13px}
-html.t6 #leanHome .lh-wl{font-size:15px}
-html.t6 .lh-dh button{font-size:24px}
-html.t6 .lh-tile b{font-size:16px}
-html.t6 .lh-tile span{font-size:11px}
-html.t6 .lh-ax{font-size:11px}
-@media (min-width:1100px){
-  html.t6 #leanHome .lh-go{font-size:16px}
-}
-html.t6 .fhMore{font-size:13px}
-html.t6 .dxLede{font-size:15px}
-html.t6 .dxEyebrow{font-size:11px}
-html.t6 .dxBody{font-size:15px}
-html.t6 .dxBtn{font-size:15px}
-html.t6 .dxTape{font-size:13px}
-html.t6 .dxLedger{font-size:15px}
-html.t6 .dxLedger .who{font-size:13px}
-html.t6 .cardPreviewWord{font-size:20px}
-html.t6 .cardPreviewGloss{font-size:13px}
-html.t6 .cpRate{font-size:11px}
-html.t6 .cardPreviewLbl{font-size:11px}
-html.t6 .syncNow{font-size:13px}
-html.t6 .warn{font-size:15px}
-html.t6 .done .big{font-size:28px}
-html.t6 .done .small{font-size:15px}
-html.t6 .toast{font-size:15px}
-html.t6 .actBar{font-size:15px}
-html.t6 .actBar button{font-size:13px}
-html.t6[data-layout="landscape"] #scStudy .revealBtn{font-size:20px}
-html.t6[data-layout="landscape"] #scStudy .quickBtn{font-size:20px}
-html.t6[data-layout="landscape"] #scStudy .rate .lbl{font-size:20px}
-html.t6[data-layout="landscape"] .keycap{font-size:11px}
-html.t6[data-layout="landscape"] .iconKeycap{font-size:11px}
-html.t6[data-layout="landscape"][data-study-card="replace"] #quickFlash,html.t6[data-layout="landscape"][data-study-card="column"] #quickFlash{font-size:15px}
-html.t6 .qfTag{font-size:11px}
-html.t6 .qfIvl{font-size:11px}
-@media (max-height:560px){
-  html.t6 .qfTag,html.t6 .qfIvl{font-size:11px}
-}
-/* TYPE6:END */
 </style>
 </head>
 <body>
@@ -2178,7 +2037,7 @@ html.t6 .qfIvl{font-size:11px}
     <div class="bar">
       <button class="icon" id="toStats" aria-label="Stats">&#9638;</button>
       <div class="title"></div>
-      <button class="icon" id="toSettings" aria-label="Settings">&#9881;&#65038;</button>
+      <span class="barRight"><button class="icon syncMark" id="syncMark" aria-label="Sync now"></button><button class="icon" id="toSettings" aria-label="Settings">&#9881;&#65038;</button></span>
     </div>
     <div class="home">
       <div class="homeCols">
@@ -2655,11 +2514,6 @@ html.t6 .qfIvl{font-size:11px}
         <label for="fHomeDisplay">Front screen shows today as</label>
         <select id="fHomeDisplay" class="sel"><option value="vessel">A water-clock</option><option value="line">A number and a bar</option></select>
         <div class="fh">Both show minutes done, minutes still due and the limit. The daily limit itself is the setting above.</div>
-      </div>
-      <div class="field">
-        <label for="fTypeScale">Text sizes</label>
-        <select id="fTypeScale" class="sel"><option value="old">As they have been</option><option value="six">The short scale (on trial)</option></select>
-        <div class="fh">On trial: every screen set in five text sizes and one line spacing instead of twenty-nine. Switch it on, look at the study card and the first pass, and switch straight back if a word sits wrongly.</div>
       </div>
       <div class="field">
         <label for="fParams">Scheduler numbers</label>
@@ -3688,7 +3542,7 @@ function calibrationDue(s,now){ return !!(s&&s.calibrationDueAt!=null&&Number.is
 function makeDefaults(){ return {
   version:2, created:Date.now(), calibrationDueAt:null,   // Clepsydra: the calibration is continuous (see calibration()); vocabula's fortnightly reminder starts dismissed
   settings:{useTiming:false, newPerDayL:50, newPerDayE:50, retention:0.90, maxIvl:36500, rollover:4,
-  minutesPerDay:30, homeDisplay:'vessel', typeScale:'old', firstPass:true, buttons:'two', params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:false, gradeReminder:false, quickRate:'off', holdEasy:'off', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
+  minutesPerDay:30, homeDisplay:'vessel', firstPass:true, buttons:'two', params:'fitted', clockTerm:true, calibrate:true, triS2:0, triS3:0, triS4:0, auditPct:8, autoRetireDays:180, rolloverPending:null, rolloverPendingFrom:null, deviceName:'', term:'2026-10-06', knownDays:21, weakFirst:false, cardNotes:false, gradeReminder:false, quickRate:'off', holdEasy:'off', cardShape:'replace', heatmapView:'month', heatmapAvgWindow:'month', heatmapColourMode:'volume', heatmapAccent:'coral', streakStart:null, returnPerDay:5, topBarStyle:'counts', flagNames:null},
   dir:'L', parts:null, buckets:['shaky','unseen'], theme:'light', palette:'vellum', layout:'legacy', rotate:'off', rotDay:null, rotSeen:[], cards:{}, orphans:{}, log:[], days:{}, dayNotes:{}, sinceExport:0, lastExport:null, lastPushBytes:0,
   deck:KEY, lastSync:null, syncedLogLen:null, lastRemoteAt:null, lastDevice:null, lastPushError:null, lastPushErrorAt:null, confuseGroups:{},
   // Phase 3 §C (PHASE3_4_HANDOFF.md): user-added words. Rides backup/sync/
@@ -4275,7 +4129,7 @@ function normalise(o){
   if(typeof s.settings.clockTerm!=='boolean') s.settings.clockTerm=true;
   if(typeof s.settings.firstPass!=='boolean') s.settings.firstPass=true;
   if(s.settings.homeDisplay!=='line') s.settings.homeDisplay='vessel';
-  if(s.settings.typeScale!=='six') s.settings.typeScale='old';
+  delete s.settings.typeScale;   // the 2026.09.17.10 trial switch; the short scale is simply the app's type now
   // Two buttons (2026-09-17, his call): Again and Good. Everything that only
   // existed to serve Easy and Hard is forced off rather than deleted -- hold
   // for Easy, the slow-Easy rule, quick rate, the four-button reminder. The
@@ -5094,6 +4948,52 @@ const fmtSecs=ms=>(ms/1000).toFixed(1)+' s';
 // is from his own reverse reviews, so the app tells him instead of a calendar:
 // misses against what the model predicted for those same reviews, and seconds
 // against the forward direction where there is enough of it to compare.
+/* ---- a study day is a day MET (2026.09.17.11) ----
+   dayCounts() in shared.js reads rec.met; this is what writes it. Met means
+   nothing is left due in either direction, or today's review minutes reached
+   the daily limit (the day's own "five more minutes" does not move the bar).
+   Called after every rating and whenever Home draws. Before the first rating
+   of a day it also looks back: a day the app was never opened, on which
+   nothing was yet due, is met on its own -- knowable only now, while no card
+   has been rated since, which is why it is done here and nowhere else. */
+function noteDayMet(now){
+  now=(now!=null)?now:Date.now();
+  const d=dayKey(now), waiting=['L','E'].reduce((n,dir)=>{ const q=buildQueue(dir); return n+q.due.length+q.learn.length; },0);
+  const lim=(S.settings.minutesPerDay|0)*MIN, rec0=S.days[d]; let changed=false;
+  if(!(rec0&&rec0.n)){
+    let last=null; for(const k in S.days){ const x=+k; if(x<d&&(last==null||x>last)) last=x; }
+    if(last!=null){
+      let minDue=Infinity;
+      for(const id in S.cards){ const cs=S.cards[id]; if(!cs||cs.susp||cs.reps===0||cs.due==null||(cs.ret&&cs.aud!==1)) continue; if(cs.due<minDue) minDue=cs.due; }
+      for(let k=Math.max(last+1,d-60);k<d;k++){ if(!S.days[k]&&minDue>=dayStart(k+1)){ S.days[k]={n:0,intro:0,ok:0,tot:0,words:0,met:1}; changed=true; } }
+    }
+  }
+  const met=(waiting===0||(lim>0&&usedMs(d)>=lim))?1:0;
+  if(!rec0){ if(met){ S.days[d]={n:0,intro:0,ok:0,tot:0,words:0,met:1}; changed=true; } }
+  else if(rec0.met!==1&&rec0.met!==met){ rec0.met=met; changed=true; }     // once met, a day stays met
+  return changed;
+}
+/* ---- the sync mark: how much is waiting, how long since (2026.09.17.11) ---- */
+function syncMarkState(now){
+  now=(now!=null)?now:Date.now();
+  if(!loadSyncCode()) return {kind:'off',waiting:0,age:null};
+  const since=S.lastSync||0;
+  let waiting=(S.syncedLogLen!=null)?Math.max(S.log.length-S.syncedLogLen,0):S.log.length;
+  for(const t of (S.triLog||[])) if(t[2]>since) waiting++;
+  const age=S.lastSync?now-S.lastSync:null;
+  if(S.lastPushError&&(!S.lastSync||(S.lastPushErrorAt||0)>S.lastSync)) return {kind:'failed',waiting:waiting,age:age};
+  return {kind:age==null?'old':(age<HOUR?'fresh':(age<DAY?'aging':'old')),waiting:waiting,age:age};
+}
+function syncMarkHtml(st){
+  const col={fresh:'var(--good)',aging:'var(--amber)',old:'var(--again)',failed:'var(--again)',off:'var(--faint)'}[st.kind], f=Math.min(st.waiting/150,1);
+  return '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="'+col+'" stroke-width="2"'+(st.kind==='off'?' stroke-dasharray="3 3"':'')+'/>'+
+    (st.kind==='failed'?'<path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="'+col+'" stroke-width="2" stroke-linecap="round"/>':(st.waiting>0&&st.kind!=='off'?'<circle cx="10" cy="10" r="'+(1.5+f*4).toFixed(2)+'" fill="'+col+'"/>':''))+'</svg>';
+}
+function syncMarkText(st){
+  if(st.kind==='off') return 'Sync is off — Settings can set up a code.';
+  const ago=st.age==null?'never synced':(st.age<MIN?'synced just now':st.age<HOUR?'synced '+Math.round(st.age/MIN)+' min ago':st.age<DAY?'synced '+Math.round(st.age/HOUR)+' h ago':'synced '+Math.round(st.age/DAY)+' d ago');
+  return (st.kind==='failed'?'Last push failed · ':'')+(st.waiting?st.waiting+' answer'+(st.waiting===1?'':'s')+' waiting':'Nothing waiting')+' · '+ago;
+}
 /* ---- the lean Home: its numbers (2026.09.17.8) ----
    Pure readers for the front screen he chose on 2026-09-17: three figures for
    the main display, four trends, and one day's detail. Nothing here writes. */
@@ -5325,7 +5225,7 @@ function triButtonLabels(){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.17.10';
+const BUILD='2026.09.17.11';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -6846,6 +6746,7 @@ function rate(pressed){
   const d=today();
   const rec=S.days[d]||(S.days[d]={n:0,intro:0,ok:0,tot:0,words:0});
   rec.n++;
+  try{ noteDayMet(now); }catch(e){}        // a study day is a day met -- see noteDayMet()
   // Per-stage review count, paired with creditStudyMs's stageMs above so
   // stageCostWindow() has a clean per-review denominator for every stage,
   // not just the ones rec.intro/rec.tot already happened to count.
@@ -9101,7 +9002,7 @@ function daysLearnedPct(days,todayKey,since){
   const floor=(since!=null)?since:createdKey;
   const span=Math.max(todayKey-floor+1,1);
   let studied=0;
-  for(let k=floor;k<=todayKey;k++) if(days[k]&&days[k].n) studied++;
+  for(let k=floor;k<=todayKey;k++) if(dayCounts(days[k])) studied++;
   return Math.round(100*studied/span);
 }
 /* ---- day-number legibility on a coloured cell (2026.08.15.6) -------------
@@ -9240,6 +9141,7 @@ function renderHeatmapStats(){
   const winOpt=w=>'<option value="'+w+'"'+(S.settings.heatmapAvgWindow===w?' selected':'')+'>'+
     (w==='all'?'all-time':'per '+w)+'</option>';
   $('hmStats').innerHTML=
+    '<div class="hmStat lead">Last 7 days<b>'+metOfLast(S.days,d,7)+' of 7</b></div>'+
     '<div class="hmStat">Current streak<b>'+cur+' day'+(cur===1?'':'s')+'</b></div>'+
     '<div class="hmStat">Longest streak<b>'+longest+' day'+(longest===1?'':'s')+'</b></div>'+
     '<div class="hmStat">Days learned<b>'+pct+'%</b></div>'+
@@ -10339,6 +10241,7 @@ function renderSyllabus(){
   // the heatmap is its real caller and always was.
 }
 function renderSync(){
+  if(typeof renderSyncMark==='function') renderSyncMark();
   const el=$('syncAge'), btn=$('syncNowBtn'); if(!el) return;
   if(!loadSyncCode()){
     el.className='note'; el.textContent='Sync is off — Settings can set up a code.';
@@ -11245,7 +11148,7 @@ function mergeStates(local,remote,opts){
         if(seen.size) rec.sit=[...seen.values()].sort((x,y)=>(x[0]-y[0])||(x[1]-y[1])); else delete rec.sit; }
       { const v=maxNum(a&&a.feel,b&&b.feel); if(v!=null) rec.feel=v; else delete rec.feel; }
       // Clepsydra's day counters: not derivable from rows; the larger of each.
-      ['triN','triMs','predMs','actMs','extraMs'].forEach(f=>{ const v=maxNum(a&&a[f],b&&b[f]); if(v!=null) rec[f]=v; else delete rec[f]; });
+      ['triN','triMs','predMs','actMs','extraMs','met'].forEach(f=>{ const v=maxNum(a&&a[f],b&&b[f]); if(v!=null) rec[f]=v; else delete rec[f]; });
       // The day's burn-up sample (rec.stat, 2026.08.21.2). NOT a counter and
       // not derivable from rows, so it is neither in COUNTER_FIELDS nor
       // rebuilt by recountDay() -- it is picked, like .sit above, by its own
@@ -12292,7 +12195,9 @@ function lhCalendar(weeks){
   // coloured by MINUTES against the limit (first pass included), not by ratings: a day spent sorting is a day studied
   const d=today(), n=weeks*7, wide=lhWide(), lim=(S.settings.minutesPerDay>0?S.settings.minutesPerDay:30)*MIN; let h='';
   for(let i=n-1;i>=0;i--){
-    const k=d-i, r=S.days[k]||{}, ms=(r.studyMs|0)+(r.triMs|0), bg=ms>0?'background:color-mix(in srgb,var(--coral) '+Math.round(18+Math.min(ms/lim,1)*72)+'%,var(--panel));color:var(--bg)':'';
+    // a day met is drawn strong (by its minutes); a day studied but short is pale; a day met with nothing due is an outline
+    const k=d-i, r=S.days[k]||{}, ms=(r.studyMs|0)+(r.triMs|0), ok=dayCounts(S.days[k]);
+    const bg=ms>0?(ok?'background:color-mix(in srgb,var(--coral) '+Math.round(45+Math.min(ms/lim,1)*45)+'%,var(--panel));color:var(--bg)':'background:color-mix(in srgb,var(--coral) 16%,var(--panel))'):(ok?'border-color:var(--coral)':'');
     h+='<button type="button" data-day="'+k+'" class="'+(i===0?'t ':'')+(lhDay===k?'s':'')+'" style="'+(bg||'')+'" aria-label="'+new Date(dayStart(k)).toDateString()+'">'+(wide?new Date(dayStart(k)+12*HOUR).getDate():'')+'</button>';
   }
   return '<div class="lh-cal">'+h+'</div>';
@@ -12309,9 +12214,16 @@ function lhDayHtml(k){
   h+='<div class="lh-row sm"><span>'+(i.predMin>0?'Predicted '+lhMin(i.predMin)+' min, took '+lhMin(i.actMin):'No time prediction that day')+'</span><span>'+(i.medianMs?'answers '+(i.medianMs/1000).toFixed(1)+' s':'')+'</span></div>';
   return h;
 }
+function renderSyncMark(){ const b=$('syncMark'); if(!b||!S) return; const st=syncMarkState(); b.innerHTML=syncMarkHtml(st); b.title=syncMarkText(st); }
+tapZone($('syncMark'),async ()=>{
+  const st=syncMarkState(); toast(syncMarkText(st),2600);
+  if(st.kind!=='off'){ const btn=$('syncNowBtn'); if(btn&&!btn.disabled) btn.click(); setTimeout(renderSyncMark,4000); }
+});
 let lhDay=null;
 function renderLeanHome(){
   const box=$('leanHome'); if(!box||!S) return;
+  try{ if(noteDayMet()) save(); }catch(e){}
+  renderSyncMark();
   const n=homeNumbers(), wide=lhWide(), other=buildQueue(S.dir==='L'?'E':'L'), qL=S.dir==='L'?Q:other, qE=S.dir==='E'?Q:other;
   const cnt=q=>{ const w=q.due.length+q.learn.length; return w?w+' due':(q.intro.length?q.intro.length+' new':'none due'); };
   const short=s=>String(s).replace(/Latin/g,'La').replace(/Greek/g,'Gr').replace(/English/g,'En');
@@ -12325,7 +12237,7 @@ function renderLeanHome(){
   { const tt=document.querySelector('#scHome .bar .title'); if(tt) tt.textContent=DECK_TITLE; }
   box.innerHTML=
     '<div class="lh-c1">'+lhHero(n)+start+seg+lhFirstPass()+(rc?'<div class="lh-note">'+rc+'</div>':'')+list+'</div>'+
-    '<div class="lh-c2"><div class="lh-k">'+(wide?'Last five weeks · click a day':'Last five weeks · tap a day')+'</div>'+lhCalendar(5)+'<div class="lh-side" id="lhSide">'+(wide?lhDayHtml(lhDay):'')+'</div></div>'+
+    '<div class="lh-c2"><div class="lh-k">'+metOfLast(S.days,today(),7)+' of the last 7 days · '+(wide?'click a day':'tap a day')+'</div>'+lhCalendar(5)+'<div class="lh-side" id="lhSide">'+(wide?lhDayHtml(lhDay):'')+'</div></div>'+
     '<div class="lh-c3"><div class="lh-k lh-wideonly">Trends · 14 days</div>'+lhTrends(wide?56:28)+'</div>';
   if(!wide&&lhDay!=null&&$('lhSheet').classList.contains('on')) $('lhSheetBody').innerHTML=lhDayHtml(lhDay);
 }
@@ -12373,6 +12285,7 @@ function statsTabs(){
   put('days',sectOf('calFold'));
   { const old=sectOf('clockBody'); if(old) old.classList.add('leanOff'); }
   ['hmStats'].forEach(id=>{ const x=$(id); if(x) x.classList.remove('leanOff'); });
+  { const x=document.querySelector('#scStats .syncRow'); if(x) x.classList.add('leanOff'); }   // the top-bar mark says this now
   { const x=$('strip'); if(x) x.classList.add('leanOff'); const h=sectOf('calFold'); const h2=h&&h.querySelector('h2'); if(h2) h2.textContent='Every study day'; }
   sc.querySelectorAll('details').forEach(d=>d.classList.add('flat'));   // opened in showStatsTab(): opening one fires its renderer, which needs S
   { const su=$('clockFold')&&$('clockFold').querySelector('summary'); if(su) su.textContent='The same, in figures'; }
@@ -12397,7 +12310,6 @@ try{ statsTabs(); }catch(e){ if(typeof console!=='undefined') console.error('sta
 function renderClep(){
   const now=Date.now();
   document.documentElement.classList.toggle('twoBtn',twoButtons());
-  document.documentElement.classList.toggle('t6',S.settings.typeScale==='six');   // the six-size type scale, on trial (tools/gen_type_scale.py)
   renderMinRing();
   $('clepPanel').innerHTML=clepPanelHtml(now);
   $('clockBody').innerHTML=clockBodyHtml(now);
@@ -12500,7 +12412,6 @@ function renderMinRing(){
 tapZone($('minMinus'),()=>{ if(!capOn()) return; if(budgetMs(today())>5*MIN){ extendBudget(-5); } renderHome(); });
 tapZone($('minPlus'), ()=>{ if(!capOn()) return; extendBudget(5); renderHome(); });
 tapZone($('doneExtend'),()=>{ extendBudget(5); next(); if(current) show('scStudy'); });
-$('fTypeScale').addEventListener('change',e=>{ S.settings.typeScale=e.target.value==='six'?'six':'old'; document.documentElement.classList.toggle('t6',S.settings.typeScale==='six'); save(); });
 $('fHomeDisplay').addEventListener('change',e=>{ S.settings.homeDisplay=e.target.value==='line'?'line':'vessel'; save(); });
 $('fMinutes').addEventListener('change',e=>{ const v=Math.round(+e.target.value); S.settings.minutesPerDay=(Number.isFinite(v)&&v>=0&&v<=600)?v:30; save(); renderSet(); });
 $('fParams').addEventListener('change',e=>{ S.settings.params=e.target.value==='stock'?'stock':'fitted'; applyParams(); save(); renderSet(); });
@@ -12534,7 +12445,6 @@ function renderSetClep(){
   const s=S.settings, fit=calibration(), st=clepSt();
   $('fMinutes').value=s.minutesPerDay|0;
   $('fHomeDisplay').value=s.homeDisplay==='line'?'line':'vessel';
-  $('fTypeScale').value=s.typeScale==='six'?'six':'old';
   $('fMinutesGap').textContent=budgetGap(Date.now()).text;
   $('fParams').value=s.params==='stock'?'stock':'fitted';
   $('fParamsNote').textContent=(P_FITTED[KEY]?('“Fitted to me” is the fit made on '+P_FIT_DATE+' from your whole vocabula history for this deck. '):'No personal fit exists for this deck. ')+'Running now: '+paramsLabel()+'.';
