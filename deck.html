@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.20.0">
+<link rel="stylesheet" href="palettes.css?v=2026.09.20.1">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.20.0"></script>
+<script src="decks/registry.js?v=2026.09.20.1"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.20.0"></script>
+<script src="shared.js?v=2026.09.20.1"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -111,6 +111,12 @@
    attribute cannot repeat it. */
 [hidden]{display:none!important}
 :root{
+  /* The colour of an EMPTY track: the first-pass bar's unfilled half and the
+     dot for a word not yet met. It used to be --line, the border colour, which
+     Gilded and Enamel paint in their own accent -- so the bar's empty half and
+     its fill came out the same colour and the bar looked full at 62% (his
+     report, 2026-09-19). Derived from --ink, so it is neutral in every palette. */
+  --track:color-mix(in srgb, var(--ink) 14%, transparent);
   --serif:"Palatino","Palatino Linotype","Book Antiqua",Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
 }
@@ -417,7 +423,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
   background:var(--raise);border-radius:9px;padding:8px 13px;font-size:13px;
   color:var(--muted);cursor:pointer;font-family:inherit}
 #scTie button.small.primary,.tieOffer button.small.primary{background:var(--coral);
-  border-color:var(--coral);color:#fff}
+  border-color:var(--coral);color:var(--bg)}
 #scTie button.small.tieDel{color:var(--again)}
 .tdIntro{margin:2px 0 14px;max-width:44em}
 .tdIntro p{margin:0 0 8px}
@@ -651,7 +657,7 @@ html[data-layout="landscape"][data-study-card="replace"] #gradeNote{grid-column:
 .dir.sel{border-color:var(--coral);background:var(--accent-soft)}
 .dir .dt{font-size:15px;font-weight:500;margin-bottom:5px}
 .dir .dd{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.startBtn{position:relative;width:100%;height:58px;border-radius:15px;background:var(--coral);color:#fff;
+.startBtn{position:relative;width:100%;height:58px;border-radius:15px;background:var(--coral);color:var(--bg);
   font-size:16px;font-weight:500;margin-bottom:18px}
 .startBtn::before{content:"";position:absolute;top:-16px;bottom:-12px;left:-6px;right:-6px}
 .startBtn:disabled{background:var(--panel);color:var(--faint);border:1px solid var(--line)}
@@ -692,13 +698,13 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .clepPanel .cpSub{font-size:13px;line-height:1.5;color:var(--muted);margin-top:4px}
 .triBtn{display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin:-6px 0 18px}
 .triBtn .tbCount{color:var(--muted);font-weight:400;font-size:15px;font-variant-numeric:tabular-nums}
-.triBtn.lead{background:var(--coral);color:#fff;border-color:transparent}
-.triBtn.lead .tbCount{color:#fff;opacity:.85}
+.triBtn.lead{background:var(--coral);color:var(--bg);border-color:transparent}
+.triBtn.lead .tbCount{color:var(--bg);opacity:.85}
 .triWrap{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
 .triFlagBtn{position:absolute;right:12px;bottom:92px;z-index:2;color:var(--faint)}
 .triFlagBtn.on{color:var(--flag1,var(--coral))}
 .triFlagBtn.on svg{fill:currentColor}
-.triProg{height:4px;background:var(--line);margin:0 14px;border-radius:2px;overflow:hidden}
+.triProg{height:4px;background:var(--track);margin:0 14px;border-radius:2px;overflow:hidden}
 .triProg i{display:block;height:100%;background:var(--coral)}
 .triMeta{font-size:13px;color:var(--muted);text-align:center;padding:8px 14px 0;font-variant-numeric:tabular-nums}
 .triReceipt{min-height:20px;font-size:13px;color:var(--muted);text-align:center;padding:6px 16px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -821,7 +827,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .feelRow{margin-top:14px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:15px;color:var(--muted)}
 .feelRow .feelQ{margin-right:2px}
 .feelBtn{border:1px solid var(--line);background:var(--raise);border-radius:999px;padding:6px 13px;font:inherit;font-size:15px;color:var(--ink);cursor:pointer}
-.feelBtn.on{background:var(--coral);border-color:var(--coral);color:#fff}
+.feelBtn.on{background:var(--coral);border-color:var(--coral);color:var(--bg)}
 .dayDetail{display:none;margin-top:14px;padding:14px 16px;border:1px solid var(--line);
   border-radius:13px;background:var(--panel)}
 .dayDetail.on{display:block}
@@ -832,7 +838,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .dayDetail .ddBtns{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
 .dayDetail button.small{border:1px solid var(--line);background:var(--raise);border-radius:9px;
   padding:8px 13px;font-size:13px;color:var(--muted)}
-.dayDetail button.small.primary{background:var(--coral);border-color:var(--coral);color:#fff}
+.dayDetail button.small.primary{background:var(--coral);border-color:var(--coral);color:var(--bg)}
 .dayDetail button.small.danger{color:var(--again)}
 /* word-note modal (openWordNote/#wordNoteOverlay) -- reuses .dayDetail's own
    card styling verbatim (border/padding/textarea/buttons), just centred over
@@ -1014,7 +1020,11 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .rowMenu.on{display:block}
 .rowMenu .rmFlags{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
 .rowMenu .rmFlag{width:100%;aspect-ratio:1;border-radius:8px;border:2px solid transparent;
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer}
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer;
+  /* The seven flag colours are fixed, and three of them (orange, green, cyan)
+     are far too light for white text -- 1.25:1 on cyan. The halo costs nothing
+     on the dark four and makes the bright three readable. */
+  text-shadow:0 1px 2px rgba(0,0,0,.65)}
 .rowMenu .rmFlag.none{background:none;border:1.5px dashed var(--faint);color:var(--faint)}
 .rowMenu .rmFlag.cur{border-color:var(--ink)}
 .rowMenu hr{border:none;border-top:1px solid var(--line);margin:6px 2px}
@@ -1088,7 +1098,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    name; the full names live behind the picker's own rename face. */
 .ciFlags{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .ciFlags .cif{width:29px;height:29px;border-radius:9px;border:2px solid transparent;cursor:pointer;
-  font-size:13px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums;
+  font-size:13px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px rgba(0,0,0,.65);
   display:inline-flex;align-items:center;justify-content:center;padding:0}
 .ciFlags .cif:hover{transform:scale(1.08)}
 .ciFlags .cif.cur{border-color:var(--ink)}
@@ -1146,7 +1156,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin-top:12px;font-size:13px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center}
 .legend .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
-.s-unseen{background:var(--line)}
+.s-unseen{background:var(--track)}
 .s-learning{background:var(--amber)}
 .s-young{background:var(--good);opacity:.5}
 .s-mature{background:var(--good)}
@@ -1285,7 +1295,8 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .lh-acts{display:grid;grid-template-columns:1fr auto;gap:9px}
 #leanHome .lh-go{background:var(--coral);color:var(--bg);border:0;border-radius:13px;padding:14px 10px;font-weight:600;font-size:15px;white-space:nowrap}#leanHome .lh-go:disabled{opacity:.45;cursor:default}
 #leanHome .lh-sec{border:1px solid var(--coral);color:var(--coral);background:transparent;border-radius:13px;padding:14px;font-weight:500;font-size:15px;white-space:nowrap}
-.lh-seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.lh-seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  flex:0 0 auto}   /* it is a flex item in a column that can overflow: without this it shrinks to 2px (his 1000x600 window) */
 #leanHome .lh-seg button{border:0;background:transparent;padding:9px 6px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#leanHome .lh-seg button.on{background:var(--panel);color:var(--coral);font-weight:500}
 #leanHome .lh-fp{display:grid;gap:6px;text-align:left;border:0;background:none;padding:0;width:100%}
 .lh-stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--panel)}.lh-stack.tall{height:12px;margin-bottom:4px}.lh-stack i{display:block}
@@ -1376,7 +1387,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   -webkit-appearance:none;appearance:none;font:inherit}
 .palCard.on{border-color:var(--coral);box-shadow:0 0 0 1.5px var(--coral)}
 .palCard:active{transform:scale(.985)}
-.palPrev{display:flex;height:46px}
+.palPrev{display:flex;height:46px;--texture:none}   /* a palette with a texture re-declares it on its own half; without this reset every tile wore the CURRENT palette's texture */
 .palHalf{flex:1;min-width:0;background-color:var(--bg);background-image:var(--texture,none);display:flex;flex-direction:column;
   justify-content:center;gap:3px;padding:5px}
 .palMini{background:var(--panel);border:1px solid var(--line);border-radius:4px;
@@ -1553,7 +1564,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
   background:var(--panel);font-size:16px;margin-top:11px}
 .act::before{content:"";position:absolute;top:-9px;bottom:-9px;left:-4px;right:-4px}
 .act.danger{color:var(--again)}
-.act.primary{background:var(--coral);color:#fff;border-color:var(--coral)}
+.act.primary{background:var(--coral);color:var(--bg);border-color:var(--coral)}
 .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0 30px;text-align:center;gap:8px}
 .done .big{font-family:var(--serif);font-size:28px}
@@ -1656,7 +1667,7 @@ html[data-layout="landscape"] #scStudy.on{
 html[data-layout="landscape"] #scStudy>.bar{grid-area:bar}
 html[data-layout="landscape"] .cardarea{display:contents}
 html[data-layout="landscape"] #multi{grid-area:prompt;position:static;align-self:start;justify-self:end;margin:14px 14px 0 0;z-index:1}
-html[data-layout="landscape"] #cardFlagBtn.onCard{grid-area:prompt;position:static;align-self:end;justify-self:end;margin:0 14px 14px 0;z-index:1}
+html[data-layout="landscape"] #cardFlagBtn.onCard{grid-area:prompt;position:relative;align-self:end;justify-self:end;margin:0 14px 14px 0;z-index:1}
 html[data-layout="landscape"] #prompt{grid-area:prompt;align-self:stretch;justify-self:stretch;
   display:flex;align-items:center;justify-content:center;padding:32px;margin:16px 8px 16px 16px;
   border:1px solid var(--line);border-radius:20px;background:var(--panel);
@@ -1708,8 +1719,10 @@ html[data-layout="landscape"] #scStudy .rate .ivl{font-size:13px}
 .keycap{display:none}
 html[data-layout="landscape"] .keycap{
   display:inline-flex; align-items:center; justify-content:center; margin-top:4px;
-  font-family:var(--sans); font-size:11px; font-weight:500; color:var(--faint);
-  background:var(--raise); border:1px solid var(--line); border-radius:6px;
+  font-family:var(--sans); font-size:11px; font-weight:500; color:var(--muted);
+  /* Not --raise: it is translucent white in Glass, Frost and Obsidian, so a
+     keycap there was white-on-white (1.1:1). --track is mixed from --ink. */
+  background:var(--track); border:1px solid var(--line); border-radius:6px;
   padding:1px 7px; min-width:16px; letter-spacing:.01em;
 }
 html[data-layout="landscape"] #revealBtn .keycap,
@@ -1717,6 +1730,7 @@ html[data-layout="landscape"] #quickBtn .keycap{
   position:absolute; right:18px; top:50%; transform:translateY(-50%); margin:0;
 }
 html[data-layout="landscape"] #undoBtn,
+html[data-layout="landscape"] #triUndoBtn,
 html[data-layout="landscape"] #toHome{position:relative}
 html[data-layout="landscape"] .iconKeycap{
   position:absolute; bottom:-3px; right:-6px; margin:0; font-size:11px; padding:0 5px;
@@ -5519,7 +5533,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.20.0';
+const BUILD='2026.09.20.1';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -7807,8 +7821,7 @@ function closeFlagPicker(){
 const SHORTCUTS_REF=[
   ['Studying',[
     ['Space / Enter','Reveal — then rate Good'],
-    ['Space, held','Record Easy'],
-    ['1 – 4','Again · Hard · Good · Easy'],
+    ['1 / 2','Again · Good'],
     ['Z / 0','Undo the last rating'],
   ]],
   ['Set aside',[
@@ -9351,11 +9364,14 @@ function paintCellInk(container){
   probe.style.cssText='position:absolute;visibility:hidden';
   container.appendChild(probe);
   const resolve=v=>{ probe.style.color=v; return cssLum(getComputedStyle(probe).color); };
-  const lInk=resolve('var(--ink)'), lRaise=resolve('var(--raise)');
+  // --bg, not --raise: cssLum() reads a colour as if it were opaque, and --raise
+  // is translucent white in the glass palettes, so a date came out white on a
+  // pale fill (1.14:1 in Obsidian dark). --bg is opaque in every palette.
+  const lInk=resolve('var(--ink)'), lRaise=resolve('var(--bg)');
   container.querySelectorAll('.calCell').forEach(cell=>{
     if(!cell.getAttribute('style')) return;       // no fill: the plain --panel base, --ink already right
     const l=cssLum(getComputedStyle(cell).backgroundColor);
-    cell.style.color = contrastOf(l,lRaise)>contrastOf(l,lInk) ? 'var(--raise)' : 'var(--ink)';
+    cell.style.color = contrastOf(l,lRaise)>contrastOf(l,lInk) ? 'var(--bg)' : 'var(--ink)';
   });
   probe.remove();
 }
@@ -12142,7 +12158,7 @@ function renderPalGrid(){
       '<span class="palAccent"></span>'+
     '</span>';
   const ratings=pal=>
-    '<span class="palRatings" data-palette="'+pal+'" data-theme="dark">'+
+    '<span class="palRatings" data-palette="'+pal+'" data-theme="'+(document.documentElement.getAttribute('data-theme')||'light')+'">'+
       '<span class="palDot again"></span><span class="palDot hard"></span>'+
       '<span class="palDot good"></span><span class="palDot easy"></span>'+
     '</span>';
