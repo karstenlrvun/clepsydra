@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.18.1">
+<link rel="stylesheet" href="palettes.css?v=2026.09.20.0">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.18.1"></script>
+<script src="decks/registry.js?v=2026.09.20.0"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.18.1"></script>
+<script src="shared.js?v=2026.09.20.0"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -928,6 +928,8 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .browseHeld{color:var(--coral);cursor:pointer;text-decoration:underline}
 .wordRow input[type=checkbox]{width:16px;height:16px;accent-color:var(--coral);flex:0 0 auto;cursor:pointer}
 .wordRow .stDot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+/* The figure a ranked sort puts on the row (2026.09.20.0). */
+.wordRow .wrVal{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px;flex:0 0 auto;padding-left:8px}
 .wordRow .term{flex:1 1 auto;min-width:0;font:inherit;color:inherit;background:none;
   border:none;padding:0;margin:0;text-align:left;cursor:pointer}
 /* :focus-visible, not :focus -- a mouse press must not leave a ring behind on
@@ -1047,6 +1049,34 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
    count above it -- see renderCardInspector()'s own comment for why the
    figures are split this way rather than run into one wrapping sentence. */
 #cardInspectorDetail .ciStats2{opacity:.78;margin-top:1px}
+/* The Details section (2026.09.20.0, his picks from the word-detail demo):
+   the numbers two to a row, then one line per answer. Every size here is one
+   the short scale already carries -- a new size would fail the stylesheet's
+   own test. */
+/* flex:0 0 auto on both blocks below: #cardInspectorDetail is a flex column,
+   so a grid or a long list here is a flex item and gets shrunk to a hairline
+   the moment the panel's content is taller than the panel. */
+#cardInspectorDetail .wdNums{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:0 0 auto}
+#cardInspectorDetail .wdNum{background:var(--panel);padding:8px 10px;min-width:0}
+#cardInspectorDetail .wdNum .k{font-size:11px;color:var(--faint)}
+#cardInspectorDetail .wdNum .v{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cardInspectorDetail .wdNum .v small{color:var(--muted);font-size:11px}
+#cardInspectorDetail .ciLbl i{font-style:normal;letter-spacing:0;text-transform:none;font-weight:400;color:var(--amber);font-size:11px}
+#cardInspectorDetail .wdHist{border-top:1px solid var(--line);flex:0 0 auto}
+#cardInspectorDetail .wdRow{display:grid;grid-template-columns:52px 62px 48px 1fr;gap:6px;align-items:center;
+  padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;font-variant-numeric:tabular-nums}
+#cardInspectorDetail .wdRow .d{color:var(--muted)}
+#cardInspectorDetail .wdRow .t{text-align:right}
+#cardInspectorDetail .wdRow .t.slow{color:var(--amber);font-weight:600}
+#cardInspectorDetail .wdRow .r{color:var(--faint);font-size:11px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cardInspectorDetail .wdAns{display:block;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:600;text-align:center}
+#cardInspectorDetail .wdAns.g{background:var(--good-bg);color:var(--good)}
+#cardInspectorDetail .wdAns.a{background:var(--again-bg);color:var(--again)}
+#cardInspectorDetail .wdAns.h{background:var(--warn-bg);color:var(--warn-ink)}
+#cardInspectorDetail .wdAns.e{background:var(--easy-bg);color:var(--easy)}
+#cardInspectorDetail .wdAns.f{background:var(--accent-soft);color:var(--coral)}
+#cardInspectorDetail .wdMore{font-size:13px;color:var(--coral);padding:8px 0;font-family:inherit}
 #cardInspectorDetail .ciLbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   color:var(--faint);font-weight:600;margin:18px 0 7px}
 #cardInspectorDetail textarea{width:100%;margin:0;background:var(--bg,var(--panel));border:1px solid var(--line);
@@ -2409,7 +2439,7 @@ html[data-layout="landscape"] #scBrowse .home{padding:16px 28px}
            in. Outside #triCard on purpose: a tap there checks the meaning. -->
       <button class="cardFlagBtn triFlagBtn" id="triFlagBtn" aria-label="Flag this word for a second look"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V4h11l-1 3h6l-1.5 4L20 15h-9l-1-3H4"/></svg><span class="keycap" style="margin-left:4px">F</span></button>
       <div class="rateRow triRow">
-        <button class="rate" id="tri1"><span class="lbl">Not seen</span><span class="ivl" id="triI1"></span><span class="keycap">1</span></button>
+        <button class="rate" id="tri1"><span class="lbl">Don&rsquo;t know</span><span class="ivl" id="triI1"></span><span class="keycap">1</span></button>
         <button class="rate" id="tri2"><span class="lbl">Shaky</span><span class="ivl" id="triI2"></span><span class="keycap">2</span></button>
         <button class="rate" id="tri3"><span class="lbl">Known</span><span class="ivl" id="triI3"></span><span class="keycap">3</span></button>
         <button class="rate" id="tri4"><span class="lbl">Known well</span><span class="ivl" id="triI4"></span><span class="keycap">4</span></button>
@@ -4500,7 +4530,7 @@ async function load(){
    a handful of S.days[k] counters (triMs, triN, predMs, actMs, extraMs).
    Stored names are a compatibility contract here exactly as in vocabula. */
 const TRI_UNSEEN=1, TRI_SHAKY=2, TRI_KNOWN=3, TRI_WELL=4;
-const TRI_LABEL={1:'Not seen',2:'Shaky',3:'Known',4:'Known well'};
+const TRI_LABEL={1:"Don't know",2:'Shaky',3:'Known',4:'Known well'};
 // Where the three starting strengths come from: the spread of stability across
 // the 2,902 Latin and 856 Greek forward words he had in review on 2026-09-17.
 // A quarter sat under ~6 days, the middle at 17-21, the top tenth past ~70.
@@ -5154,7 +5184,7 @@ function statsRetentionHtml(now){
 function statsDeckHtml(){
   const tp=triageProgress(), w=k=>(100*(tp.by[k]|0)/Math.max(tp.total,1))+'%'; let h='';
   h+=stK('First pass')+'<div class="lh-stack tall"><i class="p4" style="width:'+w(4)+'"></i><i class="p3" style="width:'+w(3)+'"></i><i class="p2" style="width:'+w(2)+'"></i><i class="p1" style="width:'+w(1)+'"></i></div>'+
-     '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>not seen</div></div>';
+     '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>don&rsquo;t know</div></div>';
   h+=sr('Sorted',tp.done.toLocaleString()+' of '+tp.total.toLocaleString());
   for(const b of [TRI_SHAKY,TRI_KNOWN,TRI_WELL]){ const f=bucketFit(b), s=bucketS(b);
     h+=sr(TRI_LABEL[b]+' starts at',s.toFixed(1)+' days'+((f&&f.n>=10)?' · '+f.pass+' of '+f.n+' held':' · to start')); }
@@ -5381,7 +5411,7 @@ function clockBodyHtml(now){
   { const b=boostM(), pc=x=>x.n?Math.round(100*x.pass/x.n)+'% of '+x.n:'none yet';
     h+=row('Fast Goods, next time round', pc(b.fast)+' passed · slower Goods '+pc(b.slow));
     h+=row('So a fast Good is worth', (S.settings.clockTerm===false?'nothing (switched off)':(b.m<=1.001?'no extra — no gap in this deck yet':'memory ×'+b.m.toFixed(2)+', never more than Easy gave'))+(b.measured?'':' (starting figure)')); }
-  h+=row('First pass', tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' — not seen '+tp.by[1]+' · shaky '+tp.by[2]+' · known '+tp.by[3]+' · known well '+tp.by[4]);
+  h+=row('First pass', tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' — don&rsquo;t know '+tp.by[1]+' · shaky '+tp.by[2]+' · known '+tp.by[3]+' · known well '+tp.by[4]);
   for(const b of [TRI_SHAKY,TRI_KNOWN,TRI_WELL]){
     const f=bucketFit(b), s=bucketS(b);
     h+=row('“'+TRI_LABEL[b]+'” starts a word at', s.toFixed(1)+' days'+((f&&f.n>=10)?(' — '+f.pass+' of '+f.n+' first reviews passed'):(' (starting figure'+(f?', '+f.n+' first reviews so far':'')+')')));
@@ -5399,7 +5429,7 @@ function clockWhatIfHtml(now){
   return h;
 }
 function clockLearnHtml(){
-  const t=timeToHold(), names={1:'Not seen',2:'Shaky',3:'Known',0:'Other'};
+  const t=timeToHold(), names={1:"Don't know",2:'Shaky',3:'Known',0:'Other'};
   let h='<table class="clockTbl"><tr><th>First-pass answer</th><th>reached 3 weeks</th><th>median cost</th><th>still working</th><th>spent so far</th></tr>';
   [1,2,3,0].forEach(g=>{ const x=t[g]; if(g===0&&!x.n&&!x.open) return;
     h+='<tr><td>'+names[g]+'</td><td>'+x.n+'</td><td>'+(x.medianMs!=null?fmtMin(x.medianMs/MIN):'—')+'</td><td>'+x.open+'</td><td>'+fmtMin(x.spentMs/MIN)+'</td></tr>'; });
@@ -5422,9 +5452,74 @@ function triButtonLabels(){
   return out;
 }
 
+/* ---- 6. one word, in full (build 2026.09.20.0) ----
+   Everything the app already records about a single word, gathered where the
+   word panel can show it: the numbers at the top, and one line per answer
+   underneath. His picks from the "Clepsydra Word Detail" demo, 2026-09-20.
+   Pure readers; the panel's HTML is wordDetailHtml() beside the panel, the
+   same split the lean Home uses (homeNumbers/dayInfo -> renderLeanHome).
+   The per-word pass over the log is built once and cached against the log's
+   own length, the trick medianThinkMs() uses, because the two new Word list
+   sorts need a figure for every row -- timeToLearnFor()'s own comment warns
+   that a whole-log scan per row is wrong for a three-thousand-word list. */
+const SLOW_AT=2.5;          // an answer this many times his usual is marked slow
+const WORD_HIST=10;         // answers the panel shows before "show all"
+function usualThinkMs(){ return medianThinkMs()||((typeof DECK!=='undefined'&&DECK&&DECK.script==='greek')?2270:2680); }
+function isSlowMs(ms,usual){ return Number.isFinite(ms)&&ms>=SLOW_AT*(usual||usualThinkMs()); }
+const medianOf=a=>{ if(!a||!a.length) return null; const b=a.slice().sort((x,y)=>x-y); return b[b.length>>1]; };
+let _wtCache={len:-1,map:null};
+function wordTimes(){
+  if(!S||!Array.isArray(S.log)) return Object.create(null);
+  if(_wtCache.len===S.log.length&&_wtCache.map) return _wtCache.map;
+  const map=Object.create(null);
+  for(const e of S.log){
+    const r=map[e[0]]||(map[e[0]]={n:0,misses:0,spent:0,times:[]});
+    r.n++; if(e[1]===AGAIN) r.misses++;
+    const x=e[15]; if(x&&Number.isFinite(x.ms)) r.spent+=Math.min(x.ms,TIME_CAP_MS);
+    if(Number.isFinite(e[4])){ r.times.push(e[4]); if(r.times.length>5) r.times.shift(); }
+  }
+  _wtCache={len:S.log.length,map:map}; return map;
+}
+// The word's own usual answer time: the middle of its last five.
+function wordUsualMs(id){ const r=wordTimes()[id]; return r?medianOf(r.times):null; }
+// Every number the panel puts at the top of one word. null means "nothing to say".
+function wordFacts(id,now){
+  now=(now!=null)?now:Date.now();
+  const cs=(S&&S.cards)?S.cards[id]:null, t=wordTimes()[id]||{n:0,misses:0,spent:0,times:[]};
+  const usual=medianOf(t.times), live=!!(cs&&cs.reps>0);
+  return {reps:(cs&&cs.reps)|0, answers:t.n, misses:t.misses, spentMs:t.spent,
+          due:(live&&cs.due&&cs.due<now+FAR_FUTURE/2)?cs.due:null,
+          rec:(cs&&cs.st==='R'&&cs.s!=null&&cs.last!=null)?retrievability(cs,now):null,
+          s:(cs&&cs.s!=null)?cs.s:null, d:(cs&&cs.d!=null)?cs.d:null,
+          tri:(cs&&cs.tri)||0, triAt:(cs&&cs.triAt)||null,
+          retired:!!(cs&&cs.ret), susp:!!(cs&&cs.susp), last:(cs&&cs.last)||null,
+          usualMs:usual, usualRatio:(usual!=null)?usual/usualThinkMs():null, slow:isSlowMs(usual)};
+}
+// One line per answer, newest first: the first-pass answer from S.triLog and
+// every rating from S.log, with the gap that preceded each one. `limit` 0
+// means all of them; `total` is what the "show all" button counts.
+function wordHistory(id,limit){
+  const usual=usualThinkMs(), out=[];
+  if(S&&Array.isArray(S.log)) for(const e of S.log){
+    if(e[0]!==id) continue;
+    out.push({at:e[2], kind:(e[5]==='X')?'relearn':((e[5]==='L')?'learn':'review'), ans:RATING_LABEL[e[1]]||'?',
+              grade:e[1], ms:Number.isFinite(e[4])?e[4]:null, s:Number.isFinite(e[9])?e[9]:null,
+              slow:isSlowMs(e[4],usual)});
+  }
+  if(S&&Array.isArray(S.triLog)) for(const r of S.triLog){
+    if(r[0]!==id) continue;
+    out.push({at:r[2], kind:'first', ans:TRI_LABEL[r[1]]||'?', grade:0, ms:Number.isFinite(r[3])?r[3]:null,
+              s:Number.isFinite(r[6])?r[6]:null, slow:isSlowMs(r[3],usual)});
+  }
+  out.sort((a,b)=>a.at-b.at);
+  let prev=null; for(const r of out){ r.gapMs=(prev!=null)?r.at-prev:null; prev=r.at; }
+  out.reverse();
+  return {rows:(limit>0)?out.slice(0,limit):out, total:out.length};
+}
+
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.18.1';
+const BUILD='2026.09.20.0';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -5485,7 +5580,8 @@ function buildQueue(dir){
     const cs=peek(c.id);
     if(!available(cs,c,now,d)) continue;
     // Clepsydra: a forward word is not a "new word" until the first pass has
-    // called it Not seen. Until then it belongs to the first-pass screen.
+    // put it in the Don't know pile (called Not seen until 2026.09.20.0).
+    // Until then it belongs to the first-pass screen.
     if(cs.reps===0){ if(S.settings.firstPass!==false&&c.dir==='L'&&cs.tri!==TRI_UNSEEN) continue; (cs.s!=null?seeded:fresh).push(c.id); continue; }
     // A card between learning/relearning steps is a within-session card and
     // gets the learn-ahead, or a day can end with cards pending that the queue
@@ -8647,6 +8743,19 @@ function closeRowMenu(){
   document.querySelectorAll('#browseResults .wordRow.menuOpen').forEach(r=>r.classList.remove('menuOpen'));
   rowMenuId=null;
 }
+// What a ranked sort puts on the right of each row (2026.09.20.0, his pick:
+// "rows show the number"). '' under Deck order, and for a word the sort has
+// nothing to say about -- an unsorted word has no strength, no difficulty and
+// no answers to time.
+function browseRowValue(c,sort,now){
+  const cs=S.cards[c.id]; if(!cs||sort==='alpha') return '';
+  if(sort==='hard') return (cs.d!=null)?cs.d.toFixed(1):'';
+  if(sort==='weak') return (cs.s!=null)?fmtDays(Math.max(Math.round(cs.s),1)):'';
+  if(sort==='due')  return (cs.reps>0&&cs.due)?(cs.due<=now?'due':fmtIvl(cs.due-now)):'';
+  if(sort==='slow'){ const u=wordUsualMs(c.id); return (u==null)?'':(u/1000).toFixed(1)+' s'; }
+  if(sort==='rec'){ const r=(cs.st==='R'&&cs.s!=null&&cs.last!=null)?retrievability(cs,now):null; return (r==null)?'':Math.round(r*100)+'%'; }
+  return '';
+}
 function wordRowHtml(c){
   const cs=S.cards[c.id], st=statusOf(cs);
   // The row carries state and nothing else (2026.08.30.8, his own call). It
@@ -8673,6 +8782,7 @@ function wordRowHtml(c){
   // c.id and st are both built by this file, never read back from stored
   // state -- escaped anyway because this is the one place a value lands
   // inside an attribute, which is precisely the case escHtml() now covers.
+  const val=browseRowValue(c,browseSort,Date.now());
   return '<div class="wordRow'+(buried?' buried':'')+(inspectId===c.id?' open':'')+
     (justTied.has(c.id)?' held':'')+'" data-id="'+escHtml(c.id)+'"><div class="wrTop">'+
     '<input type="checkbox" class="wrCheck" data-id="'+escHtml(c.id)+'"'+checked+'>'+
@@ -8688,6 +8798,7 @@ function wordRowHtml(c){
     // there used to be five, and no interactive element nested in another.
     '<button class="term">'+escHtml(c.q)+'</button>'+
     (marks?'<span class="wrMarks">'+marks+'</span>':'')+
+    (val?'<span class="wrVal">'+escHtml(val)+'</span>':'')+
     '</div>'+note+'</div>';
 }
 // Every card id whose S.log has a row timestamped on day dk -- powers
@@ -8716,7 +8827,8 @@ function wordsTouchedOnDay(dk){
 // browseDate (click-a-day, see wordsTouchedOnDay()'s own comment) is the
 // real filtered-and-actionable list Home's calendar hands off to, rather
 // than the calendar's own day-detail panel trying to be a second Browse.
-const BROWSE_SORT_LABEL={alpha:'Deck order',hard:'Hardest first',weak:'Weakest first',due:'Due soonest'};
+const BROWSE_SORT_LABEL={alpha:'Deck order',hard:'Hardest first',weak:'Weakest first',due:'Due soonest',
+  slow:'Slowest lately',rec:'Least likely now'};   // 2026.09.20.0, his picks from the word-detail demo
 function renderBrowseBar(){
   const setBtn=(id,label,on)=>{
     const b=$(id); if(!b) return;
@@ -9039,12 +9151,17 @@ function renderTieDrill(){
 // entire unseen deck.
 function sortedForBrowse(cards){
   if(browseSort==='alpha') return cards;
-  const END=Number.MAX_SAFE_INTEGER;
+  const END=Number.MAX_SAFE_INTEGER, now=Date.now();
   const key=c=>{
     const cs=S.cards[c.id];
     if(!cs||cs.reps===0) return END;
     if(browseSort==='hard') return -(cs.d||0);
     if(browseSort==='weak') return cs.s||0;
+    // 2026.09.20.0: the word's own usual answer time (slowest first), and the
+    // model's chance of recalling it right now (least likely first). Both read
+    // wordTimes()'s cached pass, never a per-row scan of the log.
+    if(browseSort==='slow'){ const u=wordUsualMs(c.id); return (u==null)?END:-u; }
+    if(browseSort==='rec'){ const r=(cs.st==='R'&&cs.s!=null&&cs.last!=null)?retrievability(cs,now):null; return (r==null)?END:r; }
     return cs.due||0;   // 'due'
   };
   return cards.slice().sort((a,b)=>key(a)-key(b)||a.q.localeCompare(b.q));
@@ -9584,6 +9701,9 @@ function closeWordNote(){
    for recall, the gloss, was never editable in the first place (see
    rebuildCards()'s own comment on why a gloss can never be overridden). */
 let inspectId=null;
+// Whether the panel's history is showing every answer or the last ten
+// (2026.09.20.0). Per opening: a fresh word starts short again.
+let inspectAll=false;
 // Wide enough for the panel to be the docked column beside the list rather
 // than a centred modal over it -- the same 860px the CSS block that docks it
 // uses, read here so the two can never disagree about which shape is on
@@ -9625,6 +9745,7 @@ function unstashCardInspector(){
   openCardInspector(id);
 }
 function openCardInspector(id){
+  if(id!==inspectId) inspectAll=false;
   inspectId=id;
   $('cardInspectorOverlay').classList.add('on');
   // Which row is showing. On a wide window the panel is a standing dock, so
@@ -9640,7 +9761,7 @@ function markOpenRow(id){
   if(row) row.classList.add('open');
 }
 function closeCardInspector(){
-  inspectId=null;
+  inspectId=null; inspectAll=false;
   // A deliberate close outranks any owed return: without this, closing the
   // panel while a dialog it opened is still up would have the dialog put it
   // back a moment later, on the phone, against the user's own press.
@@ -9720,6 +9841,43 @@ function confusedWithHtml(id){
 // air between them. That hierarchy is the difference the demo had and the
 // first shipped version did not; nothing about what the panel DOES changed,
 // only what it looks like and that the flag picker is now inside it.
+/* The Details section the word panel now carries (2026.09.20.0), built from
+   wordFacts()/wordHistory() in the clepsydra block. His picks from the demo:
+   the eight numbers, then one line per answer, newest first, ten at a time.
+   Slow answers are marked on every line, the very long ones included -- his
+   call, on the ground that the app cannot tell a pause from a struggle and
+   he would rather see both than neither. */
+function wordDetailHtml(id,now,all){
+  const f=wordFacts(id,now), h=wordHistory(id,all?0:WORD_HIST);
+  if(!f.answers&&!f.reps&&!f.tri) return '<div class="ciLbl">Details</div><div class="ciStats">Nothing recorded yet — this word has not been sorted or studied.</div>';
+  const dateOf=ts=>new Date(ts).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+  const nums=[], put=(k,v)=>{ if(v) nums.push('<div class="wdNum"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'); };
+  put('Comes back', f.retired?'retired':(f.susp?'set aside':(f.due?((f.due<=now?'due now':fmtIvl(f.due-now))+' <small>'+escHtml(dateOf(f.due))+'</small>'):'—')));
+  put('Recall now', (f.rec!=null)?Math.round(f.rec*100)+'%':'—');
+  put('Strength', (f.s!=null)?fmtDays(Math.max(Math.round(f.s),1)):'—');
+  put('Difficulty', (f.d!=null)?f.d.toFixed(1)+' <small>of 10</small>':'—');
+  put('First pass', f.tri?(escHtml(TRI_LABEL[f.tri])+(f.triAt?' <small>'+escHtml(dateOf(f.triAt))+'</small>':'')):'—');
+  put('Usual time', (f.usualMs!=null)?((f.usualMs/1000).toFixed(1)+' s'+(f.usualRatio?' <small>'+f.usualRatio.toFixed(1)+'× yours</small>':'')):'—');
+  put('Misses', String(f.misses));
+  put('Time spent', f.spentMs?fmtMin(f.spentMs/MIN):'—');
+  let out='<div class="ciLbl">Details</div><div class="wdNums">'+nums.join('')+(nums.length%2?'<div class="wdNum"></div>':'')+'</div>';
+  if(h.total){
+    out+='<div class="ciLbl">History'+(h.rows.some(r=>r.slow)?' <i>amber: 2.5× your usual or slower</i>':'')+'</div><div class="wdHist">';
+    for(const r of h.rows){
+      const cls={Again:'a',Hard:'h',Good:'g',Easy:'e'}[r.ans]||'f';
+      const right=[r.kind==='first'?'first pass':(r.kind==='relearn'?'relearning step':(r.kind==='learn'?'learning':null)),
+                   (r.gapMs!=null&&r.kind!=='first')?('after '+fmtIvl(r.gapMs)):null,
+                   (r.s!=null)?('→ '+fmtDays(Math.max(Math.round(r.s),1))):null].filter(Boolean).join(' · ');
+      out+='<div class="wdRow"><span class="d">'+escHtml(dateOf(r.at))+'</span>'+
+           '<span><span class="wdAns '+cls+'">'+escHtml(r.ans)+'</span></span>'+
+           '<span class="t'+(r.slow?' slow':'')+'">'+(r.ms!=null?(r.ms/1000).toFixed(1)+' s':'—')+'</span>'+
+           '<span class="r">'+escHtml(right)+'</span></div>';
+    }
+    out+='</div>';
+    if(!all&&h.total>h.rows.length) out+='<button class="wdMore" id="ciMore">Show all '+h.total+' answers</button>';
+  }
+  return out;
+}
 function renderCardInspector(){
   const id=inspectId;
   if(!id){
@@ -9763,6 +9921,7 @@ function renderCardInspector(){
     +'<div class="ciGloss">'+escHtml(c.dir==='E'?c.a.join(', '):c.a)+'</div>'
     +'<div class="ciStats">'+escHtml(statLines[0])+'</div>'
     +(statLines[1]?'<div class="ciStats ciStats2">'+escHtml(statLines[1])+'</div>':'')
+    +wordDetailHtml(id,Date.now(),inspectAll)
     +'<div class="ciLbl">Flag</div>'+flags
     // The placeholder used to offer "the word it gets confused with" as a
     // thing to write in prose here, because until ties existed there was
@@ -12378,7 +12537,7 @@ function lhFirstPass(){
   const w=k=>(100*(tp.by[k]|0)/tp.total)+'%';
   return '<button type="button" class="lh-fp" data-go="toTriage"><div class="lh-row"><b>First pass</b><span>'+tp.done.toLocaleString()+' of '+tp.total.toLocaleString()+' · '+fmtMin(tp.left*timeFor('T')/MIN)+' left ›</span></div>'+
     '<div class="lh-stack"><i class="p4" style="width:'+w(4)+'"></i><i class="p3" style="width:'+w(3)+'"></i><i class="p2" style="width:'+w(2)+'"></i><i class="p1" style="width:'+w(1)+'"></i></div>'+
-    '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>not seen</div></div></button>';
+    '<div class="lh-piles"><div><b><i class="p4"></i>'+(tp.by[4]|0)+'</b>known well</div><div><b><i class="p3"></i>'+(tp.by[3]|0)+'</b>known</div><div><b><i class="p2"></i>'+(tp.by[2]|0)+'</b>shaky</div><div><b><i class="p1"></i>'+(tp.by[1]|0)+'</b>don&rsquo;t know</div></div></button>';
 }
 function lhTrends(h){
   const t=trendSeries(14), last=a=>{ for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return a[i]; return null; };
@@ -12849,6 +13008,7 @@ $('wordNoteOverlay').addEventListener('click',e=>{
 $('cardInspectorOverlay').addEventListener('click',e=>{
   if(e.target.id==='cardInspectorOverlay'||e.target.id==='ciClose'){ closeCardInspector(); return; }
   if(!inspectId) return;
+  if(e.target.id==='ciMore'){ inspectAll=true; renderCardInspector(); return; }
   if(e.target.id==='ciSaveNote'){
     const v=$('ciNote').value.trim();
     cardState(inspectId).note = v ? v.slice(0,CAP_NOTE) : null;
