@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.20.1">
+<link rel="stylesheet" href="palettes.css?v=2026.09.20.2">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.20.1"></script>
+<script src="decks/registry.js?v=2026.09.20.2"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.20.1"></script>
+<script src="shared.js?v=2026.09.20.2"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -4193,7 +4193,10 @@ function normalise(o){
   if(['fitted','stock'].indexOf(s.settings.params)===-1) s.settings.params='fitted';
   if(typeof s.settings.clockTerm!=='boolean') s.settings.clockTerm=true;
   if(typeof s.settings.firstPass!=='boolean') s.settings.firstPass=true;
-  if(s.settings.homeDisplay!=='line') s.settings.homeDisplay='vessel';
+  // 2026.09.20.2, his call: the water-clock is the front screen's figure, full
+  // stop. The number-and-bar drawing stays in lhHero() for a session that
+  // wants it back, but nothing sets 'line' any more and the switch is gone.
+  s.settings.homeDisplay='vessel';
   delete s.settings.typeScale;   // the 2026.09.17.10 trial switch; the short scale is simply the app's type now
   // Two buttons (2026-09-17, his call): Again and Good. Everything that only
   // existed to serve Easy and Hard is forced off rather than deleted -- hold
@@ -5466,6 +5469,21 @@ function triButtonLabels(){
   return out;
 }
 
+// One day, one colour, wherever a calendar draws it (2026.09.20.2): minutes
+// against the limit, first pass included, because a day spent sorting is a day
+// studied. A day met is strong, a day studied but short is pale, a day with
+// nothing on it has no fill at all. Stats' Days tab used to colour the same
+// squares by rating counts, so the two calendars disagreed about the same day.
+function dayCellBg(k){
+  const r=S.days[k]||{}, ms=(r.studyMs|0)+(r.triMs|0), ok=dayCounts(S.days[k]),
+        lim=(S.settings.minutesPerDay>0?S.settings.minutesPerDay:30)*MIN;
+  // No minutes at all, but the day still counts -- nothing was due, so it is an
+  // outline rather than a fill. Anything else with no minutes is simply empty.
+  if(!(ms>0)) return ok?'border-color:var(--coral)':'';
+  return ok ? 'background:color-mix(in srgb,var(--coral) '+Math.round(45+Math.min(ms/lim,1)*45)+'%,var(--panel));color:var(--bg)'
+            : 'background:color-mix(in srgb,var(--coral) 16%,var(--panel))';
+}
+
 /* ---- 6. one word, in full (build 2026.09.20.0) ----
    Everything the app already records about a single word, gathered where the
    word panel can show it: the numbers at the top, and one line per answer
@@ -5533,7 +5551,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.20.1';
+const BUILD='2026.09.20.2';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -9412,7 +9430,7 @@ function renderHome(){
   for(let i=34;i>=0;i--){
     const k=d-i, el=document.createElement('div');
     el.className='dot'+(i===0?' today':'');
-    const bg=heatCellBg(heatRec(S.days,k),avgR,S.settings.heatmapColourMode,S.settings.heatmapAccent);
+    const bg=dayCellBg(k);
     if(bg) el.style.cssText=bg;
     strip.appendChild(el);
   }
@@ -9575,9 +9593,13 @@ function renderCalendarMonth(){
       if(due!=null) style=' style="'+heatFutureBg(due,fc)+'"';
       inner='<span class="calDue">'+(due!=null?due+' due':'')+'</span>';
     } else {
-      const st=dayStatsFor(S.days,dk);
-      if(st.studied){
-        const bg=heatCellBg(heatRec(S.days,dk),avgR,S.settings.heatmapColourMode,S.settings.heatmapAccent);
+      // 2026.09.20.2: the fill is the day's MINUTES, and the gate is the same
+      // one the front screen uses (dayCellBg returns '' for a day with nothing
+      // on it). It used to ask dayStatsFor().studied, which counts RATINGS --
+      // so a day spent entirely on the first pass was blank here and coloured
+      // on the front screen, which is the disagreement this build closes.
+      {
+        const bg=dayCellBg(dk);
         if(bg) style=' style="'+bg+'"';
         // The three per-day figures (new / words touched / ratings) used to be
         // printed here in --good/--amber/--faint. They were illegible by
@@ -9626,7 +9648,7 @@ function renderCalendarAll(){
       const off=k-d0, due=(off<fc.length)?fc[off]:null;
       if(due!=null) style=' style="'+heatFutureBg(due,fc)+'"';
     } else {
-      const bg=heatCellBg(heatRec(S.days,k),avgR,S.settings.heatmapColourMode,S.settings.heatmapAccent);
+      const bg=dayCellBg(k);
       if(bg) style=' style="'+bg+'"';
     }
     col+='<div class="'+cls.join(' ')+'"'+style+' data-dk="'+k+'" title="'+escHtml(new Date(dayStart(k)).toLocaleDateString())+'"></div>';
@@ -12483,6 +12505,9 @@ function leanInterface(){
   // duplicated on Stats already, or retired with the new-words-a-day model
   ['pace','statList','asideFold'].forEach(id=>{ const x=sectOf(id); if(x) x.classList.add('leanOff'); });
   ['partFold','trueFold','hmStats'].forEach(id=>{ const x=$(id); if(x) x.classList.add('leanOff'); });
+  // Both calendars now colour by minutes (dayCellBg), so vocabula's
+  // Volume/Retention chips drive nothing. Hidden, not deleted.
+  { const c=$('calColChips'); if(c){ c.classList.add('leanOff'); const lab=c.previousElementSibling; if(lab&&/colour/i.test(lab.textContent||'')) lab.classList.add('leanOff'); } }
   // Stats: a Hard/Easy table under two buttons, and vocabula's fortnightly reminder
   { const g=$('calibGradeBody'); if(g){ g.classList.add('leanOff'); const hd=g.previousElementSibling; if(hd) hd.classList.add('leanOff'); const nt=g.nextElementSibling; if(nt&&nt.classList.contains('note')) nt.classList.add('leanOff'); } }
   { const r=$('calibRemind'); if(r&&r.parentNode) r.parentNode.classList.add('leanOff'); const n=$('calibRemindNote'); if(n) n.classList.add('leanOff'); }
@@ -12566,12 +12591,9 @@ function lhTrends(h){
     card('Week ahead',lhMin(t.ahead[0]||0)+' min','tomorrow','<div class="lh-ah" style="height:'+h+'px">'+t.ahead.map(a=>'<i style="height:'+Math.max(a/mx*100,2)+'%"></i>').join('')+'</div>')+'</div>';
 }
 function lhCalendar(weeks){
-  // coloured by MINUTES against the limit (first pass included), not by ratings: a day spent sorting is a day studied
-  const d=today(), n=weeks*7, wide=lhWide(), lim=(S.settings.minutesPerDay>0?S.settings.minutesPerDay:30)*MIN; let h='';
+  const d=today(), n=weeks*7, wide=lhWide(); let h='';
   for(let i=n-1;i>=0;i--){
-    // a day met is drawn strong (by its minutes); a day studied but short is pale; a day met with nothing due is an outline
-    const k=d-i, r=S.days[k]||{}, ms=(r.studyMs|0)+(r.triMs|0), ok=dayCounts(S.days[k]);
-    const bg=ms>0?(ok?'background:color-mix(in srgb,var(--coral) '+Math.round(45+Math.min(ms/lim,1)*45)+'%,var(--panel));color:var(--bg)':'background:color-mix(in srgb,var(--coral) 16%,var(--panel))'):(ok?'border-color:var(--coral)':'');
+    const k=d-i, bg=dayCellBg(k);
     h+='<button type="button" data-day="'+k+'" class="'+(i===0?'t ':'')+(lhDay===k?'s':'')+'" style="'+(bg||'')+'" aria-label="'+new Date(dayStart(k)).toDateString()+'">'+(wide?new Date(dayStart(k)+12*HOUR).getDate():'')+'</button>';
   }
   return '<div class="lh-cal">'+h+'</div>';
@@ -12832,7 +12854,7 @@ function hideSetting(id){
   let n=el.nextElementSibling; while(n&&n.classList.contains('fh')){ n.style.display='none'; n=n.nextElementSibling; }
 }
 function renderSetClep(){
-  ['fTopBar','fCardNotes','fGradeRem','fQuickRate','fHoldEasy','fTiming','fKnown','fWeak','toDemo'].forEach(hideSetting);
+  ['fTopBar','fCardNotes','fGradeRem','fQuickRate','fHoldEasy','fTiming','fKnown','fWeak','fHomeDisplay','toDemo'].forEach(hideSetting);
   { const l=document.querySelector('label[for="fTerm"]'); if(l) l.textContent='Test date'; }
   { const g=$('gearStreakStart'), f=g&&g.closest('.field'); if(f) f.style.display='none'; }
   const s=S.settings, fit=calibration(), st=clepSt();
