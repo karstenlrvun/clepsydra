@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.09.20.2">
+<link rel="stylesheet" href="palettes.css?v=2026.10.10.0">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.09.20.2"></script>
+<script src="decks/registry.js?v=2026.10.10.0"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.09.20.2"></script>
+<script src="shared.js?v=2026.10.10.0"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1319,7 +1319,7 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .lh-hrs{display:flex;align-items:flex-end;gap:2px;height:42px}.lh-hrs i{flex:1;background:var(--coral);opacity:.8;border-radius:2px 2px 0 0;min-height:1px;display:block}
 .lh-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin:3px 0 10px;white-space:nowrap}
 #lhSheet{position:fixed;inset:0;z-index:40;pointer-events:none}
-#lhVeil{position:absolute;inset:0;background:#0006;opacity:0;transition:opacity .22s}
+#lhVeil{position:absolute;inset:0;background:#0006;opacity:0;transition:opacity .22s;cursor:pointer}
 #lhSheetBody{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .38s cubic-bezier(.2,.9,.25,1);visibility:hidden;line-height:1.4;font-variant-numeric:tabular-nums}
 #lhSheet.on{pointer-events:auto}#lhSheet.on #lhVeil{opacity:1}#lhSheet.on #lhSheetBody{transform:none;visibility:visible;box-shadow:0 -10px 30px #0003}
 @media (prefers-reduced-motion:reduce){#lhVeil,#lhSheetBody{transition:none}}
@@ -3860,6 +3860,26 @@ function persistNow(){ idbOK=writeStores(); storageOK=idbOK; }
 let storageOK=true, idbOK=true;
 let saveTimer=null, lastSyncCheck=0;
 let storagePersisted=null;   // navigator.storage.persisted() result, once known -- shown in renderBg()
+// The copy of the app sw.js keeps on this device (2026.10.10.0). undefined =
+// not asked yet, null = nothing complete is saved, a build string = that build
+// is saved whole. Read from the same cache storage the worker writes; a cache
+// named 'clepsydra-meta' holds one entry, 'current', and it is only written
+// after that build's own cache is complete. Reads never create a cache.
+let offlineBuild;
+function probeOffline(){
+  if(typeof caches==='undefined'||!caches.match) return Promise.resolve(offlineBuild=null);
+  return Promise.resolve().then(()=>caches.match('current',{cacheName:'clepsydra-meta'}))
+    .then(r=>r?r.text():null)
+    .then(b=>b?caches.has('clepsydra-'+b).then(has=>has?b:null):null)
+    .then(b=>(offlineBuild=b),()=>(offlineBuild=null));
+}
+// The one line Settings shows about it. `able` is whether this browser can
+// keep a copy at all (service workers and cache storage both present).
+function offlineLine(saved,able){
+  if(saved) return 'yes — build '+saved+' is saved on this device';
+  if(!able) return 'no — this browser cannot save the app';
+  return 'not yet — open Clepsydra once with a connection';
+}
 // Small enough that localStorage will never refuse it, and enough to paint the
 // right palette on the very next launch before openIDB() has resolved -- without
 // it, a device whose localStorage has filled would flash the default vellum/light
@@ -5551,7 +5571,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.09.20.2';
+const BUILD='2026.10.10.0';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -12113,6 +12133,11 @@ function renderBg(){
   if(syncing&&S.lastSync&&(now-S.lastSync)>DAY)
     h+='<div class="note bad">Nothing has synced in over a day. Check this device has been online, and that its code matches the other device.</div>';
   if(storagePersisted!=null) h+=row('Storage marked persistent', storagePersisted?'yes':'no \u2014 the browser may still evict it if space runs short');
+  // Drawn from the last answer, then asked again: the worker may have finished
+  // saving since. The second draw only happens if the answer changed.
+  if(offlineBuild!==undefined) h+=row('Works without a connection', offlineLine(offlineBuild,
+    typeof navigator!=='undefined'&&'serviceWorker' in navigator&&typeof caches!=='undefined'));
+  { const was=offlineBuild; probeOffline().then(b=>{ if(b!==was&&$('scSet').classList.contains('on')) renderBg(); }).catch(()=>{}); }
   h+=row('Ratings since a saved file', (S.sinceExport||0));
   h+=row('Last file saved by hand', ago(S.lastExport));
   h+=row('Reviewed today', (rec.n||0)+' ratings, '+(rec.intro||0)+' new');
@@ -12138,6 +12163,7 @@ function renderBg(){
     ['"Again" '+EXITS_KEY+' times on one word in a day','puts two small buttons on the study card: an hourglass that hides the word until tomorrow, and a flag that sets it aside until you bring it back. Nothing happens on its own -- until 2026.08.20.5 the app parked a word by itself after enough failures, and it no longer does.'],
     ['Answering slowly','records a lower grade than the button you pressed. Never a higher one, and never on a failure. This is the only place the app ever changes what you pressed; nothing else sits between a grade and the scheduler.'],
     ['Nothing at all','downloads a file on its own. Safari blocks that silently, so files are saved by hand or from the button above.'],
+    ['Each time it opens with a connection','the app saves a complete copy of itself on this device, one whole build at a time. With no connection, or one too weak to answer in four seconds, it opens from that copy. Your reviews are saved here either way and sync when the connection returns.'],
     ['Each launch, with rotation on','picks a theme you have not had yet this cycle.']
   ];
   $('bgList').innerHTML=items.map(([a,b])=>
@@ -12644,13 +12670,20 @@ function lhOpenDay(k){
   $('leanHome').querySelectorAll('[data-day]').forEach(b=>b.classList.toggle('s',+b.dataset.day===lhDay));
 }
 function lhCloseDay(){ $('lhSheet').classList.remove('on'); if(!lhWide()){ lhDay=null; renderLeanHome(); } }
-$('scHome').addEventListener('click',e=>{
+function lhClick(e){
   const t=e.target.closest?e.target:null; if(!t) return;
   const st=t.closest('[data-step]'); if(st&&lhDay!=null){ lhOpenDay(lhDay+(+st.dataset.step)); return; }
   const dy=t.closest('[data-day]'); if(dy){ lhOpenDay(+dy.dataset.day); return; }
   if(t.id==='lhVeil'){ lhCloseDay(); return; }
   const go=t.closest('#leanHome [data-go]'); if(go&&!go.disabled){ if(go.dataset.go==='noTies'){ toast('No tied pairs yet. Settings → Backups → Bring in tied pairs reads the file from the pairs page.',4200); return; } const el=$(go.dataset.go); if(el) el.click(); }
-});
+}
+// Bound twice, and the second one is the fix (2026.10.10.0). #lhSheet sits
+// BESIDE #scHome in the page, not inside it, so a tap on its veil or on its
+// own ‹ › never bubbled to #scHome's listener: on a phone every day opened a
+// sheet that only the Escape key could close, from 2026.09.17.8 on. The veil
+// also carries cursor:pointer, which is what makes iOS send a plain div's tap.
+$('scHome').addEventListener('click',lhClick);
+$('lhSheet').addEventListener('click',lhClick);
 document.addEventListener('keydown',e=>{
   if(!$('scHome').classList.contains('on')||lhDay==null) return;
   if(e.key==='Escape'&&$('lhSheet').classList.contains('on')){ lhCloseDay(); }
@@ -14218,6 +14251,26 @@ window.addEventListener('pagehide',()=>{ pauseStudyTimer(); flushPendingPush(); 
       navigator.storage.persist().then(ok=>{ storagePersisted=!!ok; }).catch(()=>{});
     }
   }catch(e){}
+})();
+
+// The offline copy (2026.10.10.0): sw.js saves the whole app on the device so
+// it opens with no connection. Registered once the page has loaded, so it
+// never competes with the page's own first requests, and by a RELATIVE
+// address: on the site the app lives under /clepsydra/, and the worker's
+// reach is then that folder only. 'fill' asks it to check its copy against
+// the site -- one small request when nothing has changed. iOS resumes a
+// suspended app without looking for a newer worker, hence update() on return.
+// Every failure here is swallowed: the app must run exactly as before without
+// it. The same block is in index.html.
+(function registerOfflineCopy(){
+  try{
+    if(!('serviceWorker' in navigator)) return;
+    const sw=navigator.serviceWorker;
+    const go=()=>{ sw.register('sw.js').then(()=>sw.ready).then(reg=>{ if(reg.active) reg.active.postMessage('fill'); }).catch(()=>{}); };
+    if(document.readyState==='complete') go(); else window.addEventListener('load',go);
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) sw.getRegistration().then(reg=>reg&&reg.update()).catch(()=>{}); });
+  }catch(e){}
+  probeOffline();
 })();
 
 // Paint the stored palette before load() has even opened IndexedDB. load() is
