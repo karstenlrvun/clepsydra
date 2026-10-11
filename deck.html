@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.10.11.2">
+<link rel="stylesheet" href="palettes.css?v=2026.10.11.3">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.10.11.2"></script>
+<script src="decks/registry.js?v=2026.10.11.3"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.10.11.2"></script>
+<script src="shared.js?v=2026.10.11.3"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -216,6 +216,9 @@ button{font-family:inherit;font-size:inherit;color:inherit;background:none;borde
   max-width:34em}
 .answer.on{opacity:1}
 .answer .alt{display:block;margin-top:7px}
+/* principal parts under an answer (2026.10.11.3): Greek, so the serif; smaller and quieter than the answer it belongs to */
+.answer .pp{display:block;margin-top:6px;font-family:var(--serif);font-size:16px;line-height:1.45;color:var(--muted)}
+.ciPP{font-family:var(--serif);font-size:15px;line-height:1.45;color:var(--muted);margin:-6px 0 10px}
 /* Phase 3 §A (PHASE3_4_HANDOFF.md): cs.note generalised from susp-only to any
    card, shown on the answer side -- a child of .answer itself rather than a
    sibling with its own reveal state, so it inherits the exact opacity:0->1
@@ -3460,6 +3463,8 @@ const norm=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
 // parked under S.orphans, never discarded, and re-adopted the moment a
 // content file resolves it again.
 const rowId=i=>DATA[i][4];    // entry index -> that row's stable id
+// The principal-parts line for a card's i-th answer, or null. A forward card has one answer.
+const ppOf=(c,i)=>!c||!c.pp?null:(Array.isArray(c.pp)?(c.pp[i||0]||null):c.pp);
 // Phase 3 §C (PHASE3_4_HANDOFF.md, P3-2): a user-added word's id is
 // 'u'+<random base36>, never a counter -- two offline devices adding words
 // before syncing would otherwise collide on max(existing)+1. Collision odds
@@ -3527,8 +3532,15 @@ function bootContent(content){
   globalThis.DECK=content.DECK; globalThis.KEY=content.KEY;
   globalThis.DECK_TITLE=content.DECK_TITLE;
   CARDS=[];
+  // Principal parts (2026.10.11.3): a deck may carry DECK.parts, a row's
+  // permanent id -> one line of six places in a fixed order. The Greek deck
+  // does, for 289 verbs, written by tools/make-greek-parts.js from Cotidie's
+  // tables; Latin needs none, its verbs are entered with their parts. The line
+  // rides on the card as `pp` and is shown on the ANSWER side only: no prompt,
+  // id or row changes, so no history is touched.
+  const PP=(content.DECK&&content.DECK.parts)||null;
   DATA.forEach((row,i)=>{
-    CARDS.push({id:'L'+rowId(i), dir:'L', idx:[i], q:row[0], a:row[1], sec:row[2], seed:row[3]});
+    CARDS.push({id:'L'+rowId(i), dir:'L', idx:[i], q:row[0], a:row[1], sec:row[2], seed:row[3], pp:(PP&&PP[row[4]])||null});
   });
   const groups={};
   DATA.forEach((row,i)=>{ (groups[norm(row[1])] ||= []).push(i); });
@@ -3536,7 +3548,8 @@ function bootContent(content){
     const g=groups[k];
     const eid=minId(g.map(rowId));
     CARDS.push({id:'E'+eid, dir:'E', idx:g, q:DATA[g[0]][1],
-                a:g.map(i=>DATA[i][0]), sec:DATA[g[0]][2], seed:-1});
+                a:g.map(i=>DATA[i][0]), sec:DATA[g[0]][2], seed:-1,
+                pp:PP?g.map(i=>PP[DATA[i][4]]||null):null});      // one per answer, in step with `a`
   });
   SECTIONS=[...new Set(DATA.map(r=>r[2]))];
   // audit bucket per card; a merged reverse card takes its weakest member
@@ -5687,7 +5700,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.10.11.2';
+const BUILD='2026.10.11.3';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -6708,10 +6721,13 @@ function renderCard(){
   // (Web Animations API), which is unaffected by this.
   ans.className='answer'+(c.dir==='E'?' lat':'');
   ans.innerHTML='';
+  // Under each answer, its principal parts where the deck has them (Greek
+  // verbs): a child of #answer, so it appears with the answer and never before.
+  const parts=line=>{ if(!line) return; const p=document.createElement('span'); p.className='pp'; p.textContent=line; ans.appendChild(p); };
   if(c.dir==='E') c.a.forEach((x,i)=>{
-    const el=document.createElement('span'); el.className=i?'alt':''; el.textContent=x; ans.appendChild(el);
+    const el=document.createElement('span'); el.className=i?'alt':''; el.textContent=x; ans.appendChild(el); parts(ppOf(c,i));
   });
-  else { const el=document.createElement('span'); el.textContent=c.a; ans.appendChild(el); }
+  else { const el=document.createElement('span'); el.textContent=c.a; ans.appendChild(el); parts(ppOf(c,0)); }
   // Phase 3 §A: cs.note, generalised from susp-only -- a trailing child of
   // #answer (see the .cardNote CSS comment for why), so nothing here needs
   // its own reveal-timing logic at all.
@@ -10113,6 +10129,7 @@ function renderCardInspector(){
     '<div class="ciFlagName">'+(fl?escHtml(flagName(fl))+' \u00b7 ':'')+'<button id="ciRename">Rename\u2026</button></div>';
   let html='<div class="ciTerm">'+escHtml(c.q)+'</div>'
     +'<div class="ciGloss">'+escHtml(c.dir==='E'?c.a.join(', '):c.a)+'</div>'
+    +(c.dir==='E'?c.a.map((x,i)=>ppOf(c,i)):[ppOf(c,0)]).filter(Boolean).map(line=>'<div class="ciPP">'+escHtml(line)+'</div>').join('')
     +'<div class="ciStats">'+escHtml(statLines[0])+'</div>'
     +(statLines[1]?'<div class="ciStats ciStats2">'+escHtml(statLines[1])+'</div>':'')
     +wordDetailHtml(id,Date.now(),inspectAll)
