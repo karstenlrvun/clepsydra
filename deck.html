@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.10.10.0">
+<link rel="stylesheet" href="palettes.css?v=2026.10.11.0">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.10.10.0"></script>
+<script src="decks/registry.js?v=2026.10.11.0"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.10.10.0"></script>
+<script src="shared.js?v=2026.10.11.0"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1313,8 +1313,13 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 #leanHome .lh-cal button.t{outline:1.5px solid var(--ink);outline-offset:1px}#leanHome .lh-cal button.s{outline:2px solid var(--coral);outline-offset:1px}
 #leanHome .lh-wl{margin-top:auto;display:flex;justify-content:space-between;border:0;border-top:1px solid var(--line);background:none;padding:10px 0 0;font-size:15px;width:100%;white-space:nowrap}.lh-wl b{font-weight:500}.lh-wl span{color:var(--muted)}
 .lh-side{display:none}
-.lh-dh{display:flex;justify-content:space-between;align-items:baseline;font:400 20px/1.2 var(--serif);margin-bottom:10px}.lh-dh b{font-weight:400}
-.lh-dh button{font:400 24px/1 var(--sans);color:var(--coral);background:none;border:0;padding:0 8px;cursor:pointer}
+.lh-dh{display:flex;justify-content:space-between;align-items:center;font:400 20px/1.2 var(--serif);margin-bottom:10px}.lh-dh b{font-weight:400}
+/* The day arrows are a full thumb each (2026.10.11.0): 44 points square with a gap,
+   where they were 26 by 24 and touching. The negative margins keep the row
+   its old height and the glyphs where they were; only the pressable area grew. */
+.lh-dh span{display:flex;gap:6px;margin-right:-8px}
+.lh-dh button{font:400 24px/1 var(--sans);color:var(--coral);background:none;border:0;padding:0;margin:-10px 0;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.lh-dh button:disabled{opacity:.28;cursor:default}
 .lh-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}.lh-tile{border:1px solid var(--line);border-radius:10px;padding:7px 8px;background:var(--panel);white-space:nowrap;overflow:hidden}.lh-tile b{display:block;font-size:16px;font-weight:500;line-height:1.2}.lh-tile span{font-size:11px;color:var(--muted)}
 .lh-hrs{display:flex;align-items:flex-end;gap:2px;height:42px}.lh-hrs i{flex:1;background:var(--coral);opacity:.8;border-radius:2px 2px 0 0;min-height:1px;display:block}
 .lh-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin:3px 0 10px;white-space:nowrap}
@@ -5571,7 +5576,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.10.10.0';
+const BUILD='2026.10.11.0';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -12626,7 +12631,7 @@ function lhCalendar(weeks){
 }
 function lhDayHtml(k){
   const i=dayInfo(k), name=new Date(dayStart(k)+12*HOUR).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
-  let h='<div class="lh-dh"><b>'+name+'</b><span><button type="button" data-step="-1" aria-label="Previous day">‹</button><button type="button" data-step="1" aria-label="Next day">›</button></span></div>';
+  let h='<div class="lh-dh"><b>'+name+'</b><span><button type="button" data-step="-1" aria-label="Previous day">‹</button><button type="button" data-step="1" aria-label="Next day"'+(k>=today()?' disabled':'')+'>›</button></span></div>';   // no later day than today: drawn faint, not left looking dead
   if(!i.any) return h+'<div class="lh-none">No study this day.</div>';
   const tile=(v,l)=>'<div class="lh-tile"><b>'+v+'</b><span>'+l+'</span></div>', tot=(i.revMs+i.newMs+i.triMs)||1, mxh=Math.max.apply(null,i.hours.concat([1]));
   h+='<div class="lh-tiles">'+tile(lhMin(i.min),i.limit?'min of '+i.limit:'minutes')+tile(i.reviews,'reviews')+tile(i.passPct==null?'—':Math.round(i.passPct*100)+'%','passed')+tile(i.newWords,'new words')+'</div>';
@@ -12672,7 +12677,7 @@ function lhOpenDay(k){
 function lhCloseDay(){ $('lhSheet').classList.remove('on'); if(!lhWide()){ lhDay=null; renderLeanHome(); } }
 function lhClick(e){
   const t=e.target.closest?e.target:null; if(!t) return;
-  const st=t.closest('[data-step]'); if(st&&lhDay!=null){ lhOpenDay(lhDay+(+st.dataset.step)); return; }
+  const st=t.closest('[data-step]'); if(st&&!st.disabled&&lhDay!=null){ lhOpenDay(lhDay+(+st.dataset.step)); return; }
   const dy=t.closest('[data-day]'); if(dy){ lhOpenDay(+dy.dataset.day); return; }
   if(t.id==='lhVeil'){ lhCloseDay(); return; }
   const go=t.closest('#leanHome [data-go]'); if(go&&!go.disabled){ if(go.dataset.go==='noTies'){ toast('No tied pairs yet. Settings → Backups → Bring in tied pairs reads the file from the pairs page.',4200); return; } const el=$(go.dataset.go); if(el) el.click(); }
