@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.10.11.0">
+<link rel="stylesheet" href="palettes.css?v=2026.10.11.1">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.10.11.0"></script>
+<script src="decks/registry.js?v=2026.10.11.1"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.10.11.0"></script>
+<script src="shared.js?v=2026.10.11.1"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1730,6 +1730,14 @@ html[data-layout="landscape"] .keycap{
   background:var(--track); border:1px solid var(--line); border-radius:6px;
   padding:1px 7px; min-width:16px; letter-spacing:.01em;
 }
+/* The digit takes the full ink in dark mode (2026.10.11.1). --track is mixed
+   from --ink, so on a dark ground the pill comes out LIGHTER than the tinted
+   button under it, and --muted on that pill measured 2.21-4.02 across the
+   twelve dark palettes (Vellum 2.21, Wood 2.28, Gilded 2.29, Frost 2.35).
+   The same swap in light mode would be 7.8-11:1 -- too loud for a hint on a
+   button you are not meant to read first -- so it is dark-only, where --muted
+   on the same pill is 3.4-5.1 already. Now 3.51-7.36. */
+html[data-theme="dark"][data-layout="landscape"] .keycap{ color:var(--ink); }
 html[data-layout="landscape"] #revealBtn .keycap,
 html[data-layout="landscape"] #quickBtn .keycap{
   position:absolute; right:18px; top:50%; transform:translateY(-50%); margin:0;
@@ -5576,7 +5584,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.10.11.0';
+const BUILD='2026.10.11.1';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -9393,13 +9401,30 @@ function daysLearnedPct(days,todayKey,since){
    against it. Nothing to tune, and it stays correct if a palette, an accent,
    or the interpolation space ever changes again.
    Cost is one getComputedStyle per filled cell, at most ~31 in a month. */
+// A colour as four numbers, alpha included (2026.10.11.1). cssLum() below
+// still answers "how light is this", but a fill can be TRANSLUCENT -- in the
+// three glass palettes --panel itself is, and every quiet heat cell is a
+// color-mix() into --panel -- and a reader that drops the alpha treats
+// rgba(255,255,255,.09) as white. That is how a date came out dark on dark at
+// 1.30:1 in Frost dark: the picker saw white and chose the dark ink, while the
+// cell actually renders as the page plus nine per cent white.
+function cssRGBA(c){
+  if(!c) return [0,0,0,1];
+  const n=c.match(/[\d.]+/g); if(!n) return [0,0,0,1];
+  const scale=/^color\(/.test(c)?255:1;           // color(srgb .9 .8 .7) vs rgb(230, 204, 178)
+  return [+n[0]*scale, +n[1]*scale, +n[2]*scale, n.length>3?+n[3]:1];
+}
+// What the eye sees: the colour painted over the ground behind it.
+const flattenOn=(c,ground)=>[0,1,2].map(i=>c[i]*c[3]+ground[i]*(1-c[3]));
 function cssLum(c){
   if(!c) return 0;
   const n=c.match(/[\d.]+/g); if(!n) return 0;
-  const scale=/^color\(/.test(c)?255:1;           // color(srgb .9 .8 .7) vs rgb(230, 204, 178)
+  const scale=/^color\(/.test(c)?255:1;
   const f=v=>{ v=v*scale/255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); };
   return 0.2126*f(+n[0])+0.7152*f(+n[1])+0.0722*f(+n[2]);
 }
+const lumOf=rgb=>{ const f=v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); };
+  return 0.2126*f(rgb[0])+0.7152*f(rgb[1])+0.0722*f(rgb[2]); };
 const contrastOf=(l1,l2)=>(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
 function paintCellInk(container){
   if(!container) return;
@@ -9411,9 +9436,12 @@ function paintCellInk(container){
   // is translucent white in the glass palettes, so a date came out white on a
   // pale fill (1.14:1 in Obsidian dark). --bg is opaque in every palette.
   const lInk=resolve('var(--ink)'), lRaise=resolve('var(--bg)');
+  // The ground every cell is painted over, as four numbers: --bg is opaque in
+  // all twelve palettes, so this is a real colour to flatten against.
+  probe.style.color='var(--bg)'; const ground=cssRGBA(getComputedStyle(probe).color);
   container.querySelectorAll('.calCell').forEach(cell=>{
     if(!cell.getAttribute('style')) return;       // no fill: the plain --panel base, --ink already right
-    const l=cssLum(getComputedStyle(cell).backgroundColor);
+    const l=lumOf(flattenOn(cssRGBA(getComputedStyle(cell).backgroundColor),ground));
     cell.style.color = contrastOf(l,lRaise)>contrastOf(l,lInk) ? 'var(--bg)' : 'var(--ink)';
   });
   probe.remove();
@@ -12225,6 +12253,24 @@ function renderPalGrid(){
   renderCardPreview(cur);
 }
 // The big study-card mock above the grid (see its own CSS comment for why
+// The chips under the sample word are the grades THIS app actually offers
+// (2026.10.11.1), not a fixed four. Two reasons, one measured and one plain:
+// the four names ran 188px wide inside a 178px half on a 393-point phone, so
+// Again and Easy were cut off at both edges; and Clepsydra grades with two
+// buttons, so a preview showing Hard and Easy was a picture of a screen he
+// never sees. A save that asks for four buttons still previews four.
+// What the four chips used to be good for -- catching a bad
+// warn-ink-on-warn-bg pair in some palette, the class of defect
+// FINALISATION_PLAN.md §2a was -- is covered without them: sec108 sweeps
+// every rating pair in all 24 blocks on every test run, which the preview
+// only ever did by eye.
+function cpRates(){
+  const two=(typeof twoButtons==='function')?twoButtons():false;
+  return two
+    ? '<span class="cpRate again">Again</span><span class="cpRate good">Good</span>'
+    : '<span class="cpRate again">Again</span><span class="cpRate hard">Hard</span>'+
+      '<span class="cpRate good">Good</span><span class="cpRate easy">Easy</span>';
+}
 // it exists) -- always the CURRENTLY selected palette, both modes at once.
 function renderCardPreview(pal){
   const half=mode=>
@@ -12232,15 +12278,7 @@ function renderCardPreview(pal){
       '<span class="cardPreviewWord">'+escHtml(PAL_SAMPLE)+'</span>'+
       '<span class="cardPreviewRule"></span>'+
       '<span class="cardPreviewGloss">'+escHtml(PAL_SAMPLE_GLOSS)+'</span>'+
-      '<span class="cardPreviewRates">'+
-        // Hard added 2026-08-18 alongside the real #bHard button. It is the
-        // only chip here whose colours (--warn-*) were not originally chosen
-        // for a rate button, so this preview is the one place a bad
-        // warn-ink-on-warn-bg pair would be caught across all 24 palettes --
-        // exactly the class of defect FINALISATION_PLAN.md §2a was.
-        '<span class="cpRate again">Again</span><span class="cpRate hard">Hard</span>'+
-        '<span class="cpRate good">Good</span><span class="cpRate easy">Easy</span>'+
-      '</span>'+
+      '<span class="cardPreviewRates">'+cpRates()+'</span>'+
       '<span class="cardPreviewLbl">'+(mode==='light'?'Light':'Dark')+'</span>'+
     '</div>';
   $('cardPreview').innerHTML=half('light')+half('dark');

@@ -485,8 +485,18 @@ html[data-theme="dark"]{
   --glass-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(255,255,255,.3),0 3px 14px rgba(20,40,60,.10);
   --flag1:#ff001e; --flag2:#cc7500; --flag3:#00a12a; --flag4:#0077fe; --flag5:#ff0699; --flag6:#009b9c; --flag7:#a200fe;
 }
+/* Frost dark's two greys are brighter than the recipe gives (2026.10.11.1).
+   This is the one palette whose surfaces are translucent WHITE over a mid
+   grey-blue page, so a panel sits LIGHTER than the page behind it, while the
+   greys were solved against the page. Measured on the raised tier: secondary
+   text read 3.40 and the faintest labels 1.79 -- the weakest pair in the
+   roster. At --muted:#e2eaf1 / --faint:#9ca5af they read 4.57 and 2.37, with
+   the surfaces untouched (his call: brighten the text, keep the look).
+   #9ca5af is exactly what gen_palettes.py's derive() gives from the new
+   muted, and the tool's own table carries the new muted, so a re-run of it
+   reproduces this block rather than undoing it. */
 [data-palette="frost"][data-theme="dark"]{
-  --bg:#3b4654; --panel:rgba(255,255,255,.09); --ink:#f1f5f8; --muted:#c0ccd6; --faint:#88949f; --line:#566373; --coral:#9bdcf5; --accent-soft:#5c7181; --raise:rgba(255,255,255,.19);
+  --bg:#3b4654; --panel:rgba(255,255,255,.09); --ink:#f1f5f8; --muted:#e2eaf1; --faint:#9ca5af; --line:#566373; --coral:#9bdcf5; --accent-soft:#5c7181; --raise:rgba(255,255,255,.19);
   --again:#ffe3ee; --again-bg:#706672; --again-br:#947581; --good:#c9fff2; --good-bg:#5c7377; --good-br:#6c8f8a; --easy:#f9eeff; --easy-bg:#666c83; --easy-br:#7f81a2;
   --amber:#f3d48d; --warn-bg:#6e706c; --warn-br:#8f8974; --warn-ink:#fff8b0; --bad-bg:#706672; --bad-br:#947581; --bad-ink:#ffe5ee; --toast:#4d5763;
   --texture:radial-gradient(60% 45% at 10% -5%,rgba(190,225,245,.20),transparent 60%),radial-gradient(50% 40% at 100% 100%,rgba(150,190,230,.16),transparent 65%);
@@ -571,10 +581,21 @@ html[data-theme="dark"]{
 
 /* Gilded: a gold line round every surface with a fine inner line, a gold
    Start, gold chips. 1.5px -- at 2px he found it "a little like a casino game".
-   No veining: noticeable texture is what he dislikes. */
+   No veining: noticeable texture is what he dislikes.
+
+   The gap between the two lines is an OUTLINE held 4.5px inside the border
+   box, not an inset shadow filled with --panel (2026.10.11.1). The old pair
+   painted the gap in the panel colour, which is invisible on a panel-coloured
+   surface and a pale cream stripe on the four grade buttons, which carry
+   their own tint (--again-bg and friends): a picture-frame mat inside a pink
+   button, 1.27:1 against it. An outline is drawn over the element's own
+   background, so the gap is now whatever that surface already is, and the two
+   gold lines are unchanged. Offset -4.5px = the 1.5px border plus the 3px the
+   inset shadow used to span, so the hairline lands where it always did. */
 [data-palette="marble"] :is(.rate,.revealBtn,.browseBtn,.dir,.stepper,.clepPanel,.dayDetail,.lh-tc,.lh-side,.lh-seg){
   border:1.5px solid var(--gold);
-  box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 4px color-mix(in srgb,var(--gold) 45%,transparent);
+  outline:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
+  outline-offset:-4.5px;
 }
 [data-palette="marble"] :is(.startBtn,.lh-go):not(:disabled){ background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#1b1406; border:1.5px solid var(--gold); }
 [data-palette="marble"] .triBtn.lead{ background:linear-gradient(180deg,var(--gold2),var(--gold)); color:#1b1406; }
