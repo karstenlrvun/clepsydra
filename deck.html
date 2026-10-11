@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <title>Clepsydra</title>
-<link rel="stylesheet" href="palettes.css?v=2026.10.11.1">
+<link rel="stylesheet" href="palettes.css?v=2026.10.11.2">
 <!--
   Phase 1 (PLATFORM_PLAN.md D1): one engine, many decks. This file replaces
   latin.html/greek.html. Which deck loads is decided here, before anything
@@ -35,7 +35,7 @@
   stays HERE, synchronous, so it still halts the parser before the app
   skeleton can flash -- it never depended on content at all.
 -->
-<script src="decks/registry.js?v=2026.10.11.1"></script>
+<script src="decks/registry.js?v=2026.10.11.2"></script>
 <!-- shared.js and palettes.css carry ?v=<BUILD> from 2026.08.20.3, and the
      number must be bumped with BUILD (sec95c pins that it matches).
      Why: these two are the only files both pages load by a fixed name, and a
@@ -47,7 +47,7 @@
      in-app browser the same day (transferSize:0 on shared.js, currentStreak
      defined, avgMsPerRating not). The query makes each build's pair a
      distinct URL, so the two can never be mismatched again. -->
-<script src="shared.js?v=2026.10.11.1"></script>
+<script src="shared.js?v=2026.10.11.2"></script>
 <script data-boot>
 (function(){
   // REGISTRY comes from decks/registry.js, loaded just above as an ordinary
@@ -1348,6 +1348,13 @@ html.twoBtn #bGood .keycap::after{content:'2 · Space';font-size:11px}
 .leanOff{display:none!important}
 #scSet .fh.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
 .fhMore{font:inherit;font-size:13px;color:var(--coral);background:none;border:0;padding:2px 0 0;cursor:pointer}
+/* The 11 October audit (2026.10.11.2). .macOnly: a chart or table he chose to
+   keep for the laptop layout, which begins at 1100 points; below that it is
+   not drawn. .shut: a long table that starts folded and opens on a press.
+   Nothing is removed from the page by either. */
+@media (max-width:1099px){.macOnly{display:none!important}}
+.sect.shut>*:not(h2):not(.foldBtn){display:none!important}
+.foldBtn{display:block;font:inherit;font-size:13px;color:var(--coral);background:none;border:0;padding:2px 0 0;cursor:pointer}
 .s-retired{background:var(--good);opacity:.28}
 .swatch{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;
   margin-right:7px;border:1px solid var(--line)}
@@ -4770,7 +4777,12 @@ function unretireAll(now){
 // rating (ext.pr), pulled toward "the model is right" (a=0, b=1) with the
 // weight of CAL_PRIOR_N reviews. Two numbers, so it cannot overfit, and with
 // no data it is the identity -- a fresh install schedules exactly to the dial.
-const CAL_PRIOR_N=60, CAL_MIN_N=40;
+// The correction waits for 300 spaced reviews spread over five or more days
+// (2026.10.11.2). It used to wait for 40 reviews on any number of days, and one
+// late sitting of 183 reviews, sixteen days after the first pass, moved the
+// working target from 90% to 96%, the furthest it may go. One tired hour is
+// evidence about that hour, not about the scheduler.
+const CAL_PRIOR_N=60, CAL_MIN_N=300, CAL_MIN_DAYS=5;
 const logit=p=>Math.log(p/(1-p)), expit=x=>1/(1+Math.exp(-x));
 const clampP=p=>Math.min(Math.max(p,0.02),0.98);
 function calibrationRows(log,dir){
@@ -4778,13 +4790,15 @@ function calibrationRows(log,dir){
   for(const e of log){
     const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue;
     if(dir&&String(e[0])[0]!==dir) continue;
-    out.push([clampP(x.pr),e[1]!==AGAIN?1:0]);
+    out.push([clampP(x.pr),e[1]!==AGAIN?1:0,dayKey(e[2])]);   // [2] the study day, so plattFit() can count the days
   }
   return out;
 }
 function plattFit(rows){
   let a=0,b=1; const lam=CAL_PRIOR_N*0.09;      // curvature of one review near p=0.9 is p(1-p)=0.09
-  if(rows.length<CAL_MIN_N) return {a:0,b:1,n:rows.length,ready:false};
+  // rows built by hand (the tests') carry no day; then only the count is asked for
+  const nd=(rows.length&&rows[0][2]!=null)?new Set(rows.map(r=>r[2])).size:null;
+  if(rows.length<CAL_MIN_N||(nd!=null&&nd<CAL_MIN_DAYS)) return {a:0,b:1,n:rows.length,days:nd,ready:false};
   for(let it=0;it<30;it++){
     let ga=-lam*a, gb=-lam*(b-1), haa=lam, hab=0, hbb=lam;
     for(const r of rows){
@@ -4795,8 +4809,8 @@ function plattFit(rows){
     const da=(hbb*ga-hab*gb)/det, db=(haa*gb-hab*ga)/det;
     a+=da; b+=db; if(Math.abs(da)+Math.abs(db)<1e-7) break;
   }
-  if(!Number.isFinite(a)||!Number.isFinite(b)) return {a:0,b:1,n:rows.length,ready:false};
-  return {a:a,b:Math.max(b,0.3),n:rows.length,ready:true};
+  if(!Number.isFinite(a)||!Number.isFinite(b)) return {a:0,b:1,n:rows.length,days:nd,ready:false};
+  return {a:a,b:Math.max(b,0.3),n:rows.length,days:nd,ready:true};
 }
 let _calCache={len:-1,fit:null};
 function calibration(){
@@ -4804,6 +4818,10 @@ function calibration(){
   if(_calCache.len!==S.log.length) _calCache={len:S.log.length,fit:plattFit(calibrationRows(S.log,'L'))};
   return _calCache.fit;
 }
+// What the correction is still waiting for, in one phrase, for every place that says so.
+// The same for a Stats row, which has one line: whichever of the two it is still short of.
+function calWaitShort(fit){ const n=(fit&&fit.n)|0, d=(fit&&fit.days)|0; return n<CAL_MIN_N?(n+' of '+CAL_MIN_N+' reviews'):(d+' of '+CAL_MIN_DAYS+' days'); }
+function calWaitText(fit){ return CAL_MIN_N+' reviews on '+CAL_MIN_DAYS+' days'+((fit&&fit.n)?' ('+fit.n+' on '+(fit.days|0)+' so far)':''); }
 const calibrated=(pr,fit)=>{ fit=fit||calibration(); return expit(fit.a+fit.b*logit(clampP(pr))); };
 // The figure nextInterval() should aim at so that what he GETS is `target`.
 // Bounded twice: never more than 6 points from the dial, never outside
@@ -5074,6 +5092,68 @@ function noteDayMet(now){
   else if(rec0.met!==1&&rec0.met!==met){ rec0.met=met; changed=true; }     // once met, a day stays met
   return changed;
 }
+/* ---- putting two day figures right (2026.10.11.2) ----
+   Both came to light on his 11 October backup, and both are corrected in the
+   stored record, with his leave, because the figures that read them look at
+   all of history.
+   1. Days marked met that were not. noteDayMet()'s look-back marks an unopened
+      day as met when nothing was yet due. On a device that had not synced
+      since before the first pass it ran against a deck with nothing in it and
+      marked a fortnight of days; the merge then keeps a met mark for good.
+      Stats read "Longest streak 20 days" over eighteen days with no study in
+      them. A day with no study keeps its mark only if no word was sitting due
+      and unreviewed when that day ended, read back from the two logs.
+   2. A merged day's new-word count: see recountDay().
+   Run at boot and from adopt(), which is every sync and restore, so a mark an
+   older build puts back is taken off again. Returns how many day records it
+   changed; the caller saves. */
+const dayHadStudy=r=>!!(r&&((r.n|0)>0||((r.studyMs|0)+(r.triMs|0))>0||(r.triN|0)>0));
+// Every stretch a word sat due and unreviewed, as [from, until). A first-pass
+// word's first due date is not kept once the word has been reviewed, so it is
+// worked out again from the same first-pass row, the way triageFirstDue() did.
+// (That reads today's test date and target: if either has changed since the
+// first pass the date can be a few days out, which is close enough to say
+// whether anything was waiting.)
+function waitingStretches(){
+  const out=[], first={}, last={};
+  for(const e of S.log){ const id=e[0]; if(first[id]==null) first[id]=e[2];
+    const p=last[id]; if(p&&Number.isFinite(p[11])&&p[11]<e[2]) out.push([p[11],e[2]]); last[id]=e; }
+  const st=Object.assign({},S.settings); delete st.schedR;
+  for(const t of (S.triLog||[])){
+    if(t[1]!==TRI_SHAKY&&t[1]!==TRI_KNOWN) continue;
+    const seen=first[t[0]]; if(seen==null||seen<t[2]||!(t[6]>0)) continue;   // never reviewed: its card still holds the date, below
+    const due=triageFirstDue(t[0],t[6],t[2],st); if(due<seen) out.push([due,seen]);
+  }
+  for(const id in S.cards){ const cs=S.cards[id]; if(!cs||cs.susp||cs.reps===0||!Number.isFinite(cs.due)||(cs.ret&&cs.aud!==1)) continue; out.push([cs.due,Infinity]); }
+  return out;
+}
+function repairDayMarks(now){
+  now=(now!=null)?now:Date.now(); const d=dayKey(now), cand=[];
+  for(const k in S.days){ const r=S.days[k]; if(r&&r.met===1&&+k<d&&!dayHadStudy(r)) cand.push(+k); }   // today is noteDayMet()'s own business
+  if(!cand.length) return 0;
+  const w=waitingStretches(); let n=0;
+  for(const k of cand){ const end=dayStart(k+1); if(w.some(x=>x[0]<end&&x[1]>=end)){ S.days[k].met=0; n++; } }
+  return n;
+}
+// Only a record holding exactly what the OLD recount would have written is
+// touched, so a day counted live by rate() -- which was always right -- is not.
+function repairDayIntro(){
+  const firstIdx=new Map(); S.log.forEach((r,i)=>{ if(!firstIdx.has(r[0])) firstIdx.set(r[0],i); });
+  const sorted=id=>{ const cs=S.cards[id]; return !!(cs&&cs.tri>TRI_UNSEEN); };
+  const days=new Set(); firstIdx.forEach((i,id)=>{ if(sorted(id)) days.add(dayKey(S.log[i][2])); });
+  let n=0;
+  days.forEach(k=>{
+    const r=S.days[k]; if(!r) return;
+    const rows=[]; S.log.forEach((row,idx)=>{ if(dayKey(row[2])===k) rows.push({row:row,idx:idx}); });
+    const was=recountDay(rows,firstIdx), now_=recountDay(rows,firstIdx,sorted);
+    if((r.intro|0)!==was.rec.intro||was.rec.intro===now_.rec.intro) return;
+    ['intro','introL','introE'].forEach(f=>{ if(now_.rec[f]!=null) r[f]=now_.rec[f]; else delete r[f]; });
+    if(now_.full){ r.ok=now_.rec.ok; r.tot=now_.rec.tot; r.stageN=now_.rec.stageN; }
+    n++;
+  });
+  return n;
+}
+function clepRepair(now){ let n=0; try{ n+=repairDayMarks(now); }catch(e){} try{ n+=repairDayIntro(); }catch(e){} return n; }
 /* ---- the sync mark: how much is waiting, how long since (2026.09.17.11) ---- */
 function syncMarkState(now){
   now=(now!=null)?now:Date.now();
@@ -5129,8 +5209,8 @@ function trendSeries(days,now){
   const minutes=[], retention=[], rotation=[];
   for(let k=first;k<=d0;k++){
     const r=S.days[k]||{}; minutes.push(((r.studyMs|0)+(r.triMs|0))/MIN);
-    let o=0,t=0; for(let j=k-6;j<=k;j++){ o+=ok[j]|0; t+=tot[j]|0; }
-    retention.push(t>=10?o/t:null);
+    let o=0,t=0,dn=0; for(let j=k-6;j<=k;j++){ o+=ok[j]|0; t+=tot[j]|0; if(tot[j]>0) dn++; }
+    retention.push((t>=LV_BAR_N&&dn>=3)?o/t:null);   // a week's figure from one sitting is that sitting (2026.10.11.2)
     let n=0; for(const x of enter) if(x<=k) n++; for(const x of leave) if(x<=k) n--;
     rotation.push(n);
   }
@@ -5213,13 +5293,15 @@ function statsTimeHtml(now){
 function statsRetentionHtml(now){
   now=(now!=null)?now:Date.now();
   const fit=calibration(), st=clepSt(), asked=S.settings.retention, since=now-30*DAY; let n=0, ok=0, h='';
-  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)||e[2]<since||String(e[0])[0]!=='L') continue; n++; if(e[1]!==AGAIN) ok++; }
-  const got=n>=20?ok/n:null, pos=x=>Math.min(Math.max((x-0.6)/0.4,0),1)*100;
-  h+=stK('Asked against delivered · 30 days')+'<div class="st-gauge">'+(got!=null?'<u style="width:'+pos(got)+'%"></u>':'')+'<i style="left:'+pos(asked)+'%"></i></div>'+
+  const dset=new Set();
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)||e[2]<since||String(e[0])[0]!=='L') continue; n++; dset.add(dayKey(e[2])); if(e[1]!==AGAIN) ok++; }
+  const got=n>=20?ok/n:null, pos=x=>Math.min(Math.max((x-0.6)/0.4,0),1)*100, nd=dset.size;
+  // the bar is a chart and waits like one; the row beneath always says what there is, and from how many days
+  h+=stK('Asked against delivered · 30 days')+'<div class="st-gauge">'+((got!=null&&n>=LV_BAR_N&&nd>=LV_DAYS)?'<u style="width:'+pos(got)+'%"></u>':'')+'<i style="left:'+pos(asked)+'%"></i></div>'+
      '<div class="lh-ax"><span>60%</span><span>70</span><span>80</span><span>90</span><span>100</span></div>';
   h+=sr('Asked for',Math.round(asked*100)+'%');
-  h+=sr('Delivered, last 30 days',got==null?'too few yet · '+n+' of 20':Math.round(got*100)+'% of '+n+' reviews');
-  h+=sr('Target on paper',S.settings.calibrate===false?'the same · correction off':(fit.ready?(st.schedR*100).toFixed(1)+'% · from '+fit.n+' reviews':'the same · corrects after '+CAL_MIN_N));
+  h+=sr('Delivered, last 30 days',got==null?'too few yet · '+n+' of 20':Math.round(got*100)+'% of '+n+' on '+nd+' day'+(nd===1?'':'s'));
+  h+=sr('Target on paper',S.settings.calibrate===false?'the same · correction off':(fit.ready?(st.schedR*100).toFixed(1)+'% · from '+fit.n+' reviews':'same · '+calWaitShort(fit)));
   h+=sr('Scheduler numbers',paramsLabel());
   { const med=medianThinkMs(); h+=sr('Median answer',med?fmtSecs(med):'vocabula’s, until 30 reviews'); }
   { const b=boostM(), pc=x=>x.n?Math.round(100*x.pass/x.n)+'% of '+x.n+' passed':'none yet';
@@ -5278,12 +5360,31 @@ function loadTrend(days,now){
     out.push(Math.max(sum,0)*sec); }
   return out;
 }
+/* ---- enough to mean something (2026.10.11.2) ----
+   A chart drew from 15 or 20 reviews a bar. At 20 reviews and a true pass rate
+   of 90%, chance alone moves a bar by about 13 points, so the bars compared
+   noise; and every one of them was first drawn from a single sitting. Now a bar
+   needs LV_BAR_N reviews, and a chart that pools all of history also needs
+   them spread over LV_DAYS study days. Until then statsLongCards() prints one
+   line saying how far along it is. */
+const LV_BAR_N=150, LV_DAYS=5;
+// His picks from the 11 October audit: these ten show in the laptop layout only.
+// On a phone Stats ran to fourteen screens; with these and seven tables hidden
+// it is the fifteen things worth a thumb. Nothing is deleted.
+const LV_MAC_ONLY={lvLoad:1,lvWorst:1,lvWhen:1,lvCal:1,lvSag:1,lvDrift:1,lvStrength:1,lvFragile:1,lvNet:1,lvHour:1};
+// spaced reviews -- rows that carry a prediction -- and the study days they fall on
+function spacedSpread(){
+  let n=0; const days=new Set();
+  for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue; n++; days.add(dayKey(e[2])); }
+  return {n:n,days:days.size};
+}
+const lvSoFar=sp=>sp.n.toLocaleString()+' review'+(sp.n===1?'':'s')+' on '+sp.days+' day'+(sp.days===1?'':'s')+' so far.';
 // 3. What the worst words cost: the share of review time, last 30 days, spent
 //    on words failed three or more times.
 function lapseLoad(now){
-  now=(now!=null)?now:Date.now(); const since=now-30*DAY; let bad=0, all=0; const ids=new Set();
-  for(const e of S.log){ if(e[2]<since) continue; const x=e[15]; if(!x||!Number.isFinite(x.ms)||(e[5]!=='R'&&e[5]!=='X')) continue; all+=x.ms; const cs=S.cards[e[0]]; if(cs&&(cs.lapses|0)>=3){ bad+=x.ms; ids.add(e[0]); } }
-  return {share:all>0?bad/all:null, words:ids.size, ms:all};
+  now=(now!=null)?now:Date.now(); const since=now-30*DAY; let bad=0, all=0, n=0; const ids=new Set(), days=new Set();
+  for(const e of S.log){ if(e[2]<since) continue; const x=e[15]; if(!x||!Number.isFinite(x.ms)||(e[5]!=='R'&&e[5]!=='X')) continue; all+=x.ms; n++; days.add(dayKey(e[2])); const cs=S.cards[e[0]]; if(cs&&(cs.lapses|0)>=3){ bad+=x.ms; ids.add(e[0]); } }
+  return {share:all>0?bad/all:null, words:ids.size, ms:all, n:n, days:days.size};
 }
 // 4. When he studies: answers by weekday and hour, last eight weeks.
 function studyGrid(now){
@@ -5296,7 +5397,7 @@ function studyGrid(now){
 function reliability(){
   const edges=[0,0.7,0.8,0.85,0.9,0.95,1.0001], bins=edges.slice(1).map(()=>({n:0,pred:0,pass:0}));
   for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue; const p=(Number.isFinite(x.cr)?x.cr:x.pr); let b=0; while(p>=edges[b+1]) b++; bins[b].n++; bins[b].pred+=p; if(e[1]!==AGAIN) bins[b].pass++; }
-  const used=bins.filter(b=>b.n>=15), n=used.reduce((a,b)=>a+b.n,0);
+  const used=bins.filter(b=>b.n>=LV_BAR_N), n=used.reduce((a,b)=>a+b.n,0);
   return {bins:used.map(b=>({n:b.n,pred:b.pred/b.n,actual:b.pass/b.n})), n:n,
           rmse:n?Math.sqrt(used.reduce((a,b)=>a+b.n*Math.pow(b.pred/b.n-b.pass/b.n,2),0)/n):null};
 }
@@ -5304,13 +5405,13 @@ function reliability(){
 function sagByPosition(){
   const cuts=[10,20,30,40,60,80,1e9], b=cuts.map(()=>({n:0,pass:0}));
   for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)||!Number.isFinite(x.i)) continue; let k=0; while(x.i>=cuts[k]) k++; b[k].n++; if(e[1]!==AGAIN) b[k].pass++; }
-  return b.map((x,i)=>({from:i?cuts[i-1]:0, n:x.n, rate:x.n>=20?x.pass/x.n:null}));
+  return b.map((x,i)=>({from:i?cuts[i-1]:0, n:x.n, rate:x.n>=LV_BAR_N?x.pass/x.n:null}));
 }
 // 7. Is grading drifting? Share of Again among reviews, week by week.
 function againDrift(now,weeks){
   now=(now!=null)?now:Date.now(); weeks=weeks||10; const d0=dayKey(now), out=Array.from({length:weeks},()=>({n:0,again:0}));
   for(const e of S.log){ if(e[5]!=='R') continue; const w=weeks-1-Math.floor((d0-dayKey(e[2]))/7); if(w<0||w>=weeks) continue; out[w].n++; if(e[1]===AGAIN) out[w].again++; }
-  return out.map(x=>x.n>=20?x.again/x.n:null);
+  return out.map(x=>x.n>=LV_BAR_N?x.again/x.n:null);
 }
 // 8. Words held, over time: the scheduler's own recall estimate summed over every
 //    word, retired words at their last known strength. Replayed from both logs.
@@ -5349,7 +5450,7 @@ function gainedLost(days,now){
 function passByHour(){
   const h=Array.from({length:24},()=>({n:0,pass:0}));
   for(const e of S.log){ const x=e[15]; if(!x||!Number.isFinite(x.pr)) continue; const b=h[new Date(e[2]).getHours()]; b.n++; if(e[1]!==AGAIN) b.pass++; }
-  return h.map(x=>x.n>=20?x.pass/x.n:null);
+  return h.map(x=>x.n>=LV_BAR_N?x.pass/x.n:null);
 }
 /* ---- the longer view: drawing (HTML builders, DOM-free) ---- */
 const lvAx=a=>'<div class="lh-ax">'+a.map(x=>'<span>'+x+'</span>').join('')+'</div>';
@@ -5370,7 +5471,8 @@ function lvLine(a,h,opt){
 const lvDate=k=>{ const d=new Date(dayStart(k)+12*HOUR); return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]; };
 // tab -> [{id, title (the jump bar's word), head, html}]
 function statsLongCards(tab,now){
-  now=(now!=null)?now:Date.now(); const out=[], pc=x=>Math.round(x*100)+'%', add=(id,title,head,html)=>out.push({id:id,title:title,head:head,html:html});
+  now=(now!=null)?now:Date.now(); const out=[], pc=x=>Math.round(x*100)+'%', add=(id,title,head,html)=>out.push({id:id,title:title,head:head,html:html,mac:!!LV_MAC_ONLY[id]});
+  const sp=spacedSpread(), thin=sp.days<LV_DAYS;
   if(tab==='time'){
     { const f=dueForecast(now), a=f.held.map((h,i)=>[h,f.fresh[i]]), mx=Math.max.apply(null,a.map(x=>x[0]+x[1]).concat([f.limit,1]));
       add('lvDue','Ahead','Minutes due, day by day',lvBars(a,96,{ref:f.limit,max:mx})+lvAx(['today',lvDate(f.startDay+Math.round(f.days/2)),lvDate(f.startDay+f.days-1)])+
@@ -5380,6 +5482,7 @@ function statsLongCards(tab,now){
         lvNote('Minutes a day the words in rotation commit you to: '+lhMinP(last)+' now, '+(last>=was?'up ':'down ')+lhMinP(Math.abs(last-was))+' in a fortnight.')); }
     { const l=lapseLoad(now);
       add('lvWorst','Worst words','What your worst words cost',l.share==null?lvWait('No timed reviews in the last 30 days yet.'):
+        (l.n<LV_BAR_N||l.days<LV_DAYS)?lvWait('Needs '+LV_BAR_N+' timed reviews on '+LV_DAYS+' days in the last 30: '+lvSoFar({n:l.n,days:l.days})):
         '<div class="lh-stack tall"><i class="bad" style="width:'+(l.share*100)+'%"></i></div>'+lvNote('<b>'+pc(l.share)+'</b> of review time in the last 30 days went on '+l.words+' word'+(l.words===1?'':'s')+' failed three times or more.')); }
     { const g=studyGrid(now), names=['M','T','W','T','F','S','S'];
       add('lvWhen','When','When you study',g.n<30?lvWait('Fills in after about thirty answers.'):
@@ -5390,13 +5493,13 @@ function statsLongCards(tab,now){
       if(r.bins.length>=2){ const X=p=>30+(p-0.6)/0.4*360, Y=p=>150-(p-0.6)/0.4*140, mxn=Math.max.apply(null,r.bins.map(b=>b.n));
         svg='<svg viewBox="0 0 400 170" class="lv-svg"><line x1="30" y1="150" x2="390" y2="10" class="lh-ref"/><polyline points="'+r.bins.map(b=>X(Math.max(b.pred,0.6))+','+Y(Math.max(b.actual,0.6))).join(' ')+'" class="lh-ln"/>'+
             r.bins.map(b=>'<circle cx="'+X(Math.max(b.pred,0.6))+'" cy="'+Y(Math.max(b.actual,0.6))+'" r="'+(3+6*b.n/mxn).toFixed(1)+'" class="lv-dot"/>').join('')+'<text x="30" y="166" class="lh-tt">predicted 60%</text><text x="358" y="166" class="lh-tt">100%</text></svg>'; }
-      add('lvCal','Predicted','Predicted against actual',r.bins.length<2?lvWait('Needs spaced reviews in at least two bands of 15; '+r.n+' so far.'):svg+lvNote('Each dot is a group of reviews, bigger for more. On the dashed line the scheduler was exactly right. <b>Off by '+(r.rmse*100).toFixed(1)+' points</b> across '+r.n.toLocaleString()+' reviews.')); }
+      add('lvCal','Predicted','Predicted against actual',(r.bins.length<2||thin)?lvWait('Needs '+LV_BAR_N+' spaced reviews in each of two bands of prediction, on '+LV_DAYS+' or more days: '+lvSoFar(sp)):svg+lvNote('Each dot is a group of reviews, bigger for more. On the dashed line the scheduler was exactly right. <b>Off by '+(r.rmse*100).toFixed(1)+' points</b> across '+r.n.toLocaleString()+' reviews.')); }
     { const s=sagByPosition(), ok=s.filter(x=>x.rate!=null);
-      add('lvSag','Sittings','Does recall sag as a sitting goes on?',ok.length<3?lvWait('Needs twenty spaced reviews at three different points in a sitting.'):
+      add('lvSag','Sittings','Does recall sag as a sitting goes on?',(ok.length<3||thin)?lvWait('Needs '+LV_BAR_N+' spaced reviews at each of three points in a sitting, on '+LV_DAYS+' or more days: '+lvSoFar(sp)):
         lvBars(s.map(x=>x.rate==null?null:x.rate*100),80,{max:100,cls:v=>v!=null&&v<ok[0].rate*100-4?'warn':''})+lvAx(['1st–10th','30th','80th+'])+
         lvNote('Passed '+pc(ok[0].rate)+' at the start of a sitting, '+pc(ok[ok.length-1].rate)+' by card '+ok[ok.length-1].from+'.')); }
     { const a=againDrift(now,10), v=a.filter(x=>x!=null);
-      add('lvDrift','Grading','Is your grading drifting?',v.length<3?lvWait('Needs three weeks with twenty reviews each.'):lvLine(a.map(x=>x==null?null:x*100),60,{min:0,max:Math.max(30,Math.max.apply(null,v)*100)})+
+      add('lvDrift','Grading','Is your grading drifting?',v.length<3?lvWait('Needs three weeks with '+LV_BAR_N+' reviews each: '+v.length+' so far.'):lvLine(a.map(x=>x==null?null:x*100),60,{min:0,max:Math.max(30,Math.max.apply(null,v)*100)})+
         lvNote('Share of Again among reviews, week by week: '+pc(v[v.length-1])+' this week, '+pc(v[0])+' at the start. Steady is good.')); }
   }
   if(tab==='deck'){
@@ -5410,11 +5513,11 @@ function statsLongCards(tab,now){
       add('lvFragile','Fragile','The fragile twenty',!f.length?lvWait('Nothing in rotation yet.'):'<div class="lv-list">'+f.map(x=>'<div class="sr"><span>'+escHtml(String(BY_ID[x.id].q).slice(0,26))+'</span><b>'+pc(x.r)+' · '+(x.due<=now?'due now':lvDate(dayKey(x.due)))+'</b></div>').join('')+'</div>'); }
   }
   if(tab==='days'){
-    { const g=gainedLost(14,now), net=g.reduce((n,x)=>n+x[0]-x[1],0), any=g.some(x=>x[0]||x[1]);
-      add('lvNet','Gained','Gained, lost, net · 14 days',!any?lvWait('Fills in when words pass three weeks, or are failed from beyond it.'):lvBars(g.map(x=>[x[0],x[1]]),90)+lvAx([lvDate(dayKey(now)-13),lvDate(dayKey(now)-6),'today'])+
+    { const g=gainedLost(14,now), net=g.reduce((n,x)=>n+x[0]-x[1],0), any=g.filter(x=>x[0]||x[1]).length;
+      add('lvNet','Gained','Gained, lost, net · 14 days',any<LV_DAYS?lvWait('Needs '+LV_DAYS+' days in the last 14 on which a word passed three weeks or was failed from beyond it: '+any+' so far.'):lvBars(g.map(x=>[x[0],x[1]]),90)+lvAx([lvDate(dayKey(now)-13),lvDate(dayKey(now)-6),'today'])+
         lvNote('Solid is words whose strength passed three weeks that day; pale is words failed from beyond it. <b>Net '+(net>=0?'+':'')+net+'</b>.')); }
     { const p=passByHour(), v=p.filter(x=>x!=null);
-      add('lvHour','By hour','Pass rate by hour',v.length<3?lvWait('Needs twenty spaced reviews in three different hours.'):lvBars(p.map(x=>x==null?null:x*100),80,{max:100,cls:x=>x!=null&&x<Math.max.apply(null,v)*100-5?'warn':''})+lvAx(['0','6','12','18','24'])+
+      add('lvHour','By hour','Pass rate by hour',(v.length<3||thin)?lvWait('Needs '+LV_BAR_N+' spaced reviews in each of three different hours, on '+LV_DAYS+' or more days: '+lvSoFar(sp)):lvBars(p.map(x=>x==null?null:x*100),80,{max:100,cls:x=>x!=null&&x<Math.max.apply(null,v)*100-5?'warn':''})+lvAx(['0','6','12','18','24'])+
         lvNote('Best hour '+pc(Math.max.apply(null,v))+', worst '+pc(Math.min.apply(null,v))+'.')); }
   }
   return out;
@@ -5455,7 +5558,7 @@ function clockBodyHtml(now){
   { const led=predictionLedger(7,d);
     h+=row('Time predictions, last 7 days', led.bias==null?'not enough yet':(Math.abs(led.bias)<0.03?'on the mark':('ran '+Math.round(Math.abs(led.bias)*100)+'% '+(led.bias>0?'under':'over')+' the real time'))); }
   h+=row('Retention you asked for', Math.round(S.settings.retention*100)+'%');
-  h+=row('What the scheduler aims at on paper', S.settings.calibrate===false?'the same (correction off)':(fit.ready?((st.schedR*100).toFixed(1)+'% — from '+fit.n+' of your reviews'):('the same, until '+CAL_MIN_N+' spaced reviews exist ('+fit.n+' so far)')));
+  h+=row('What the scheduler aims at on paper', S.settings.calibrate===false?'the same (correction off)':(fit.ready?((st.schedR*100).toFixed(1)+'% — from '+fit.n+' of your reviews'):('the same, until there are '+calWaitText(fit))));
   h+=row('Scheduler numbers', paramsLabel());
   { const med=medianThinkMs(); h+=row('Your median answer time', med?fmtSecs(med)+' (what “fast” is measured against)':'using your vocabula median until 30 reviews exist'); }
   { const b=boostM(), pc=x=>x.n?Math.round(100*x.pass/x.n)+'% of '+x.n:'none yet';
@@ -5584,7 +5687,7 @@ function wordHistory(id,limit){
 
 /* ======================= queue ======================= */
 function activeParts(){ return SECTIONS; }   // 2026.09.17.8: the part selector is gone (it made the due count look smaller than it was); S.parts is kept, unread
-const BUILD='2026.10.11.1';
+const BUILD='2026.10.11.2';
 const AHEAD=20*MIN;              // serve a pending learning card early if nothing else remains
 // See SNAP_GUARD's comment above schedule(). SHORT_STEP is the actual
 // correctness boundary between a genuine short step and a review whose
@@ -9548,7 +9651,7 @@ function renderHeatmapStats(){
     '<div class="hmStat">Current streak<b>'+cur+' day'+(cur===1?'':'s')+'</b></div>'+
     '<div class="hmStat">Longest streak<b>'+longest+' day'+(longest===1?'':'s')+'</b></div>'+
     '<div class="hmStat">Days learned<b>'+pct+'%</b></div>'+
-    '<div class="hmStat">Daily average<b>'+avg+'</b><select id="hmAvgWindow">'+
+    '<div class="hmStat">Answers per study day<b>'+avg+'</b><select id="hmAvgWindow">'+
       ['week','month','year','all'].map(winOpt).join('')+'</select></div>';
 }
 function renderCalToolbar(){
@@ -11329,6 +11432,7 @@ function adopt(inc,opts){
   undoStack=[]; current=null; lastRated=null;
   lastPrefsSnap=prefsSnapshot(S);   // adopting is not a local change -- must run BEFORE save() looks
   noteInstall();
+  try{ clepRepair(); }catch(e){}   // a merge can bring back a day mark or a new-word count an older build wrote
   storeReplaced();   // the structured stores must be rewritten in full, not appended to
   save();
   // S.theme/S.palette only ever take visual effect via applyTheme()/
@@ -11485,12 +11589,17 @@ function maxNum(a,b){ a=Number.isFinite(a)?a:null; b=Number.isFinite(b)?b:null; 
 // Recount one study day's counters from its merged rows, the way rate()
 // counts them live. Needs column 5 (state at review time, 2026.08.19.1) for
 // ok/tot/stageN; a day with any older row keeps those three by max() instead.
-function recountDay(rows,firstIdx){
+// `sorted` (Clepsydra, 2026.10.11.2): says whether the first pass put a word
+// straight into rotation. Such a word has no row from the first pass, so its
+// first REVIEW is its first row -- and that was being counted as a new word:
+// 6 October read "199 new words" on the device that received the day by sync,
+// where 16 were new. rate() never counted them (it asks cs.reps===0).
+function recountDay(rows,firstIdx,sorted){
   const rec={n:0,intro:0,ok:0,tot:0,words:0}, ids=new Set(), stageN={};
   let full=true;
   rows.forEach(({row,idx})=>{
     rec.n++; ids.add(row[0]);
-    const first=firstIdx.get(row[0])===idx;
+    const first=firstIdx.get(row[0])===idx&&!(sorted&&sorted(row[0]));
     if(first){ rec.intro++; const c=BY_ID[row[0]]; if(c&&c.dir) rec['intro'+c.dir]=(rec['intro'+c.dir]|0)+1; }
     const pre=row[5];
     if(pre!=='L'&&pre!=='R'&&pre!=='X'){ full=false; return; }
@@ -11572,7 +11681,7 @@ function mergeStates(local,remote,opts){
       if(!a&&!b&&!recountDays.has(dk)) return;           // no record anywhere and nothing to recount: leave it absent
       const rec=symmetricAssign(a,b);                    // unknown fields: by content; known ones overwritten below
       if(recountDays.has(dk)){
-        const rc=recountDay(byDay.get(dk)||[],firstIdx);
+        const rc=recountDay(byDay.get(dk)||[],firstIdx,id=>{ const c=out.cards[id]; return !!(c&&c.tri>TRI_UNSEEN); });
         COUNTER_FIELDS.forEach(f=>{ delete rec[f]; });
         // the set-aside rollups are not derivable from rows: the larger of each
         ['drillFlag','drillFlagL','drillFlagE','drillGrad','drillGradL','drillGradE'].forEach(f=>{ const v=maxNum(a&&a[f],b&&b[f]); if(v!=null) rec[f]=v; });
@@ -12732,7 +12841,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&$('lhSheet').classList.contains('on')){ lhCloseDay(); }
   else if(e.key==='ArrowLeft') lhOpenDay(lhDay-1); else if(e.key==='ArrowRight') lhOpenDay(lhDay+1);
 });
-if(window.matchMedia){ const mq=window.matchMedia('(min-width:1100px)'); const f=()=>{ $('lhSheet').classList.remove('on'); if(!lhWide()) lhDay=null; if(S) renderLeanHome(); }; if(mq.addEventListener) mq.addEventListener('change',f); else if(mq.addListener) mq.addListener(f); }
+if(window.matchMedia){ const mq=window.matchMedia('(min-width:1100px)'); const f=()=>{ $('lhSheet').classList.remove('on'); if(!lhWide()) lhDay=null; if(S) renderLeanHome(); if(S&&$('scStats').classList.contains('on')&&typeof showStatsTab==='function') showStatsTab(); }; if(mq.addEventListener) mq.addEventListener('change',f); else if(mq.addListener) mq.addListener(f); }
 /* ---- Stats as four tabs (2026.09.17.9) ----
    Time, Retention, Deck, Days: every figure sorted by the question it answers.
    Tabs, not folds -- inside a tab the page just scrolls, so every <details>
@@ -12767,6 +12876,20 @@ function statsTabs(){
   sc.querySelectorAll('details').forEach(d=>d.classList.add('flat'));   // opened in showStatsTab(): opening one fires its renderer, which needs S
   { const su=$('clockFold')&&$('clockFold').querySelector('summary'); if(su) su.textContent='The same, in figures'; }
   bar.addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ stTab=b.dataset.tab; showStatsTab(); } });
+  // His picks from the 11 October audit. Seven tables are for the laptop layout
+  // only (with the ten cards in LV_MAC_ONLY that makes seventeen), and the two
+  // longest, both carried over from vocabula and nearly empty for the first
+  // weeks, start folded there.
+  { const up=id=>{ const e=$(id); return e?e.parentNode:null; };
+    [up('clockFold'),up('clockLearnFold'),sectOf('timeHeadline'),$('calibSect'),sectOf('statsGrid'),up('clockRetFold'),$('calFold')].forEach(x=>{ if(x) x.classList.add('macOnly'); });
+    [sectOf('timeHeadline'),$('calibSect')].forEach(shutFold); }
+}
+function shutFold(sec){
+  const h=sec&&sec.querySelector('h2'); if(!h||sec.querySelector('.foldBtn')) return;
+  const b=document.createElement('button'); b.type='button'; b.className='foldBtn';
+  const set=shut=>{ sec.classList.toggle('shut',shut); b.textContent=shut?'Show':'Hide'; b.setAttribute('aria-expanded',shut?'false':'true'); };
+  b.addEventListener('click',()=>set(!sec.classList.contains('shut')));
+  h.insertAdjacentElement('afterend',b); set(true);
 }
 function showStatsTab(){
   const sc=$('scStats'); if(!$('stTabs')) return;
@@ -12776,11 +12899,13 @@ function showStatsTab(){
   if(stTab==='retention') $('stRet').innerHTML=statsRetentionHtml();
   if(stTab==='deck') $('stDeck').innerHTML=statsDeckHtml();
   if(stTab==='days'){ renderHeatmapStats(); renderCalendar(); }
-  { const cards=statsLongCards(stTab), box=$('stLong-'+stTab);
-    if(box) box.innerHTML='<div class="lh-k st-colhead">The longer view</div>'+cards.map(c=>'<div class="lv" id="'+c.id+'"><div class="lh-k">'+escHtml(c.head)+'</div>'+c.html+'</div>').join('');
+  { const wide=lhWide(), cards=statsLongCards(stTab).filter(c=>wide||!c.mac), box=$('stLong-'+stTab);   // below the laptop layout, only the cards he kept for the phone
+    if(box) box.innerHTML=cards.length?('<div class="lh-k st-colhead">The longer view</div>'+cards.map(c=>'<div class="lv" id="'+c.id+'"><div class="lh-k">'+escHtml(c.head)+'</div>'+c.html+'</div>').join('')):'';
     const tab=sc.querySelector('.st-tab[data-tab="'+stTab+'"]'), tbl=tab&&tab.querySelector('.st-tables'), now=tab&&tab.querySelector('.st-now');
     if(now&&!now.id) now.id='stNow-'+stTab; if(tbl&&!tbl.id) tbl.id='stTables-'+stTab;
-    $('stJump').innerHTML='<button type="button" data-to="stNow-'+stTab+'">Now</button>'+cards.map(c=>'<button type="button" data-to="'+c.id+'">'+escHtml(c.title)+'</button>').join('')+(tbl&&tbl.children.length?'<button type="button" data-to="stTables-'+stTab+'">Tables</button>':''); }
+    const tables=!!tbl&&[...tbl.children].some(x=>!x.classList.contains('leanOff')&&(wide||!x.classList.contains('macOnly')));
+    $('stJump').innerHTML='<button type="button" data-to="stNow-'+stTab+'">Now</button>'+cards.map(c=>'<button type="button" data-to="'+c.id+'">'+escHtml(c.title)+'</button>').join('')+(tables?'<button type="button" data-to="stTables-'+stTab+'">Tables</button>':'');
+    $('stJump').classList.toggle('leanOff',!cards.length&&!tables); }   // nothing to jump to but where you already are
   // every fold on this screen stays open; one that only drew itself when opened is asked to draw again
   sc.querySelectorAll('.st-tab:not(.leanOff) details').forEach(d=>{ if(!d.open) d.open=true; else d.dispatchEvent(new Event('toggle')); });
   const scr=sc.querySelector('.st-tab:not(.leanOff)'); if(scr&&scr.parentNode) scr.parentNode.scrollTop=0;
@@ -12942,7 +13067,7 @@ function renderSetClep(){
   $('fCalibrate').value=s.calibrate===false?'0':'1';
   $('fCalibNote').textContent=s.calibrate===false?'Off: the target is scheduled exactly as written.'
     :(fit.ready?('You asked for '+Math.round(s.retention*100)+'%. From '+fit.n+' of your own spaced reviews, the paper figure that actually delivers that is '+(st.schedR*100).toFixed(1)+'%, so that is what intervals are cut to. It is re-worked after every review and can move at most 6 points from the dial.')
-               :('Waiting for data: this switches on by itself after '+CAL_MIN_N+' spaced reviews ('+fit.n+' so far). Until then the target is scheduled as written.'));
+               :('Waiting for data: this switches on by itself after '+calWaitText(fit)+'. Until then the target is scheduled as written.'));
   $('fClock').value=s.clockTerm===false?'0':'1';
   $('fAutoRetire').value=s.autoRetireDays|0; $('fAutoRetireVal').textContent=(s.autoRetireDays|0)||'off — 0';
   $('fAudit').value=s.auditPct|0; $('fAuditVal').textContent=s.auditPct|0;
@@ -14457,6 +14582,7 @@ function bootFail(err){
       // used. Must run before anything below that reads CARDS/BY_ID.
       rebuildCards(); S=normalise(S);
       applyParams();   // Clepsydra: switch from the stock weights to this deck's own fit
+      try{ clepRepair(); }catch(e){}   // two day figures put right before anything draws them (2026.10.11.2); persisted just below
       applyTheme(); applyLayout(); renderHome(); show('scHome');
       // Phase 2 (PHASE2_PLAN.md §2.3): refresh the summary record once at boot
       // even if nothing gets rated this sitting, so the launcher isn't showing
